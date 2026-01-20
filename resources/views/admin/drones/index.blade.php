@@ -50,6 +50,9 @@
                                         </span>
                                     </td>
                                     <td>
+                                        <a href="{{ route('drones.show', $drone->id) }}" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
                                         <a href="{{ route('drones.edit', $drone->id) }}" class="btn btn-info btn-sm">
                                             <i class="fas fa-edit"></i>
                                         </a>
