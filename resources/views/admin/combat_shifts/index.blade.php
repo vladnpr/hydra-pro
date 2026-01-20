@@ -57,16 +57,19 @@
                                     <td>{{ $shift->started_at }}</td>
                                     <td>{{ $shift->ended_at ?? '-' }}</td>
                                     <td>
-                                        <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm">
+                                        <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm" title="Перегляд">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm">
+                                        <a href="{{ route('combat_shifts.report', $shift->id) }}" class="btn btn-secondary btn-sm" title="Звіт">
+                                            <i class="fas fa-file-alt"></i>
+                                        </a>
+                                        <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm" title="Редагувати">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         <form action="{{ route('combat_shifts.destroy', $shift->id) }}" method="POST" style="display:inline-block;">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')" title="Видалити">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

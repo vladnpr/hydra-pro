@@ -49,6 +49,19 @@ class CombatShiftsController extends Controller
         return view('admin.combat_shifts.show', compact('shift'));
     }
 
+    public function report(int $id)
+    {
+        $shift = $this->service->getShiftById($id);
+
+        // Номер дня вираховується від дня старту зміни
+        // Перший день зміни - це День 1
+        $shiftDate = \Carbon\Carbon::parse($shift->started_at);
+        $now = \Carbon\Carbon::now();
+        $dayNumber = (int) $shiftDate->diffInDays($now) + 1;
+
+        return view('admin.combat_shifts.report', compact('shift', 'dayNumber'));
+    }
+
     public function edit(int $id)
     {
         $shift = $this->service->getShiftById($id);

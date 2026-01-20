@@ -16,6 +16,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     });
     Route::resource('positions', PositionsController::class);
     Route::resource('combat_shifts', CombatShiftsController::class);
+    Route::get('combat_shifts/{id}/report', [CombatShiftsController::class, 'report'])->name('combat_shifts.report');
     Route::get('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'index'])->name('flight_operations.index');
     Route::post('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'store'])->name('flight_operations.store');
     Route::get('flight-operations/{id}/edit', [App\Http\Controllers\FlightOperationsController::class, 'edit'])->name('flight_operations.edit');
