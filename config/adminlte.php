@@ -339,16 +339,18 @@ return [
 //            'icon' => 'fas fa-fw fa-lock',
 //        ],
         [
-            'text' => 'Storage management',
-            'icon' => 'fas fa-fw fa-share',
+            'text' => 'Управління складом',
+            'icon' => 'fas fa-fw fa-boxes',
             'submenu' => [
                 [
                     'text' => 'Дрони',
                     'url' => 'admin/storage/drones',
+                    'icon' => 'fas fa-fw fa-helicopter',
                 ],
                 [
                     'text' => 'Боєприпаси',
                     'url' => 'admin/storage/ammunition',
+                    'icon' => 'fas fa-fw fa-bomb',
                 ],
 //                [
 //                    'text' => 'level_one',
