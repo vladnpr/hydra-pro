@@ -22,6 +22,9 @@ class CombatShiftStoreRequest extends FormRequest
             'drones.*' => 'integer|min:0',
             'ammunition' => 'nullable|array',
             'ammunition.*' => 'integer|min:0',
+            'crew' => 'nullable|array',
+            'crew.*.callsign' => 'required_with:crew|string|max:255',
+            'crew.*.role' => 'required_with:crew|string|max:255',
         ];
     }
 }

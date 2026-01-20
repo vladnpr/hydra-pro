@@ -23,7 +23,7 @@
                                     <label for="position_id">Позиція</label>
                                     <select name="position_id" id="position_id" class="form-control @error('position_id') is-invalid @enderror" required>
                                         @foreach($positions as $position)
-                                            <option value="{{ $position->id }}" {{ old('position_id', $shift->position_name) == $position->name ? 'selected' : '' }}>
+                                            <option value="{{ $position->id }}" {{ old('position_id', $shift->position_id) == $position->id ? 'selected' : '' }}>
                                                 {{ $position->name }}
                                             </option>
                                         @endforeach
@@ -58,6 +58,39 @@
                                     @error('ended_at')
                                         <span class="error invalid-feedback">{{ $message }}</span>
                                     @enderror
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card card-warning">
+                            <div class="card-header">
+                                <h3 class="card-title">Екіпаж</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" id="add-crew-member">
+                                        <i class="fas fa-plus"></i> Додати
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="crew-container">
+                                    @php
+                                        $crew = old('crew', $shift->crew);
+                                    @endphp
+                                    @foreach($crew as $index => $member)
+                                        <div class="crew-member row mb-2">
+                                            <div class="col-md-5">
+                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ is_array($member) ? $member['callsign'] : $member->callsign }}" required>
+                                            </div>
+                                            <div class="col-md-5">
+                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ is_array($member) ? $member['role'] : $member->role }}" required>
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" class="btn btn-danger btn-sm remove-crew-member">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                 </div>
                             </div>
                         </div>
@@ -123,4 +156,40 @@
             </form>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function() {
+            let crewIndex = {{ count(old('crew', $shift->crew)) }};
+
+            $('#add-crew-member').click(function() {
+                const html = `
+                    <div class="crew-member row mb-2">
+                        <div class="col-md-5">
+                            <input type="text" name="crew[${crewIndex}][callsign]" class="form-control form-control-sm" placeholder="Позивний" required>
+                        </div>
+                        <div class="col-md-5">
+                            <input type="text" name="crew[${crewIndex}][role]" class="form-control form-control-sm" placeholder="Посада" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger btn-sm remove-crew-member">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $('#crew-container').append(html);
+                crewIndex++;
+            });
+
+            $(document).on('click', '.remove-crew-member', function() {
+                if ($('.crew-member').length > 1) {
+                    $(this).closest('.crew-member').remove();
+                } else {
+                    $(this).closest('.crew-member').find('input').val('');
+                }
+            });
+        });
+    </script>
 @endsection

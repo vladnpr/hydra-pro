@@ -13,6 +13,7 @@ class CreateCombatShiftDTO
         public readonly ?string $ended_at,
         public readonly array $drones, // [id => quantity, ...]
         public readonly array $ammunition, // [id => quantity, ...]
+        public readonly array $crew, // [['callsign' => '...', 'role' => '...'], ...]
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -24,6 +25,7 @@ class CreateCombatShiftDTO
             ended_at: $request->validated('ended_at'),
             drones: $request->validated('drones', []),
             ammunition: $request->validated('ammunition', []),
+            crew: $request->validated('crew', []),
         );
     }
 }

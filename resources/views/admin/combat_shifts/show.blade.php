@@ -42,6 +42,34 @@
                     <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info float-right">Редагувати</a>
                 </div>
             </div>
+
+            <div class="card card-warning">
+                <div class="card-header">
+                    <h3 class="card-title">Екіпаж</h3>
+                </div>
+                <div class="card-body">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Позивний</th>
+                                <th>Посада</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($shift->crew as $member)
+                                <tr>
+                                    <td>{{ $member['callsign'] }}</td>
+                                    <td>{{ $member['role'] }}</td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="2" class="text-center">Екіпаж не вказано</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
         <div class="col-md-6">

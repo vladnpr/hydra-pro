@@ -10,7 +10,7 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 {
     public function all(): Collection
     {
-        return CombatShift::with(['position', 'drones', 'ammunition'])->latest()->get();
+        return CombatShift::with(['position', 'drones', 'ammunition', 'crew'])->latest()->get();
     }
 
     public function create(array $data): CombatShift
@@ -20,7 +20,7 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 
     public function find(int $id): ?CombatShift
     {
-        return CombatShift::with(['position', 'drones', 'ammunition'])->find($id);
+        return CombatShift::with(['position', 'drones', 'ammunition', 'crew'])->find($id);
     }
 
     public function update(int $id, array $data): bool
@@ -46,5 +46,13 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
     public function syncAmmunition(CombatShift $shift, array $ammunition): void
     {
         $shift->ammunition()->sync($ammunition);
+    }
+
+    public function syncCrew(CombatShift $shift, array $crew): void
+    {
+        $shift->crew()->delete();
+        if (!empty($crew)) {
+            $shift->crew()->createMany($crew);
+        }
     }
 }

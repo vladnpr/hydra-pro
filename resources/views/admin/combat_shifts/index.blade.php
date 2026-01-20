@@ -32,6 +32,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Позиція</th>
+                                <th>Екіпаж</th>
                                 <th>Статус</th>
                                 <th>Початок</th>
                                 <th>Завершення</th>
@@ -43,6 +44,11 @@
                                 <tr>
                                     <td>{{ $shift->id }}</td>
                                     <td>{{ $shift->position_name }}</td>
+                                    <td>
+                                        @foreach($shift->crew as $member)
+                                            <span class="badge badge-info">{{ $member['callsign'] }}</span>
+                                        @endforeach
+                                    </td>
                                     <td>
                                         <span class="badge badge-{{ $shift->status_color }}">
                                             {{ $shift->status_label }}
@@ -68,7 +74,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Чергувань не знайдено.</td>
+                                    <td colspan="7" class="text-center">Чергувань не знайдено.</td>
                                 </tr>
                             @endforelse
                         </tbody>

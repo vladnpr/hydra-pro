@@ -14,4 +14,5 @@ interface CombatShiftRepositoryInterface
     public function delete(int $id): bool;
     public function syncDrones(CombatShift $shift, array $drones): void;
     public function syncAmmunition(CombatShift $shift, array $ammunition): void;
+    public function syncCrew(CombatShift $shift, array $crew): void;
 }

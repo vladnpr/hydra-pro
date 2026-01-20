@@ -7,6 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
 class CombatShift extends Model
 {
     use HasFactory;
@@ -40,6 +42,11 @@ class CombatShift extends Model
         return $this->belongsToMany(Ammunition::class, 'combat_shift_ammunition')
             ->withPivot('quantity')
             ->withTimestamps();
+    }
+
+    public function crew(): HasMany
+    {
+        return $this->hasMany(CombatShiftCrew::class);
     }
 
     public function getStatusColorAttribute(): string
