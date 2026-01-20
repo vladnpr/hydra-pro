@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Drone;
 use App\Services\DronesAdminService;
 use Illuminate\Http\Request;
 
 class DronesController extends Controller
 {
 
-    public function __construct(private DronesAdminService $service)
+    public function __construct(private readonly DronesAdminService $service)
     {
     }
 
@@ -18,7 +17,6 @@ class DronesController extends Controller
      */
     public function index()
     {
-        $drones = Drone::all();
         $drones = $this->service->getAllDrones();
         return view('admin.drones.index', compact('drones'));
     }
