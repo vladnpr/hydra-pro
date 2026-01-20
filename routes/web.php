@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\DronesController;
 use App\Http\Controllers\AmmunitionController;
+use App\Http\Controllers\PositionsController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -12,4 +13,5 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
         Route::resource('drones', DronesController::class);
         Route::resource('ammunition', AmmunitionController::class);
     });
+    Route::resource('positions', PositionsController::class);
 });

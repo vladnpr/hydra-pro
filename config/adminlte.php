@@ -339,7 +339,7 @@ return [
 //            'icon' => 'fas fa-fw fa-lock',
 //        ],
         [
-            'text' => 'Управління складом',
+            'text' => 'Ресурси та логістика',
             'icon' => 'fas fa-fw fa-boxes',
             'submenu' => [
                 [
@@ -352,34 +352,11 @@ return [
                     'url' => 'admin/storage/ammunition',
                     'icon' => 'fas fa-fw fa-bomb',
                 ],
-//                [
-//                    'text' => 'level_one',
-//                    'url' => '#',
-//                    'submenu' => [
-//                        [
-//                            'text' => 'level_two',
-//                            'url' => '#',
-//                        ],
-//                        [
-//                            'text' => 'level_two',
-//                            'url' => '#',
-//                            'submenu' => [
-//                                [
-//                                    'text' => 'level_three',
-//                                    'url' => '#',
-//                                ],
-//                                [
-//                                    'text' => 'level_three',
-//                                    'url' => '#',
-//                                ],
-//                            ],
-//                        ],
-//                    ],
-//                ],
-//                [
-//                    'text' => 'level_one',
-//                    'url' => '#',
-//                ],
+                [
+                    'text' => 'Позиції',
+                    'icon' => 'fas fa-fw fa-map-marker-alt',
+                    'url' => 'admin/positions',
+                ],
             ],
         ],
 //        ['header' => 'labels'],
