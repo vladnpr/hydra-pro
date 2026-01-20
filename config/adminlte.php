@@ -369,6 +369,22 @@ return [
             'icon' => 'fas fa-fw fa-paper-plane',
             'url' => 'admin/flight-operations',
         ],
+        [
+            'text' => 'Звіти',
+            'icon' => 'fas fa-fw fa-file-invoice',
+            'submenu' => [
+                [
+                    'text' => 'Польоти',
+                    'icon' => 'fas fa-fw fa-paper-plane',
+                    'route' => 'combat_shifts.active_flights_report',
+                ],
+                [
+                    'text' => 'Залишок',
+                    'icon' => 'fas fa-fw fa-boxes',
+                    'route' => 'combat_shifts.active_remains_report',
+                ],
+            ],
+        ],
 //        ['header' => 'labels'],
 //        [
 //            'text' => 'important',

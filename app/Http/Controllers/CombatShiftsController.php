@@ -84,6 +84,30 @@ class CombatShiftsController extends Controller
         return view('admin.combat_shifts.flights_report', compact('shift', 'date', 'flights'));
     }
 
+    public function activeFlightsReport(\Illuminate\Http\Request $request)
+    {
+        $activeShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        if (!$activeShift) {
+            return redirect()->route('flight_operations.index')
+                ->with('error', 'У вас немає активної зміни.');
+        }
+
+        return $this->flightsReport($activeShift->id, $request);
+    }
+
+    public function activeRemainsReport()
+    {
+        $activeShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        if (!$activeShift) {
+            return redirect()->route('flight_operations.index')
+                ->with('error', 'У вас немає активної зміни.');
+        }
+
+        return $this->report($activeShift->id);
+    }
+
     public function edit(int $id)
     {
         $shift = $this->service->getShiftById($id);

@@ -20,6 +20,9 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::post('combat_shifts/{id}/leave', [CombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
     Route::get('combat_shifts/{id}/report', [CombatShiftsController::class, 'report'])->name('combat_shifts.report');
     Route::get('combat_shifts/{id}/flights-report', [CombatShiftsController::class, 'flightsReport'])->name('combat_shifts.flights_report');
+
+    Route::get('active-shift/flights-report', [CombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
+    Route::get('active-shift/remains-report', [CombatShiftsController::class, 'activeRemainsReport'])->name('combat_shifts.active_remains_report');
     Route::get('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'index'])->name('flight_operations.index');
     Route::post('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'store'])->name('flight_operations.store');
     Route::get('flight-operations/{id}/edit', [App\Http\Controllers\FlightOperationsController::class, 'edit'])->name('flight_operations.edit');
