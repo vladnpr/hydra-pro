@@ -31,4 +31,13 @@ class EloquentDroneRepository implements DroneRepositoryInterface
         }
         return $drone->update($data);
     }
+
+    public function delete(int $id): bool
+    {
+        $drone = $this->find($id);
+        if (!$drone) {
+            return false;
+        }
+        return (bool) $drone->delete();
+    }
 }

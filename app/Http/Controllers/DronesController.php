@@ -77,8 +77,11 @@ class DronesController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(int $id)
     {
-        //
+        $this->service->deleteDrone($id);
+
+        return redirect()->route('drones.index')
+            ->with('success', 'Дрон успішно видалено');
     }
 }

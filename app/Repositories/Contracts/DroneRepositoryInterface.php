@@ -16,4 +16,6 @@ interface DroneRepositoryInterface
     public function find(int $id): ?\App\Models\Drone;
 
     public function update(int $id, array $data): bool;
+
+    public function delete(int $id): bool;
 }

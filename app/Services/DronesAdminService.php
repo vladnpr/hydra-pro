@@ -55,4 +55,9 @@ class DronesAdminService
 
         return $this->getDroneById($id);
     }
+
+    public function deleteDrone(int $id): bool
+    {
+        return $this->repository->delete($id);
+    }
 }
