@@ -20,7 +20,7 @@ class AmmunitionAdminService
      */
     public function getAllAmmunition(): Collection
     {
-        return $this->repository->getActive()->map(fn($item) => AmmunitionDTO::fromModel($item));
+        return $this->repository->all()->map(fn($item) => AmmunitionDTO::fromModel($item));
     }
 
     public function getAmmunitionById(int $id): AmmunitionDTO

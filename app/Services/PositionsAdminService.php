@@ -20,7 +20,7 @@ class PositionsAdminService
      */
     public function getAllPositions(): Collection
     {
-        return $this->repository->getActive()->map(fn($position) => PositionDTO::fromModel($position));
+        return $this->repository->all()->map(fn($position) => PositionDTO::fromModel($position));
     }
 
     public function getPositionById(int $id): PositionDTO
