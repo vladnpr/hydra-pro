@@ -3,13 +3,23 @@
 @section('title', 'Розпочати чергування')
 
 @section('content_header')
-    <h1>Розпочати нове чергування</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Розпочати нове чергування</h1>
+        <div>
+            <a href="{{ route('combat_shifts.index') }}" class="btn btn-default">
+                <i class="fas fa-arrow-left"></i> Назад до списку
+            </a>
+            <button type="submit" form="create-shift-form" class="btn btn-primary ml-2">
+                <i class="fas fa-save"></i> Зберегти
+            </button>
+        </div>
+    </div>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ route('combat_shifts.store') }}" method="POST">
+            <form action="{{ route('combat_shifts.store') }}" method="POST" id="create-shift-form">
                 @csrf
                 <div class="row">
                     <div class="col-md-6">
@@ -129,7 +139,7 @@
                                                             <select name="flights[{{ $index }}][drone_id]" class="form-control form-control-sm" required>
                                                                 <option value="">Оберіть дрон</option>
                                                                 @foreach($drones as $drone)
-                                                                    <option value="{{ $drone->id }}" {{ $flight['drone_id'] == $drone->id ? 'selected' : '' }}>{{ $drone->name }}</option>
+                                                                    <option value="{{ $drone->id }}" {{ ($flight['drone_id'] ?? '') == $drone->id ? 'selected' : '' }}>{{ $drone->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -140,7 +150,7 @@
                                                             <select name="flights[{{ $index }}][ammunition_id]" class="form-control form-control-sm" required>
                                                                 <option value="">Оберіть БК</option>
                                                                 @foreach($ammunition as $item)
-                                                                    <option value="{{ $item->id }}" {{ $flight['ammunition_id'] == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                                    <option value="{{ $item->id }}" {{ ($flight['ammunition_id'] ?? '') == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                         </div>
@@ -150,13 +160,13 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group mb-2">
                                                             <label class="small">Координати</label>
-                                                            <input type="text" name="flights[{{ $index }}][coordinates]" class="form-control form-control-sm" placeholder="Координати" value="{{ $flight['coordinates'] }}" required>
+                                                            <input type="text" name="flights[{{ $index }}][coordinates]" class="form-control form-control-sm" placeholder="Координати" value="{{ $flight['coordinates'] ?? '' }}" required>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="form-group mb-2">
                                                             <label class="small">Час вильоту</label>
-                                                            <input type="datetime-local" name="flights[{{ $index }}][flight_time]" class="form-control form-control-sm" value="{{ $flight['flight_time'] }}" required>
+                                                            <input type="datetime-local" name="flights[{{ $index }}][flight_time]" class="form-control form-control-sm" value="{{ $flight['flight_time'] ?? '' }}" required>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -165,16 +175,16 @@
                                                         <div class="form-group mb-2">
                                                             <label class="small">Результат</label>
                                                             <select name="flights[{{ $index }}][result]" class="form-control form-control-sm" required>
-                                                                <option value="влучання" {{ $flight['result'] == 'влучання' ? 'selected' : '' }}>Влучання</option>
-                                                                <option value="удар в районі цілі" {{ $flight['result'] == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                                                <option value="недольот" {{ $flight['result'] == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                                                                <option value="влучання" {{ ($flight['result'] ?? '') == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                                                <option value="удар в районі цілі" {{ ($flight['result'] ?? '') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                                                <option value="недольот" {{ ($flight['result'] ?? '') == 'недольот' ? 'selected' : '' }}>Недольот</option>
                                                             </select>
                                                         </div>
                                                     </div>
                                                     <div class="col-md-6">
                                                         <div class="form-group mb-2">
                                                             <label class="small">Примітка (опц.)</label>
-                                                            <input type="text" name="flights[{{ $index }}][note]" class="form-control form-control-sm" placeholder="Примітка" value="{{ $flight['note'] }}">
+                                                            <input type="text" name="flights[{{ $index }}][note]" class="form-control form-control-sm" placeholder="Примітка" value="{{ $flight['note'] ?? '' }}">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -238,7 +248,9 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button type="submit" class="btn btn-primary">Зберегти</button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Зберегти
+                                </button>
                                 <a href="{{ route('combat_shifts.index') }}" class="btn btn-default float-right">Скасувати</a>
                             </div>
                         </div>

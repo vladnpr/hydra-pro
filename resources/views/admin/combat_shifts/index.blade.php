@@ -3,7 +3,12 @@
 @section('title', 'Бойові чергування')
 
 @section('content_header')
-    <h1>Бойові чергування</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Бойові чергування</h1>
+        <a href="{{ route('combat_shifts.create') }}" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Розпочати нове чергування
+        </a>
+    </div>
 @endsection
 
 @section('content')
@@ -20,11 +25,6 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Список чергувань</h3>
-                    <div class="card-tools">
-                        <a href="{{ route('combat_shifts.create') }}" class="btn btn-primary btn-sm">
-                            <i class="fas fa-plus"></i> Розпочати нове чергування
-                        </a>
-                    </div>
                 </div>
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover text-nowrap">

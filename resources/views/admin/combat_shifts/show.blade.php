@@ -3,7 +3,17 @@
 @section('title', 'Деталі чергування')
 
 @section('content_header')
-    <h1>Чергування #{{ $shift->id }}</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Чергування #{{ $shift->id }}</h1>
+        <div>
+            <a href="{{ route('combat_shifts.index') }}" class="btn btn-default">
+                <i class="fas fa-arrow-left"></i> Назад до списку
+            </a>
+            <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
+                <i class="fas fa-edit"></i> Редагувати
+            </a>
+        </div>
+    </div>
 @endsection
 
 @section('content')
@@ -46,8 +56,7 @@
                     </table>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('combat_shifts.index') }}" class="btn btn-default">Назад до списку</a>
-                    <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info float-right">Редагувати</a>
+                    <span class="text-muted small">ID чергування: {{ $shift->id }}</span>
                 </div>
             </div>
 

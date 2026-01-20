@@ -3,13 +3,23 @@
 @section('title', 'Редагувати чергування')
 
 @section('content_header')
-    <h1>Редагувати чергування #{{ $shift->id }}</h1>
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Редагувати чергування #{{ $shift->id }}</h1>
+        <div>
+            <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default">
+                <i class="fas fa-arrow-left"></i> Назад до деталей
+            </a>
+            <button type="submit" form="edit-shift-form" class="btn btn-primary ml-2">
+                <i class="fas fa-save"></i> Оновити
+            </button>
+        </div>
+    </div>
 @endsection
 
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ route('combat_shifts.update', $shift->id) }}" method="POST">
+            <form action="{{ route('combat_shifts.update', $shift->id) }}" method="POST" id="edit-shift-form">
                 @csrf
                 @method('PUT')
                 <div class="row">
@@ -74,15 +84,21 @@
                             <div class="card-body">
                                 <div id="crew-container">
                                     @php
-                                        $crew = old('crew', $shift->crew);
+                                        $crewRaw = old('crew', $shift->crew);
+                                        $crew = is_array($crewRaw) ? $crewRaw : $crewRaw->toArray();
                                     @endphp
                                     @foreach($crew as $index => $member)
+                                        @php
+                                            $member = (array)$member;
+                                            $callsign = $member['callsign'] ?? '';
+                                            $role = $member['role'] ?? '';
+                                        @endphp
                                         <div class="crew-member row mb-2">
                                             <div class="col-md-5">
-                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ is_array($member) ? $member['callsign'] : $member->callsign }}" required>
+                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ $callsign }}" required>
                                             </div>
                                             <div class="col-md-5">
-                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ is_array($member) ? $member['role'] : $member->role }}" required>
+                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ $role }}" required>
                                             </div>
                                             <div class="col-md-2">
                                                 <button type="button" class="btn btn-danger btn-sm remove-crew-member">
@@ -107,22 +123,45 @@
                             <div class="card-body">
                                 <div id="flights-container">
                                     @php
-                                        $flights = old('flights', $shift->flights);
+                                        $flightsRaw = old('flights', $shift->flights);
+                                        // If it's a grouped array from CombatShiftDTO (during show/edit initially), we need to flatten it
+                                        // If it's from old(), it's already a flat array.
+                                        // But wait, in edit() controller we pass $shift = $service->getShiftById($id) which is a CombatShiftDTO.
+                                        // CombatShiftDTO->flights is grouped by date.
+                                        $flights = [];
+                                        if (is_array($flightsRaw)) {
+                                            if (isset($flightsRaw[0]) && is_array($flightsRaw[0])) {
+                                                // It's likely from old() or already flattened
+                                                $flights = $flightsRaw;
+                                            } else {
+                                                // It's grouped by date (from CombatShiftDTO)
+                                                foreach ($flightsRaw as $date => $dayFlights) {
+                                                    foreach ($dayFlights as $f) {
+                                                        $flights[] = $f;
+                                                    }
+                                                }
+                                            }
+                                        } else {
+                                            // It's a Collection (shouldn't happen if using CombatShiftDTO)
+                                            $flights = $flightsRaw;
+                                        }
                                     @endphp
                                     @foreach($flights as $index => $flight)
                                         @php
-                                            $droneId = is_array($flight) ? $flight['drone_id'] : $flight['drone_id'];
-                                            $ammunitionId = is_array($flight) ? $flight['ammunition_id'] : $flight['ammunition_id'];
-                                            $coordinates = is_array($flight) ? $flight['coordinates'] : $flight['coordinates'];
-                                            $flightTime = is_array($flight) ? $flight['flight_time'] : (is_string($flight['flight_time']) ? $flight['flight_time'] : $flight['flight_time']);
-                                            // Handle Carbon or string
+                                            $flight = (array)$flight;
+                                            $droneId = $flight['drone_id'] ?? null;
+                                            $ammunitionId = $flight['ammunition_id'] ?? null;
+                                            $coordinates = $flight['coordinates'] ?? '';
+                                            $flightTime = $flight['flight_time'] ?? '';
+
                                             if ($flightTime instanceof \Carbon\Carbon) {
                                                 $flightTime = $flightTime->format('Y-m-d\TH:i');
-                                            } elseif (is_string($flightTime)) {
+                                            } elseif (is_string($flightTime) && !empty($flightTime)) {
                                                 $flightTime = date('Y-m-d\TH:i', strtotime($flightTime));
                                             }
-                                            $result = is_array($flight) ? $flight['result'] : $flight['result'];
-                                            $note = is_array($flight) ? $flight['note'] : $flight['note'];
+
+                                            $result = $flight['result'] ?? '';
+                                            $note = $flight['note'] ?? '';
                                         @endphp
                                         <div class="flight-item border p-2 mb-3 bg-light">
                                             <div class="row">
@@ -240,8 +279,10 @@
                                 </div>
                             </div>
                             <div class="card-footer">
-                                <button type="submit" class="btn btn-primary">Оновити</button>
-                                <a href="{{ route('combat_shifts.index') }}" class="btn btn-default float-right">Скасувати</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Оновити
+                                </button>
+                                <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default float-right">Скасувати</a>
                             </div>
                         </div>
                     </div>
@@ -254,7 +295,7 @@
 @section('js')
     <script>
         $(document).ready(function() {
-            let crewIndex = {{ count(old('crew', $shift->crew)) }};
+            let crewIndex = {{ is_array($crew) ? count($crew) : 0 }};
 
             $('#add-crew-member').click(function() {
                 const html = `
@@ -284,7 +325,7 @@
                 }
             });
 
-            let flightIndex = {{ count(old('flights', $shift->flights)) }};
+            let flightIndex = {{ is_array($flights) ? count($flights) : 0 }};
             const droneOptions = `@foreach($drones as $drone)<option value="{{ $drone->id }}">{{ $drone->name }}</option>@endforeach`;
             const ammunitionOptions = `@foreach($ammunition as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach`;
 
