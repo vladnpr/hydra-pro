@@ -76,7 +76,7 @@ class CombatShiftsController extends Controller
     public function flightsReport(int $id, \Illuminate\Http\Request $request)
     {
         $shift = $this->service->getShiftById($id);
-        $date = $request->query('date', date('Y-m-d'));
+        $date = $request->query('date', now()->format('Y-m-d'));
 
         // Отримуємо польоти за обрану дату
         $flights = $shift->flights[$date] ?? [];
@@ -169,5 +169,21 @@ class CombatShiftsController extends Controller
 
         return redirect()->route('combat_shifts.index')
             ->with('success', 'Ви покинули чергування');
+    }
+
+    public function finish(int $id)
+    {
+        $this->service->finishShift($id);
+
+        return redirect()->route('combat_shifts.show', $id)
+            ->with('success', 'Чергування успішно завершено');
+    }
+
+    public function reopen(int $id)
+    {
+        $this->service->reopenShift($id);
+
+        return redirect()->route('combat_shifts.show', $id)
+            ->with('success', 'Чергування успішно відновлено');
     }
 }

@@ -18,6 +18,21 @@
             <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
                 <i class="fas fa-edit"></i> Редагувати
             </a>
+            @if($shift->status === 'opened')
+                <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                    @csrf
+                    <button type="submit" class="btn btn-danger" onclick="return confirm('Ви впевнені, що хочете завершити чергування?')">
+                        <i class="fas fa-stop-circle"></i> Завершити чергування
+                    </button>
+                </form>
+            @else
+                <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                    @csrf
+                    <button type="submit" class="btn btn-success" onclick="return confirm('Ви впевнені, що хочете відновити чергування?')">
+                        <i class="fas fa-undo"></i> Відновити чергування
+                    </button>
+                </form>
+            @endif
         </div>
     </div>
 @endsection
@@ -107,13 +122,13 @@
                 </div>
                 <div class="card-body p-0">
                     @php
-                        $today = date('Y-m-d');
+                        $today = now()->format('Y-m-d');
                     @endphp
                     @forelse($shift->flights as $date => $flights)
                         <div class="card mb-0 shadow-none border-bottom">
                             <div class="card-header p-2">
                                 <h3 class="card-title small">
-                                    <strong>{{ date('d.m.Y', strtotime($date)) }}</strong>
+                                    <strong>{{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}</strong>
                                     @if($date == $today)
                                         <span class="badge badge-primary ml-2">Сьогодні</span>
                                     @endif
@@ -144,7 +159,7 @@
                                         <tbody>
                                             @foreach($flights as $flight)
                                                 <tr>
-                                                    <td class="pl-3 text-nowrap">{{ date('H:i', strtotime($flight['flight_time'])) }}</td>
+                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
                                                     <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td>{{ $flight['coordinates'] }}</td>

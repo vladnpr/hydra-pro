@@ -135,6 +135,28 @@ class CombatShiftsAdminService
         }
     }
 
+    public function finishShift(int $shiftId): void
+    {
+        $shift = $this->repository->find($shiftId);
+        if ($shift && $shift->status === 'opened') {
+            $this->repository->update($shiftId, [
+                'status' => 'closed',
+                'ended_at' => now(),
+            ]);
+        }
+    }
+
+    public function reopenShift(int $shiftId): void
+    {
+        $shift = $this->repository->find($shiftId);
+        if ($shift && $shift->status === 'closed') {
+            $this->repository->update($shiftId, [
+                'status' => 'opened',
+                'ended_at' => null,
+            ]);
+        }
+    }
+
     private function formatPivotData(array $items): array
     {
         $formatted = [];

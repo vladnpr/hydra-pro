@@ -139,7 +139,7 @@
                         <div class="card mb-0 shadow-none border-bottom">
                             <div class="card-header p-2 bg-light">
                                 <h3 class="card-title small">
-                                    <strong>{{ date('d.m.Y', strtotime($date)) }}</strong>
+                                    <strong>{{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}</strong>
                                     @if($date == $today)
                                         <span class="badge badge-primary ml-2">Сьогодні</span>
                                     @endif
@@ -164,7 +164,7 @@
                                         <tbody>
                                             @foreach($flights as $flight)
                                                 <tr>
-                                                    <td class="pl-3 text-nowrap">{{ date('H:i', strtotime($flight['flight_time'])) }}</td>
+                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
                                                     <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td>{{ $flight['coordinates'] }}</td>

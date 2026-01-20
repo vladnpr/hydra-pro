@@ -109,6 +109,12 @@
 
                                         @if($shift->status === 'opened')
                                             @if($isUserInShift)
+                                                <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Завершити" onclick="return confirm('Ви впевнені, що хочете завершити це чергування?')">
+                                                        <i class="fas fa-stop-circle"></i> Завершити
+                                                    </button>
+                                                </form>
                                                 <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
                                                     @csrf
                                                     <button type="submit" class="btn btn-warning btn-sm" title="Покинути" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
@@ -116,6 +122,13 @@
                                                     </button>
                                                 </form>
                                             @endif
+                                        @else
+                                            <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm" title="Відновити" onclick="return confirm('Ви впевнені, що хочете відновити це чергування?')">
+                                                    <i class="fas fa-undo"></i> Відновити
+                                                </button>
+                                            </form>
                                         @endif
 
                                         <div class="btn-group">

@@ -73,7 +73,7 @@
 
                                 <div class="form-group">
                                     <label for="started_at">Час початку</label>
-                                    <input type="datetime-local" name="started_at" id="started_at" class="form-control @error('started_at') is-invalid @enderror" value="{{ old('started_at', date('Y-m-d\TH:i', strtotime($shift->started_at))) }}" required>
+                                    <input type="datetime-local" name="started_at" id="started_at" class="form-control @error('started_at') is-invalid @enderror" value="{{ old('started_at', \Carbon\Carbon::parse($shift->started_at)->format('Y-m-d\TH:i')) }}" required>
                                     @error('started_at')
                                         <span class="error invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -81,7 +81,7 @@
 
                                 <div class="form-group">
                                     <label for="ended_at">Час завершення</label>
-                                    <input type="datetime-local" name="ended_at" id="ended_at" class="form-control @error('ended_at') is-invalid @enderror" value="{{ old('ended_at', $shift->ended_at ? date('Y-m-d\TH:i', strtotime($shift->ended_at)) : '') }}">
+                                    <input type="datetime-local" name="ended_at" id="ended_at" class="form-control @error('ended_at') is-invalid @enderror" value="{{ old('ended_at', $shift->ended_at ? \Carbon\Carbon::parse($shift->ended_at)->format('Y-m-d\TH:i') : '') }}">
                                     @error('ended_at')
                                         <span class="error invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -174,7 +174,7 @@
                                             if ($flightTime instanceof \Carbon\Carbon) {
                                                 $flightTime = $flightTime->format('Y-m-d\TH:i');
                                             } elseif (is_string($flightTime) && !empty($flightTime)) {
-                                                $flightTime = date('Y-m-d\TH:i', strtotime($flightTime));
+                                                $flightTime = \Carbon\Carbon::parse($flightTime)->format('Y-m-d\TH:i');
                                             }
 
                                             $result = $flight['result'] ?? '';
