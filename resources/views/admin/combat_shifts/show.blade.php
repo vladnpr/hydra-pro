@@ -44,6 +44,14 @@
                             <td>{{ $shift->position_name }}</td>
                         </tr>
                         <tr>
+                            <th>Екіпаж системи</th>
+                            <td>
+                                @foreach($shift->users as $user)
+                                    <span class="badge badge-primary">{{ $user['name'] }}</span>
+                                @endforeach
+                            </td>
+                        </tr>
+                        <tr>
                             <th>Статус</th>
                             <td>
                                 <span class="badge badge-{{ $shift->status_color }}">

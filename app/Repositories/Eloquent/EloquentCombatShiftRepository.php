@@ -10,7 +10,7 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 {
     public function all(): Collection
     {
-        return CombatShift::with(['position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])->latest()->get();
+        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])->latest()->get();
     }
 
     public function create(array $data): CombatShift
@@ -20,13 +20,15 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 
     public function find(int $id): ?CombatShift
     {
-        return CombatShift::with(['position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])->find($id);
+        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])->find($id);
     }
 
     public function findActiveByUserId(int $userId): ?CombatShift
     {
-        return CombatShift::with(['position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
-            ->where('user_id', $userId)
+        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
+            ->whereHas('users', function($q) use ($userId) {
+                $q->where('users.id', $userId);
+            })
             ->where('status', 'opened')
             ->first();
     }
@@ -43,6 +45,21 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
         $shift = CombatShift::find($id);
         if (!$shift) return false;
         return (bool) $shift->delete();
+    }
+
+    public function syncUsers(CombatShift $shift, array $userIds): void
+    {
+        $shift->users()->sync($userIds);
+    }
+
+    public function attachUser(CombatShift $shift, int $userId): void
+    {
+        $shift->users()->syncWithoutDetaching([$userId]);
+    }
+
+    public function detachUser(CombatShift $shift, int $userId): void
+    {
+        $shift->users()->detach($userId);
     }
 
     public function syncDrones(CombatShift $shift, array $drones): void

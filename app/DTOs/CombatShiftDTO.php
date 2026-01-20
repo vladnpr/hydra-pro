@@ -8,6 +8,7 @@ class CombatShiftDTO
 {
     public function __construct(
         public readonly int $id,
+        public readonly array $users,
         public readonly int $position_id,
         public readonly string $position_name,
         public readonly string $status,
@@ -25,6 +26,11 @@ class CombatShiftDTO
     {
         return new self(
             id: $shift->id,
+            users: $shift->users->map(fn($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email,
+            ])->toArray(),
             position_id: $shift->position_id,
             position_name: $shift->position->name,
             status: $shift->status,

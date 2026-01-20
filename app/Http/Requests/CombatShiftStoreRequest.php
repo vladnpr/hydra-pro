@@ -14,6 +14,8 @@ class CombatShiftStoreRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'user_ids' => 'required|array',
+            'user_ids.*' => 'exists:users,id',
             'position_id' => 'required|exists:positions,id',
             'status' => 'required|in:opened,closed',
             'started_at' => 'required|date',

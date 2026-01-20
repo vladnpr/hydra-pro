@@ -51,12 +51,18 @@ class CombatShiftsAdminService
     {
         return DB::transaction(function () use ($dto) {
             $shift = $this->repository->create([
-                'user_id' => Auth::id(),
                 'position_id' => $dto->position_id,
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
                 'ended_at' => $dto->ended_at,
             ]);
+
+            if (!empty($dto->user_ids)) {
+                $this->repository->syncUsers($shift, $dto->user_ids);
+            } else {
+                // Default to current user if none provided
+                $this->repository->syncUsers($shift, [Auth::id()]);
+            }
 
             if (!empty($dto->drones)) {
                 $this->repository->syncDrones($shift, $this->formatPivotData($dto->drones));
@@ -93,11 +99,11 @@ class CombatShiftsAdminService
                 'ended_at' => $dto->ended_at,
             ];
 
-            if ($shift->user_id === null) {
-                $updateData['user_id'] = Auth::id();
-            }
-
             $this->repository->update($id, $updateData);
+
+            if (!empty($dto->user_ids)) {
+                $this->repository->syncUsers($shift, $dto->user_ids);
+            }
 
             $this->repository->syncDrones($shift, $this->formatPivotData($dto->drones));
             $this->repository->syncAmmunition($shift, $this->formatPivotData($dto->ammunition));
@@ -111,6 +117,22 @@ class CombatShiftsAdminService
     public function deleteShift(int $id): bool
     {
         return $this->repository->delete($id);
+    }
+
+    public function joinShift(int $shiftId, int $userId): void
+    {
+        $shift = $this->repository->find($shiftId);
+        if ($shift && $shift->status === 'opened') {
+            $this->repository->attachUser($shift, $userId);
+        }
+    }
+
+    public function leaveShift(int $shiftId, int $userId): void
+    {
+        $shift = $this->repository->find($shiftId);
+        if ($shift) {
+            $this->repository->detachUser($shift, $userId);
+        }
     }
 
     private function formatPivotData(array $items): array

@@ -29,6 +29,20 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
+                                    <label for="user_ids">Користувачі (Екіпаж системи)</label>
+                                    <select name="user_ids[]" id="user_ids" class="form-control select2 @error('user_ids') is-invalid @enderror" multiple required>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" {{ (is_array(old('user_ids')) && in_array($user->id, old('user_ids'))) || (!old('user_ids') && $user->id == auth()->id()) ? 'selected' : '' }}>
+                                                {{ $user->name }} ({{ $user->email }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('user_ids')
+                                        <span class="error invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group">
                                     <label for="position_id">Позиція</label>
                                     <select name="position_id" id="position_id" class="form-control @error('position_id') is-invalid @enderror" required>
                                         <option value="">Оберіть позицію</option>
@@ -280,6 +294,11 @@
 @section('js')
     <script>
         $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Оберіть користувачів'
+            });
+
             let crewIndex = {{ old('crew') ? count(old('crew')) : 1 }};
 
             $('#add-crew-member').click(function() {

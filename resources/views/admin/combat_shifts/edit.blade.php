@@ -30,6 +30,23 @@
                             </div>
                             <div class="card-body">
                                 <div class="form-group">
+                                    <label for="user_ids">Користувачі (Екіпаж системи)</label>
+                                    @php
+                                        $currentUserIds = collect($shift->users)->pluck('id')->toArray();
+                                    @endphp
+                                    <select name="user_ids[]" id="user_ids" class="form-control select2 @error('user_ids') is-invalid @enderror" multiple required>
+                                        @foreach($users as $user)
+                                            <option value="{{ $user->id }}" {{ (is_array(old('user_ids')) && in_array($user->id, old('user_ids'))) || (!old('user_ids') && in_array($user->id, $currentUserIds)) ? 'selected' : '' }}>
+                                                {{ $user->name }} ({{ $user->email }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('user_ids')
+                                        <span class="error invalid-feedback">{{ $message }}</span>
+                                    @enderror
+                                </div>
+
+                                <div class="form-group">
                                     <label for="position_id">Позиція</label>
                                     <select name="position_id" id="position_id" class="form-control @error('position_id') is-invalid @enderror" required>
                                         @foreach($positions as $position)
@@ -311,6 +328,11 @@
 @section('js')
     <script>
         $(document).ready(function() {
+            $('.select2').select2({
+                theme: 'bootstrap4',
+                placeholder: 'Оберіть користувачів'
+            });
+
             let crewIndex = {{ is_array($crew) ? count($crew) : 0 }};
 
             $('#add-crew-member').click(function() {

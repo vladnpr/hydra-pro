@@ -14,7 +14,6 @@ class CombatShift extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
         'position_id',
         'status',
         'started_at',
@@ -26,9 +25,9 @@ class CombatShift extends Model
         'ended_at' => 'datetime',
     ];
 
-    public function user(): BelongsTo
+    public function users(): BelongsToMany
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class, 'combat_shift_user');
     }
 
     public function position(): BelongsTo

@@ -13,6 +13,9 @@ interface CombatShiftRepositoryInterface
     public function findActiveByUserId(int $userId): ?CombatShift;
     public function update(int $id, array $data): bool;
     public function delete(int $id): bool;
+    public function syncUsers(CombatShift $shift, array $userIds): void;
+    public function attachUser(CombatShift $shift, int $userId): void;
+    public function detachUser(CombatShift $shift, int $userId): void;
     public function syncDrones(CombatShift $shift, array $drones): void;
     public function syncAmmunition(CombatShift $shift, array $ammunition): void;
     public function syncCrew(CombatShift $shift, array $crew): void;

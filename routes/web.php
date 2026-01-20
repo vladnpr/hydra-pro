@@ -16,6 +16,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     });
     Route::resource('positions', PositionsController::class);
     Route::resource('combat_shifts', CombatShiftsController::class);
+    Route::post('combat_shifts/{id}/join', [CombatShiftsController::class, 'join'])->name('combat_shifts.join');
+    Route::post('combat_shifts/{id}/leave', [CombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
     Route::get('combat_shifts/{id}/report', [CombatShiftsController::class, 'report'])->name('combat_shifts.report');
     Route::get('combat_shifts/{id}/flights-report', [CombatShiftsController::class, 'flightsReport'])->name('combat_shifts.flights_report');
     Route::get('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'index'])->name('flight_operations.index');
