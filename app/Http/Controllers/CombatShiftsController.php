@@ -23,7 +23,8 @@ class CombatShiftsController extends Controller
     public function index()
     {
         $shifts = $this->service->getAllShifts();
-        return view('admin.combat_shifts.index', compact('shifts'));
+        $activeShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        return view('admin.combat_shifts.index', compact('shifts', 'activeShift'));
     }
 
     public function create()

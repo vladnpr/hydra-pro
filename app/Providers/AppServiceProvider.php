@@ -12,6 +12,8 @@ use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCombatShiftRepository;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
+use App\Services\CombatShiftsAdminService;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -38,6 +40,13 @@ class AppServiceProvider extends ServiceProvider
 
         Gate::define('access-combat', function (User $user) {
             return !$user->isGuest();
+        });
+
+        view()->composer('*', function ($view) {
+            if (Auth::check()) {
+                $service = $this->app->make(CombatShiftsAdminService::class);
+                $view->with('globalActiveShift', $service->getActiveShiftByUserId(Auth::id()));
+            }
         });
     }
 }

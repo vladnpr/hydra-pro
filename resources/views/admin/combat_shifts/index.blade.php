@@ -2,23 +2,10 @@
 
 @section('title', 'Бойові чергування')
 
-@php
-    $hasActiveShift = false;
-    foreach($shifts as $shift) {
-        if ($shift->status === 'opened') {
-            $userIds = collect($shift->users)->pluck('id')->toArray();
-            if (in_array(auth()->id(), $userIds)) {
-                $hasActiveShift = true;
-                break;
-            }
-        }
-    }
-@endphp
-
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Бойові чергування</h1>
-        @if(!$hasActiveShift)
+        @if(!$activeShift)
             <a href="{{ route('combat_shifts.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Розпочати нове чергування
             </a>
@@ -29,6 +16,47 @@
 @endsection
 
 @section('content')
+    @if($activeShift)
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-clock mr-1"></i>
+                            Ваша активна зміна
+                        </h3>
+                        <div class="card-tools">
+                            <a href="{{ route('flight_operations.index') }}" class="btn btn-tool">
+                                <i class="fas fa-paper-plane mr-1"></i> До вильотів
+                            </a>
+                            <a href="{{ route('combat_shifts.show', $activeShift->id) }}" class="btn btn-tool">
+                                <i class="fas fa-eye mr-1"></i> Деталі
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Позиція:</strong> {{ $activeShift->position_name }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Початок:</strong> {{ $activeShift->started_at }}
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <form action="{{ route('combat_shifts.finish', $activeShift->id) }}" method="POST" style="display:inline-block;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Завершити чергування?')">
+                                        <i class="fas fa-stop-circle mr-1"></i> Завершити
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -98,7 +126,7 @@
                                             $isUserInShift = in_array(auth()->id(), $userIds);
                                         @endphp
 
-                                        @if($shift->status === 'opened' && !$isUserInShift && !$hasActiveShift)
+                                        @if($shift->status === 'opened' && !$isUserInShift && !$activeShift)
                                             <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
                                                 @csrf
                                                 <button type="submit" class="btn btn-success btn-sm" title="Приєднатися">

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\CombatShiftsAdminService;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -11,7 +12,7 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(private readonly CombatShiftsAdminService $combatShiftsService)
     {
         $this->middleware('auth');
     }
@@ -23,6 +24,9 @@ class AdminController extends Controller
      */
     public function index()
     {
-        return view('admin.dashboard');
+        $stats = $this->combatShiftsService->getGlobalStats();
+        $activeShift = $this->combatShiftsService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        return view('admin.dashboard', compact('stats', 'activeShift'));
     }
 }

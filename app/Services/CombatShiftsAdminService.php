@@ -157,6 +157,20 @@ class CombatShiftsAdminService
         }
     }
 
+    public function getGlobalStats(): array
+    {
+        $flights = \App\Models\CombatShiftFlight::all();
+
+        return [
+            'total_flights' => $flights->count(),
+            'total_hits' => $flights->where('result', 'влучання')->count(),
+            'total_area_hits' => $flights->where('result', 'удар в районі цілі')->count(),
+            'total_misses' => $flights->where('result', 'недольот')->count(),
+            'total_detonations' => $flights->where('detonation', 'так')->count(),
+            'total_non_detonations' => $flights->where('detonation', 'ні')->count(),
+        ];
+    }
+
     private function formatPivotData(array $items): array
     {
         $formatted = [];
