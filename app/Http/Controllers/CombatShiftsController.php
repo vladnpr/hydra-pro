@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\DTOs\CreateCombatShiftDTO;
+use App\DTOs\UpdateCombatShiftDTO;
+use App\Http\Requests\CombatShiftStoreRequest;
+use App\Http\Requests\CombatShiftUpdateRequest;
+use App\Services\CombatShiftsAdminService;
+use App\Repositories\Contracts\PositionRepositoryInterface;
+use App\Repositories\Contracts\DroneRepositoryInterface;
+use App\Repositories\Contracts\AmmunitionRepositoryInterface;
+
+class CombatShiftsController extends Controller
+{
+    public function __construct(
+        private readonly CombatShiftsAdminService $service,
+        private readonly PositionRepositoryInterface $positionRepository,
+        private readonly DroneRepositoryInterface $droneRepository,
+        private readonly AmmunitionRepositoryInterface $ammunitionRepository
+    ) {}
+
+    public function index()
+    {
+        $shifts = $this->service->getAllShifts();
+        return view('admin.combat_shifts.index', compact('shifts'));
+    }
+
+    public function create()
+    {
+        $positions = $this->positionRepository->getActive();
+        $drones = $this->droneRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive();
+        return view('admin.combat_shifts.create', compact('positions', 'drones', 'ammunition'));
+    }
+
+    public function store(CombatShiftStoreRequest $request)
+    {
+        $dto = CreateCombatShiftDTO::fromRequest($request);
+        $this->service->createShift($dto);
+
+        return redirect()->route('combat_shifts.index')
+            ->with('success', 'Чергування успішно розпочато');
+    }
+
+    public function show(int $id)
+    {
+        $shift = $this->service->getShiftById($id);
+        return view('admin.combat_shifts.show', compact('shift'));
+    }
+
+    public function edit(int $id)
+    {
+        $shift = $this->service->getShiftById($id);
+        $positions = $this->positionRepository->getActive();
+        $drones = $this->droneRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive();
+
+        // Prepare current quantities for the form
+        $currentDrones = [];
+        foreach ($shift->drones as $d) {
+            $currentDrones[$d['id']] = $d['quantity'];
+        }
+
+        $currentAmmunition = [];
+        foreach ($shift->ammunition as $a) {
+            $currentAmmunition[$a['id']] = $a['quantity'];
+        }
+
+        return view('admin.combat_shifts.edit', compact('shift', 'positions', 'drones', 'ammunition', 'currentDrones', 'currentAmmunition'));
+    }
+
+    public function update(CombatShiftUpdateRequest $request, int $id)
+    {
+        $dto = UpdateCombatShiftDTO::fromRequest($request);
+        $this->service->updateShift($id, $dto);
+
+        return redirect()->route('combat_shifts.index')
+            ->with('success', 'Чергування успішно оновлено');
+    }
+
+    public function destroy(int $id)
+    {
+        $this->service->deleteShift($id);
+
+        return redirect()->route('combat_shifts.index')
+            ->with('success', 'Чергування успішно видалено');
+    }
+}

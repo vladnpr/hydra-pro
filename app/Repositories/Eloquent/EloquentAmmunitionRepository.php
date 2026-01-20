@@ -13,6 +13,11 @@ class EloquentAmmunitionRepository implements AmmunitionRepositoryInterface
         return Ammunition::all();
     }
 
+    public function getActive(): Collection
+    {
+        return Ammunition::where('status', true)->get();
+    }
+
     public function create(array $data): Ammunition
     {
         return Ammunition::create($data);

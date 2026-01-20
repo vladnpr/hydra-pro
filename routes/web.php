@@ -3,6 +3,7 @@
 use App\Http\Controllers\DronesController;
 use App\Http\Controllers\AmmunitionController;
 use App\Http\Controllers\PositionsController;
+use App\Http\Controllers\CombatShiftsController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -14,4 +15,5 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
         Route::resource('ammunition', AmmunitionController::class);
     });
     Route::resource('positions', PositionsController::class);
+    Route::resource('combat_shifts', CombatShiftsController::class);
 });

@@ -12,6 +12,11 @@ interface AmmunitionRepositoryInterface
      */
     public function all(): Collection;
 
+    /**
+     * @return Collection<Ammunition>
+     */
+    public function getActive(): Collection;
+
     public function create(array $data): Ammunition;
 
     public function find(int $id): ?Ammunition;

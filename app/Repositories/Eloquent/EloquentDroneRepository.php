@@ -13,6 +13,11 @@ class EloquentDroneRepository implements DroneRepositoryInterface
         return Drone::all();
     }
 
+    public function getActive(): Collection
+    {
+        return Drone::where('status', true)->get();
+    }
+
     public function create(array $data): Drone
     {
         return Drone::create($data);

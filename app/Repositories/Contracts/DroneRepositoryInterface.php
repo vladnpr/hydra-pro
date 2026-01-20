@@ -11,6 +11,11 @@ interface DroneRepositoryInterface
      */
     public function all(): Collection;
 
+    /**
+     * @return Collection<\App\Models\Drone>
+     */
+    public function getActive(): Collection;
+
     public function create(array $data): \App\Models\Drone;
 
     public function find(int $id): ?\App\Models\Drone;

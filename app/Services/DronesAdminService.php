@@ -20,7 +20,7 @@ class DronesAdminService
      */
     public function getAllDrones(): Collection
     {
-        return $this->repository->all()->map(fn($drone) => DroneDTO::fromModel($drone));
+        return $this->repository->getActive()->map(fn($drone) => DroneDTO::fromModel($drone));
     }
 
     public function getDroneById(int $id): DroneDTO

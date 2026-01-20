@@ -8,6 +8,8 @@ use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAmmunitionRepository;
 use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentPositionRepository;
+use App\Repositories\Contracts\CombatShiftRepositoryInterface;
+use App\Repositories\Eloquent\EloquentCombatShiftRepository;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +22,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(DroneRepositoryInterface::class, EloquentDroneRepository::class);
         $this->app->bind(AmmunitionRepositoryInterface::class, EloquentAmmunitionRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, EloquentPositionRepository::class);
+        $this->app->bind(CombatShiftRepositoryInterface::class, EloquentCombatShiftRepository::class);
     }
 
     /**

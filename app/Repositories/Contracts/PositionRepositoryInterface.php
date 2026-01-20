@@ -12,6 +12,11 @@ interface PositionRepositoryInterface
      */
     public function all(): Collection;
 
+    /**
+     * @return Collection<Position>
+     */
+    public function getActive(): Collection;
+
     public function create(array $data): Position;
 
     public function find(int $id): ?Position;

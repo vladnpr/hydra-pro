@@ -359,6 +359,11 @@ return [
                 ],
             ],
         ],
+        [
+            'text' => 'Бойові чергування',
+            'icon' => 'fas fa-fw fa-shield-alt',
+            'url' => 'admin/combat_shifts',
+        ],
 //        ['header' => 'labels'],
 //        [
 //            'text' => 'important',

@@ -1,0 +1,17 @@
+<?php
+
+namespace App\Repositories\Contracts;
+
+use App\Models\CombatShift;
+use Illuminate\Support\Collection;
+
+interface CombatShiftRepositoryInterface
+{
+    public function all(): Collection;
+    public function create(array $data): CombatShift;
+    public function find(int $id): ?CombatShift;
+    public function update(int $id, array $data): bool;
+    public function delete(int $id): bool;
+    public function syncDrones(CombatShift $shift, array $drones): void;
+    public function syncAmmunition(CombatShift $shift, array $ammunition): void;
+}
