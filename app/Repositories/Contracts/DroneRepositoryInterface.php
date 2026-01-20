@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Repositories\Contracts;
+
+use Illuminate\Support\Collection;
+
+interface DroneRepositoryInterface
+{
+    /**
+     * @return Collection<\App\Models\Drone>
+     */
+    public function all(): Collection;
+
+    /**
+     * @return Collection<\App\Models\Drone>
+     */
+    public function getActive(): Collection;
+
+    public function create(array $data): \App\Models\Drone;
+
+    public function find(int $id): ?\App\Models\Drone;
+
+    public function update(int $id, array $data): bool;
+
+    public function delete(int $id): bool;
+}
