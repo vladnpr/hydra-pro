@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\DTOs\CreateDroneDTO;
+use App\DTOs\UpdateDroneDTO;
 use App\Http\Requests\DroneStoreRequest;
+use App\Http\Requests\DroneUpdateRequest;
 use App\Services\DronesAdminService;
 
 class DronesController extends Controller
@@ -53,17 +55,22 @@ class DronesController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(int $id)
     {
-        //
+        $drone = $this->service->getDroneById($id);
+        return view('admin.drones.edit', compact('drone'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(DroneUpdateRequest $request, int $id)
     {
-        //
+        $dto = UpdateDroneDTO::fromRequest($request);
+        $this->service->updateDrone($id, $dto);
+
+        return redirect()->route('drones.index')
+            ->with('success', 'Дані дрона успішно оновлено');
     }
 
     /**
