@@ -346,6 +346,10 @@ return [
                     'text' => 'Дрони',
                     'url' => 'admin/storage/drones',
                 ],
+                [
+                    'text' => 'Боєприпаси',
+                    'url' => 'admin/storage/ammunition',
+                ],
 //                [
 //                    'text' => 'level_one',
 //                    'url' => '#',

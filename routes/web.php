@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DronesController;
+use App\Http\Controllers\AmmunitionController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes();
@@ -9,5 +10,6 @@ Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('h
 Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     Route::group(['prefix' => 'storage'], function () {
         Route::resource('drones', DronesController::class);
+        Route::resource('ammunition', AmmunitionController::class);
     });
 });
