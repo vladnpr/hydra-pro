@@ -391,6 +391,12 @@ return [
                 ],
             ],
         ],
+        [
+            'text' => 'Користувачі',
+            'icon' => 'fas fa-fw fa-users',
+            'url' => 'admin/users',
+            'can' => 'manage-users',
+        ],
 //        ['header' => 'labels'],
 //        [
 //            'text' => 'important',
