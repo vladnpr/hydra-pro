@@ -120,6 +120,7 @@
                                                 <th>Дрон</th>
                                                 <th>БК</th>
                                                 <th>Координати</th>
+                                                <th>Стрім</th>
                                                 <th>Результат</th>
                                                 <th>Примітка</th>
                                                 <th>Дії</th>
@@ -129,9 +130,10 @@
                                             @foreach($flights as $flight)
                                                 <tr>
                                                     <td class="pl-3 text-nowrap">{{ date('H:i', strtotime($flight['flight_time'])) }}</td>
-                                                    <td>{{ $flight['drone_name'] }}</td>
+                                                    <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td>{{ $flight['coordinates'] }}</td>
+                                                    <td>{{ $flight['stream'] }}</td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {

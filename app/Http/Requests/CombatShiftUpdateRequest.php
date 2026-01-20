@@ -31,6 +31,7 @@ class CombatShiftUpdateRequest extends FormRequest
             'flights.*.coordinates' => 'required_with:flights|string|max:255',
             'flights.*.flight_time' => 'required_with:flights|date',
             'flights.*.result' => 'required_with:flights|string|max:255',
+            'flights.*.stream' => 'nullable|string|max:255',
             'flights.*.note' => 'nullable|string',
         ];
     }

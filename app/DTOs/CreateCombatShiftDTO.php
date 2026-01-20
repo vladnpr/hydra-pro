@@ -14,7 +14,7 @@ class CreateCombatShiftDTO
         public readonly array $drones, // [id => quantity, ...]
         public readonly array $ammunition, // [id => quantity, ...]
         public readonly array $crew, // [['callsign' => '...', 'role' => '...'], ...]
-        public readonly array $flights, // [['drone_id' => ..., 'ammunition_id' => ..., 'coordinates' => ..., 'flight_time' => ..., 'result' => ..., 'note' => ...], ...]
+        public readonly array $flights, // [['drone_id' => ..., 'ammunition_id' => ..., 'coordinates' => ..., 'flight_time' => ..., 'result' => ..., 'stream' => ..., 'note' => ...], ...]
     ) {}
 
     public static function fromRequest(Request $request): self

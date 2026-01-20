@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('combat_shifts', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->nullable()->constrained()->onDelete('set null');
             $table->foreignId('position_id')->constrained()->onDelete('cascade');
             $table->string('status')->default('opened');
             $table->timestamp('started_at')->useCurrent();

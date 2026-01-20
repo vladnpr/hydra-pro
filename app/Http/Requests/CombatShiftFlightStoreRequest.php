@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class CombatShiftFlightUpdateRequest extends FormRequest
+class CombatShiftFlightStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,6 +14,7 @@ class CombatShiftFlightUpdateRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'combat_shift_id' => 'required|exists:combat_shifts,id',
             'drone_id' => 'required|exists:drones,id',
             'ammunition_id' => 'required|exists:ammunition,id',
             'coordinates' => 'required|string|max:255',

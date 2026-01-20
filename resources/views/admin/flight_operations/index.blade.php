@@ -1,0 +1,198 @@
+@extends('adminlte::page')
+
+@section('title', 'Бойові вильоти')
+
+@section('content_header')
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Бойові вильоти (Активна зміна #{{ $activeShift->id }})</h1>
+        <div>
+            <span class="badge badge-success">Позиція: {{ $activeShift->position_name }}</span>
+            <span class="badge badge-info ml-2">Початок: {{ $activeShift->started_at }}</span>
+        </div>
+    </div>
+@endsection
+
+@section('content')
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-check"></i> Успіх!</h5>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Додати новий виліт</h3>
+                </div>
+                <form action="{{ route('flight_operations.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="combat_shift_id" value="{{ $activeShift->id }}">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="drone_id">Дрон</label>
+                            <select name="drone_id" id="drone_id" class="form-control @error('drone_id') is-invalid @enderror" required>
+                                <option value="">Оберіть дрон</option>
+                                @foreach($activeShift->drones as $drone)
+                                    <option value="{{ $drone['id'] }}" {{ old('drone_id') == $drone['id'] ? 'selected' : '' }}>
+                                        {{ $drone['name'] }} ({{ $drone['model'] }}) (Залишок: {{ $drone['quantity'] }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('drone_id')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ammunition_id">Боєприпас</label>
+                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
+                                <option value="">Оберіть БК</option>
+                                @foreach($activeShift->ammunition as $item)
+                                    <option value="{{ $item['id'] }}" {{ old('ammunition_id') == $item['id'] ? 'selected' : '' }}>
+                                        {{ $item['name'] }} (Залишок: {{ $item['quantity'] }})
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('ammunition_id')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="coordinates">Координати</label>
+                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000" required>
+                            @error('coordinates')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="flight_time">Час вильоту</label>
+                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                            @error('flight_time')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="result">Результат</label>
+                            <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
+                                <option value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                <option value="недольот" {{ old('result') == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                            </select>
+                            @error('result')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="stream">Стрім (необов'язково)</label>
+                            <input type="text" name="stream" id="stream" class="form-control @error('stream') is-invalid @enderror" value="{{ old('stream') }}" placeholder="Посилання на стрім">
+                            @error('stream')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="note">Примітка (необов'язково)</label>
+                            <textarea name="note" id="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note') }}</textarea>
+                            @error('note')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="card-footer text-right">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Зафіксувати виліт
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Історія вильотів поточної зміни</h3>
+                </div>
+                <div class="card-body p-0">
+                    @php
+                        $today = date('Y-m-d');
+                    @endphp
+                    @forelse($activeShift->flights as $date => $flights)
+                        <div class="card mb-0 shadow-none border-bottom">
+                            <div class="card-header p-2 bg-light">
+                                <h3 class="card-title small">
+                                    <strong>{{ date('d.m.Y', strtotime($date)) }}</strong>
+                                    @if($date == $today)
+                                        <span class="badge badge-primary ml-2">Сьогодні</span>
+                                    @endif
+                                    <span class="ml-2 text-muted">({{ count($flights) }})</span>
+                                </h3>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-striped mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th class="pl-3">Час</th>
+                                                <th>Дрон</th>
+                                                <th>БК</th>
+                                                <th>Координати</th>
+                                                <th>Стрім</th>
+                                                <th>Результат</th>
+                                                <th>Дії</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($flights as $flight)
+                                                <tr>
+                                                    <td class="pl-3 text-nowrap">{{ date('H:i', strtotime($flight['flight_time'])) }}</td>
+                                                    <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
+                                                    <td>{{ $flight['ammunition_name'] }}</td>
+                                                    <td>{{ $flight['coordinates'] }}</td>
+                                                    <td>{{ $flight['stream'] }}</td>
+                                                    <td>
+                                                        @php
+                                                            $badgeClass = match($flight['result']) {
+                                                                'влучання' => 'success',
+                                                                'удар в районі цілі' => 'warning',
+                                                                'недольот' => 'danger',
+                                                                default => 'secondary'
+                                                            };
+                                                        @endphp
+                                                        <span class="badge badge-{{ $badgeClass }}">{{ $flight['result'] }}</span>
+                                                    </td>
+                                                    <td>
+                                                        <a href="{{ route('flight_operations.edit', $flight['id']) }}" class="btn btn-xs btn-info">
+                                                            <i class="fas fa-edit"></i>
+                                                        </a>
+                                                        <form action="{{ route('flight_operations.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        </form>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    @empty
+                        <div class="p-4 text-center">
+                            <span class="text-muted">Вильотів у цій зміні ще не зафіксовано.</span>
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

@@ -257,7 +257,7 @@ return [
     */
 
     'use_route_url' => false,
-    'dashboard_url' => 'home',
+    'dashboard_url' => '/',
     'logout_url' => 'logout',
     'login_url' => 'login',
     'register_url' => 'register',
@@ -363,6 +363,11 @@ return [
             'text' => 'Бойові чергування',
             'icon' => 'fas fa-fw fa-shield-alt',
             'url' => 'admin/combat_shifts',
+        ],
+        [
+            'text' => 'Бойові вильоти',
+            'icon' => 'fas fa-fw fa-paper-plane',
+            'url' => 'admin/flight-operations',
         ],
 //        ['header' => 'labels'],
 //        [

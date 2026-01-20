@@ -37,6 +37,7 @@ class CombatShiftDTO
                 return [
                     'id' => $d->id,
                     'name' => $d->name,
+                    'model' => $d->model,
                     'quantity' => $d->pivot->quantity - $consumed
                 ];
             })->toArray(),
@@ -56,11 +57,13 @@ class CombatShiftDTO
                 'id' => $f->id,
                 'drone_id' => $f->drone_id,
                 'drone_name' => $f->drone->name,
+                'drone_model' => $f->drone->model,
                 'ammunition_id' => $f->ammunition_id,
                 'ammunition_name' => $f->ammunition->name,
                 'coordinates' => $f->coordinates,
                 'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
                 'result' => $f->result,
+                'stream' => $f->stream,
                 'note' => $f->note,
             ]))->toArray(),
         );

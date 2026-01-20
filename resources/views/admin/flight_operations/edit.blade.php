@@ -3,26 +3,26 @@
 @section('title', 'Редагувати виліт')
 
 @section('content_header')
-    <h1>Редагувати виліт #{{ $flight->id }}</h1>
+    <h1>Редагувати виліт (Зміна #{{ $activeShift->id }})</h1>
 @endsection
 
 @section('content')
     <div class="row">
-        <div class="col-md-6">
-            <div class="card card-primary">
+        <div class="col-md-6 offset-md-3">
+            <div class="card card-info">
                 <div class="card-header">
-                    <h3 class="card-title">Інформація про виліт</h3>
+                    <h3 class="card-title">Дані вильоту</h3>
                 </div>
-                <form action="{{ route('flights.update', $flight->id) }}" method="POST">
+                <form action="{{ route('flight_operations.update', $flight->id) }}" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="card-body">
                         <div class="form-group">
                             <label for="drone_id">Дрон</label>
                             <select name="drone_id" id="drone_id" class="form-control @error('drone_id') is-invalid @enderror" required>
-                                @foreach($drones as $drone)
-                                    <option value="{{ $drone->id }}" {{ old('drone_id', $flight->drone_id) == $drone->id ? 'selected' : '' }}>
-                                        {{ $drone->name }} ({{ $drone->model }})
+                                @foreach($activeShift->drones as $drone)
+                                    <option value="{{ $drone['id'] }}" {{ old('drone_id', $flight->drone_id) == $drone['id'] ? 'selected' : '' }}>
+                                        {{ $drone['name'] }} ({{ $drone['model'] }})
                                     </option>
                                 @endforeach
                             </select>
@@ -34,9 +34,9 @@
                         <div class="form-group">
                             <label for="ammunition_id">Боєприпас</label>
                             <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
-                                @foreach($ammunition as $item)
-                                    <option value="{{ $item->id }}" {{ old('ammunition_id', $flight->ammunition_id) == $item->id ? 'selected' : '' }}>
-                                        {{ $item->name }}
+                                @foreach($activeShift->ammunition as $item)
+                                    <option value="{{ $item['id'] }}" {{ old('ammunition_id', $flight->ammunition_id) == $item['id'] ? 'selected' : '' }}>
+                                        {{ $item['name'] }}
                                     </option>
                                 @endforeach
                             </select>
@@ -74,24 +74,26 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="stream">Стрім</label>
-                            <input type="text" name="stream" id="stream" class="form-control @error('stream') is-invalid @enderror" value="{{ old('stream', $flight->stream) }}">
+                            <label for="stream">Стрім (необов'язково)</label>
+                            <input type="text" name="stream" id="stream" class="form-control @error('stream') is-invalid @enderror" value="{{ old('stream', $flight->stream) }}" placeholder="Посилання на стрім">
                             @error('stream')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="form-group">
-                            <label for="note">Примітка</label>
-                            <textarea name="note" id="note" class="form-control @error('note') is-invalid @enderror" rows="3">{{ old('note', $flight->note) }}</textarea>
+                            <label for="note">Примітка (необов'язково)</label>
+                            <textarea name="note" id="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note', $flight->note) }}</textarea>
                             @error('note')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ route('combat_shifts.show', $flight->combat_shift_id) }}" class="btn btn-default">Назад</a>
-                        <button type="submit" class="btn btn-primary float-right">Зберегти зміни</button>
+                        <a href="{{ route('flight_operations.index') }}" class="btn btn-default">Скасувати</a>
+                        <button type="submit" class="btn btn-primary float-right">
+                            <i class="fas fa-save"></i> Оновити дані
+                        </button>
                     </div>
                 </form>
             </div>

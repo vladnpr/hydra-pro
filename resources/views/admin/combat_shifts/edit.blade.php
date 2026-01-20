@@ -171,7 +171,7 @@
                                                         <select name="flights[{{ $index }}][drone_id]" class="form-control form-control-sm" required>
                                                             <option value="">Оберіть дрон</option>
                                                             @foreach($drones as $drone)
-                                                                <option value="{{ $drone->id }}" {{ $droneId == $drone->id ? 'selected' : '' }}>{{ $drone->name }}</option>
+                                                                <option value="{{ $drone->id }}" {{ $droneId == $drone->id ? 'selected' : '' }}>{{ $drone->name }} ({{ $drone->model }})</option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -203,7 +203,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
                                                     <div class="form-group mb-2">
                                                         <label class="small">Результат</label>
                                                         <select name="flights[{{ $index }}][result]" class="form-control form-control-sm" required>
@@ -213,7 +213,13 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-6">
+                                                <div class="col-md-4">
+                                                    <div class="form-group mb-2">
+                                                        <label class="small">Стрім</label>
+                                                        <input type="text" name="flights[{{ $index }}][stream]" class="form-control form-control-sm" placeholder="Стрім" value="{{ $flight['stream'] ?? '' }}">
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-4">
                                                     <div class="form-group mb-2">
                                                         <label class="small">Примітка (опц.)</label>
                                                         <input type="text" name="flights[{{ $index }}][note]" class="form-control form-control-sm" placeholder="Примітка" value="{{ $note }}">
@@ -326,7 +332,7 @@
             });
 
             let flightIndex = {{ is_array($flights) ? count($flights) : 0 }};
-            const droneOptions = `@foreach($drones as $drone)<option value="{{ $drone->id }}">{{ $drone->name }}</option>@endforeach`;
+            const droneOptions = `@foreach($drones as $drone)<option value="{{ $drone->id }}">{{ $drone->name }} ({{ $drone->model }})</option>@endforeach`;
             const ammunitionOptions = `@foreach($ammunition as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach`;
 
             $('#add-flight').click(function() {
@@ -367,7 +373,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-group mb-2">
                                     <label class="small">Результат</label>
                                     <select name="flights[${flightIndex}][result]" class="form-control form-control-sm" required>
@@ -377,7 +383,13 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
+                                <div class="form-group mb-2">
+                                    <label class="small">Стрім</label>
+                                    <input type="text" name="flights[${flightIndex}][stream]" class="form-control form-control-sm" placeholder="Стрім">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
                                 <div class="form-group mb-2">
                                     <label class="small">Примітка (опц.)</label>
                                     <input type="text" name="flights[${flightIndex}][note]" class="form-control form-control-sm" placeholder="Примітка">

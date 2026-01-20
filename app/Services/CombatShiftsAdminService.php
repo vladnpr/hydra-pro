@@ -9,6 +9,7 @@ use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class CombatShiftsAdminService
 {
@@ -35,10 +36,22 @@ class CombatShiftsAdminService
         return CombatShiftDTO::fromModel($shift);
     }
 
+    public function getActiveShiftByUserId(int $userId): ?CombatShiftDTO
+    {
+        $shift = $this->repository->findActiveByUserId($userId);
+
+        if (!$shift) {
+            return null;
+        }
+
+        return CombatShiftDTO::fromModel($shift);
+    }
+
     public function createShift(CreateCombatShiftDTO $dto): CombatShiftDTO
     {
         return DB::transaction(function () use ($dto) {
             $shift = $this->repository->create([
+                'user_id' => Auth::id(),
                 'position_id' => $dto->position_id,
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
@@ -73,12 +86,18 @@ class CombatShiftsAdminService
                 throw new ModelNotFoundException("Combat shift with ID {$id} not found");
             }
 
-            $this->repository->update($id, [
+            $updateData = [
                 'position_id' => $dto->position_id,
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
                 'ended_at' => $dto->ended_at,
-            ]);
+            ];
+
+            if ($shift->user_id === null) {
+                $updateData['user_id'] = Auth::id();
+            }
+
+            $this->repository->update($id, $updateData);
 
             $this->repository->syncDrones($shift, $this->formatPivotData($dto->drones));
             $this->repository->syncAmmunition($shift, $this->formatPivotData($dto->ammunition));
