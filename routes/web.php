@@ -16,4 +16,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'admin'], function () {
     });
     Route::resource('positions', PositionsController::class);
     Route::resource('combat_shifts', CombatShiftsController::class);
+    Route::get('flights/{id}/edit', [App\Http\Controllers\CombatShiftFlightsController::class, 'edit'])->name('flights.edit');
+    Route::put('flights/{id}', [App\Http\Controllers\CombatShiftFlightsController::class, 'update'])->name('flights.update');
+    Route::delete('flights/{id}', [App\Http\Controllers\CombatShiftFlightsController::class, 'destroy'])->name('flights.destroy');
 });

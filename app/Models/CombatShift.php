@@ -49,6 +49,11 @@ class CombatShift extends Model
         return $this->hasMany(CombatShiftCrew::class);
     }
 
+    public function flights(): HasMany
+    {
+        return $this->hasMany(CombatShiftFlight::class);
+    }
+
     public function getStatusColorAttribute(): string
     {
         return match ($this->status) {

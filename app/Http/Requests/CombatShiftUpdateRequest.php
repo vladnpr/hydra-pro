@@ -25,6 +25,13 @@ class CombatShiftUpdateRequest extends FormRequest
             'crew' => 'nullable|array',
             'crew.*.callsign' => 'required_with:crew|string|max:255',
             'crew.*.role' => 'required_with:crew|string|max:255',
+            'flights' => 'nullable|array',
+            'flights.*.drone_id' => 'required_with:flights|exists:drones,id',
+            'flights.*.ammunition_id' => 'required_with:flights|exists:ammunition,id',
+            'flights.*.coordinates' => 'required_with:flights|string|max:255',
+            'flights.*.flight_time' => 'required_with:flights|date',
+            'flights.*.result' => 'required_with:flights|string|max:255',
+            'flights.*.note' => 'nullable|string',
         ];
     }
 }

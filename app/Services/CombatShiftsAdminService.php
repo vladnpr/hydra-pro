@@ -57,7 +57,11 @@ class CombatShiftsAdminService
                 $this->repository->syncCrew($shift, $dto->crew);
             }
 
-            return CombatShiftDTO::fromModel($shift->load(['position', 'drones', 'ammunition', 'crew']));
+            if (!empty($dto->flights)) {
+                $this->repository->syncFlights($shift, $dto->flights);
+            }
+
+            return CombatShiftDTO::fromModel($shift->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
     }
 
@@ -79,8 +83,9 @@ class CombatShiftsAdminService
             $this->repository->syncDrones($shift, $this->formatPivotData($dto->drones));
             $this->repository->syncAmmunition($shift, $this->formatPivotData($dto->ammunition));
             $this->repository->syncCrew($shift, $dto->crew);
+            $this->repository->syncFlights($shift, $dto->flights);
 
-            return CombatShiftDTO::fromModel($shift->load(['position', 'drones', 'ammunition', 'crew']));
+            return CombatShiftDTO::fromModel($shift->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
     }
 

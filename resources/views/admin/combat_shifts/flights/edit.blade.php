@@ -1,0 +1,92 @@
+@extends('adminlte::page')
+
+@section('title', 'Редагувати виліт')
+
+@section('content_header')
+    <h1>Редагувати виліт #{{ $flight->id }}</h1>
+@endsection
+
+@section('content')
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card card-primary">
+                <div class="card-header">
+                    <h3 class="card-title">Інформація про виліт</h3>
+                </div>
+                <form action="{{ route('flights.update', $flight->id) }}" method="POST">
+                    @csrf
+                    @method('PUT')
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="drone_id">Дрон</label>
+                            <select name="drone_id" id="drone_id" class="form-control @error('drone_id') is-invalid @enderror" required>
+                                @foreach($drones as $drone)
+                                    <option value="{{ $drone->id }}" {{ old('drone_id', $flight->drone_id) == $drone->id ? 'selected' : '' }}>
+                                        {{ $drone->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('drone_id')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ammunition_id">Боєприпас</label>
+                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
+                                @foreach($ammunition as $item)
+                                    <option value="{{ $item->id }}" {{ old('ammunition_id', $flight->ammunition_id) == $item->id ? 'selected' : '' }}>
+                                        {{ $item->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('ammunition_id')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="coordinates">Координати</label>
+                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}" required>
+                            @error('coordinates')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="flight_time">Час вильоту</label>
+                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                            @error('flight_time')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="result">Результат</label>
+                            <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
+                                <option value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                <option value="недольот" {{ old('result', $flight->result) == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                            </select>
+                            @error('result')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="note">Примітка</label>
+                            <textarea name="note" id="note" class="form-control @error('note') is-invalid @enderror" rows="3">{{ old('note', $flight->note) }}</textarea>
+                            @error('note')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ route('combat_shifts.show', $flight->combat_shift_id) }}" class="btn btn-default">Назад</a>
+                        <button type="submit" class="btn btn-primary float-right">Зберегти зміни</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@endsection

@@ -107,6 +107,84 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card card-success">
+                            <div class="card-header">
+                                <h3 class="card-title">Вильоти</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" id="add-flight">
+                                        <i class="fas fa-plus"></i> Додати виліт
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div id="flights-container">
+                                    @if(old('flights'))
+                                        @foreach(old('flights') as $index => $flight)
+                                            <div class="flight-item border p-2 mb-3 bg-light">
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small">Дрон</label>
+                                                            <select name="flights[{{ $index }}][drone_id]" class="form-control form-control-sm" required>
+                                                                <option value="">Оберіть дрон</option>
+                                                                @foreach($drones as $drone)
+                                                                    <option value="{{ $drone->id }}" {{ $flight['drone_id'] == $drone->id ? 'selected' : '' }}>{{ $drone->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small">Боєприпас</label>
+                                                            <select name="flights[{{ $index }}][ammunition_id]" class="form-control form-control-sm" required>
+                                                                <option value="">Оберіть БК</option>
+                                                                @foreach($ammunition as $item)
+                                                                    <option value="{{ $item->id }}" {{ $flight['ammunition_id'] == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small">Координати</label>
+                                                            <input type="text" name="flights[{{ $index }}][coordinates]" class="form-control form-control-sm" placeholder="Координати" value="{{ $flight['coordinates'] }}" required>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small">Час вильоту</label>
+                                                            <input type="datetime-local" name="flights[{{ $index }}][flight_time]" class="form-control form-control-sm" value="{{ $flight['flight_time'] }}" required>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small">Результат</label>
+                                                            <select name="flights[{{ $index }}][result]" class="form-control form-control-sm" required>
+                                                                <option value="влучання" {{ $flight['result'] == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                                                <option value="удар в районі цілі" {{ $flight['result'] == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                                                <option value="недольот" {{ $flight['result'] == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group mb-2">
+                                                            <label class="small">Примітка (опц.)</label>
+                                                            <input type="text" name="flights[{{ $index }}][note]" class="form-control form-control-sm" placeholder="Примітка" value="{{ $flight['note'] }}">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <button type="button" class="btn btn-danger btn-xs remove-flight mt-1"><i class="fas fa-trash"></i> Видалити виліт</button>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -202,6 +280,76 @@
                 } else {
                     $(this).closest('.crew-member').find('input').val('');
                 }
+            });
+
+            let flightIndex = {{ old('flights') ? count(old('flights')) : 0 }};
+            const droneOptions = `@foreach($drones as $drone)<option value="{{ $drone->id }}">{{ $drone->name }}</option>@endforeach`;
+            const ammunitionOptions = `@foreach($ammunition as $item)<option value="{{ $item->id }}">{{ $item->name }}</option>@endforeach`;
+
+            $('#add-flight').click(function() {
+                const html = `
+                    <div class="flight-item border p-2 mb-3 bg-light">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="small">Дрон</label>
+                                    <select name="flights[${flightIndex}][drone_id]" class="form-control form-control-sm" required>
+                                        <option value="">Оберіть дрон</option>
+                                        ${droneOptions}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="small">Боєприпас</label>
+                                    <select name="flights[${flightIndex}][ammunition_id]" class="form-control form-control-sm" required>
+                                        <option value="">Оберіть БК</option>
+                                        ${ammunitionOptions}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="small">Координати</label>
+                                    <input type="text" name="flights[${flightIndex}][coordinates]" class="form-control form-control-sm" placeholder="Координати" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="small">Час вильоту</label>
+                                    <input type="datetime-local" name="flights[${flightIndex}][flight_time]" class="form-control form-control-sm" value="{{ now()->format('Y-m-d\TH:i') }}" required>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="small">Результат</label>
+                                    <select name="flights[${flightIndex}][result]" class="form-control form-control-sm" required>
+                                        <option value="влучання">Влучання</option>
+                                        <option value="удар в районі цілі">Удар в районі цілі</option>
+                                        <option value="недольот">Недольот</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group mb-2">
+                                    <label class="small">Примітка (опц.)</label>
+                                    <input type="text" name="flights[${flightIndex}][note]" class="form-control form-control-sm" placeholder="Примітка">
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-danger btn-xs remove-flight mt-1"><i class="fas fa-trash"></i> Видалити виліт</button>
+                    </div>
+                `;
+                $('#flights-container').append(html);
+                flightIndex++;
+            });
+
+            $(document).on('click', '.remove-flight', function() {
+                $(this).closest('.flight-item').remove();
             });
         });
     </script>

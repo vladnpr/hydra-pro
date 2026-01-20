@@ -14,6 +14,7 @@ class UpdateCombatShiftDTO
         public readonly array $drones,
         public readonly array $ammunition,
         public readonly array $crew,
+        public readonly array $flights,
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -26,6 +27,7 @@ class UpdateCombatShiftDTO
             drones: $request->validated('drones', []),
             ammunition: $request->validated('ammunition', []),
             crew: $request->validated('crew', []),
+            flights: $request->validated('flights', []),
         );
     }
 }

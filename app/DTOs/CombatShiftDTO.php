@@ -18,6 +18,7 @@ class CombatShiftDTO
         public readonly array $drones,
         public readonly array $ammunition,
         public readonly array $crew,
+        public readonly array $flights,
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -31,20 +32,37 @@ class CombatShiftDTO
             status_color: $shift->status_color,
             started_at: $shift->started_at->format('Y-m-d H:i:s'),
             ended_at: $shift->ended_at?->format('Y-m-d H:i:s'),
-            drones: $shift->drones->map(fn($d) => [
-                'id' => $d->id,
-                'name' => $d->name,
-                'quantity' => $d->pivot->quantity
-            ])->toArray(),
-            ammunition: $shift->ammunition->map(fn($a) => [
-                'id' => $a->id,
-                'name' => $a->name,
-                'quantity' => $a->pivot->quantity
-            ])->toArray(),
+            drones: $shift->drones->map(function($d) use ($shift) {
+                $consumed = $shift->flights->where('drone_id', $d->id)->count();
+                return [
+                    'id' => $d->id,
+                    'name' => $d->name,
+                    'quantity' => $d->pivot->quantity - $consumed
+                ];
+            })->toArray(),
+            ammunition: $shift->ammunition->map(function($a) use ($shift) {
+                $consumed = $shift->flights->where('ammunition_id', $a->id)->count();
+                return [
+                    'id' => $a->id,
+                    'name' => $a->name,
+                    'quantity' => $a->pivot->quantity - $consumed
+                ];
+            })->toArray(),
             crew: $shift->crew->map(fn($c) => [
                 'callsign' => $c->callsign,
                 'role' => $c->role
             ])->toArray(),
+            flights: $shift->flights->sortByDesc('flight_time')->groupBy(fn($f) => $f->flight_time->format('Y-m-d'))->map(fn($dayFlights) => $dayFlights->map(fn($f) => [
+                'id' => $f->id,
+                'drone_id' => $f->drone_id,
+                'drone_name' => $f->drone->name,
+                'ammunition_id' => $f->ammunition_id,
+                'ammunition_name' => $f->ammunition->name,
+                'coordinates' => $f->coordinates,
+                'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
+                'result' => $f->result,
+                'note' => $f->note,
+            ]))->toArray(),
         );
     }
 }
