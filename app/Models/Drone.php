@@ -21,10 +21,8 @@ class Drone extends Model
     public function getStatusColorAttribute()
     {
         return match ($this->status) {
-            'active' => 'success',
-            'maintenance' => 'warning',
-            'damaged' => 'danger',
-            'retired' => 'secondary',
+            1 => 'success',
+            0 => 'danger',
             default => 'info',
         };
     }

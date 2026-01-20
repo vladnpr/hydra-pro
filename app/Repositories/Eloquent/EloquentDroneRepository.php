@@ -12,4 +12,9 @@ class EloquentDroneRepository implements DroneRepositoryInterface
     {
         return Drone::all();
     }
+
+    public function create(array $data): Drone
+    {
+        return Drone::create($data);
+    }
 }
