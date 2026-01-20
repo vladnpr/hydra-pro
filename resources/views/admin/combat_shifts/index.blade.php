@@ -57,10 +57,11 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Позиція</th>
-                                <th>Екіпаж (Система / Позивні)</th>
+                                <th>Екіпаж</th>
                                 <th>Статус</th>
                                 <th>Початок</th>
                                 <th>Завершення</th>
+                                <th>Звіти</th>
                                 <th>Дії</th>
                             </tr>
                         </thead>
@@ -70,10 +71,6 @@
                                     <td>{{ $shift->id }}</td>
                                     <td>{{ $shift->position_name }}</td>
                                     <td>
-                                        @foreach($shift->users as $user)
-                                            <span class="badge badge-primary">{{ $user['name'] }}</span>
-                                        @endforeach
-                                        <hr class="my-1">
                                         @foreach($shift->crew as $member)
                                             <span class="badge badge-info">{{ $member['callsign'] }}</span>
                                         @endforeach
@@ -87,38 +84,45 @@
                                     <td>{{ $shift->ended_at ?? '-' }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm" title="Перегляд">
-                                                <i class="fas fa-eye"></i>
-                                            </a>
-                                            @php
-                                                $userIds = collect($shift->users)->pluck('id')->toArray();
-                                                $isUserInShift = in_array(auth()->id(), $userIds);
-                                            @endphp
-
-                                            @if($shift->status === 'opened')
-                                                @if($isUserInShift)
-                                                    <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-warning btn-sm" title="Покинути" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
-                                                            <i class="fas fa-sign-out-alt"></i>
-                                                        </button>
-                                                    </form>
-                                                @elseif(!$hasActiveShift)
-                                                    <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;">
-                                                        @csrf
-                                                        <button type="submit" class="btn btn-success btn-sm" title="Приєднатися">
-                                                            <i class="fas fa-sign-in-alt"></i>
-                                                        </button>
-                                                    </form>
-                                                @endif
-                                            @endif
-
                                             <a href="{{ route('combat_shifts.report', $shift->id) }}" class="btn btn-secondary btn-sm" title="Звіт">
                                                 <i class="fas fa-file-alt"></i>
                                             </a>
                                             <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-default btn-sm" title="Звіт по польотам">
                                                 <i class="fas fa-paper-plane"></i>
                                             </a>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $userIds = collect($shift->users)->pluck('id')->toArray();
+                                            $isUserInShift = in_array(auth()->id(), $userIds);
+                                        @endphp
+
+                                        @if($shift->status === 'opened' && !$isUserInShift && !$hasActiveShift)
+                                            <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
+                                                @csrf
+                                                <button type="submit" class="btn btn-success btn-sm" title="Приєднатися">
+                                                    <i class="fas fa-sign-in-alt"></i> Приєднатися
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        @if($shift->status === 'opened')
+                                            @if($isUserInShift)
+                                                <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-warning btn-sm" title="Покинути" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
+                                                        <i class="fas fa-sign-out-alt"></i> Покинути
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        @endif
+
+                                        <div class="btn-group">
+                                            <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm" title="Перегляд">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+
                                             <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm" title="Редагувати">
                                                 <i class="fas fa-edit"></i>
                                             </a>
@@ -134,7 +138,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">Чергувань не знайдено.</td>
+                                    <td colspan="8" class="text-center">Чергувань не знайдено.</td>
                                 </tr>
                             @endforelse
                         </tbody>

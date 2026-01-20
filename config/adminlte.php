@@ -360,14 +360,20 @@ return [
             ],
         ],
         [
-            'text' => 'Бойові чергування',
-            'icon' => 'fas fa-fw fa-shield-alt',
-            'url' => 'admin/combat_shifts',
-        ],
-        [
-            'text' => 'Бойові вильоти',
-            'icon' => 'fas fa-fw fa-paper-plane',
-            'url' => 'admin/flight-operations',
+            'text' => 'Бойова робота',
+            'icon' => 'fas fa-fw fa-crosshairs',
+            'submenu' => [
+                [
+                    'text' => 'Бойові чергування',
+                    'icon' => 'fas fa-fw fa-shield-alt',
+                    'url' => 'admin/combat_shifts',
+                ],
+                [
+                    'text' => 'Бойові вильоти',
+                    'icon' => 'fas fa-fw fa-paper-plane',
+                    'url' => 'admin/flight-operations',
+                ],
+            ],
         ],
         [
             'text' => 'Звіти',
