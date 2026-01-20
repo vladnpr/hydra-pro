@@ -17,6 +17,7 @@ class CombatShiftFlight extends Model
         'coordinates',
         'flight_time',
         'result',
+        'detonation',
         'stream',
         'note',
     ];

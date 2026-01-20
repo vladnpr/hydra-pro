@@ -203,7 +203,7 @@
                                                 </div>
                                             </div>
                                             <div class="row">
-                                                <div class="col-md-4">
+                                                <div class="col-md-3">
                                                     <div class="form-group mb-2">
                                                         <label class="small">Результат</label>
                                                         <select name="flights[{{ $index }}][result]" class="form-control form-control-sm" required>
@@ -213,13 +213,23 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <div class="col-md-3">
+                                                    <div class="form-group mb-2">
+                                                        <label class="small">Детонація</label>
+                                                        <select name="flights[{{ $index }}][detonation]" class="form-control form-control-sm" required>
+                                                            <option value="так" {{ ($flight['detonation'] ?? '') == 'так' ? 'selected' : '' }}>Так</option>
+                                                            <option value="ні" {{ ($flight['detonation'] ?? 'ні') == 'ні' ? 'selected' : '' }}>Ні</option>
+                                                            <option value="інше" {{ ($flight['detonation'] ?? '') == 'інше' ? 'selected' : '' }}>Інше</option>
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                <div class="col-md-3">
                                                     <div class="form-group mb-2">
                                                         <label class="small">Стрім</label>
                                                         <input type="text" name="flights[{{ $index }}][stream]" class="form-control form-control-sm" placeholder="Стрім" value="{{ $flight['stream'] ?? '' }}">
                                                     </div>
                                                 </div>
-                                                <div class="col-md-4">
+                                                <div class="col-md-3">
                                                     <div class="form-group mb-2">
                                                         <label class="small">Примітка (опц.)</label>
                                                         <input type="text" name="flights[{{ $index }}][note]" class="form-control form-control-sm" placeholder="Примітка" value="{{ $note }}">
@@ -373,7 +383,7 @@
                             </div>
                         </div>
                         <div class="row">
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group mb-2">
                                     <label class="small">Результат</label>
                                     <select name="flights[${flightIndex}][result]" class="form-control form-control-sm" required>
@@ -383,13 +393,23 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
+                                <div class="form-group mb-2">
+                                    <label class="small">Детонація</label>
+                                    <select name="flights[${flightIndex}][detonation]" class="form-control form-control-sm" required>
+                                        <option value="так">Так</option>
+                                        <option value="ні" selected>Ні</option>
+                                        <option value="інше">Інше</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
                                 <div class="form-group mb-2">
                                     <label class="small">Стрім</label>
                                     <input type="text" name="flights[${flightIndex}][stream]" class="form-control form-control-sm" placeholder="Стрім">
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-3">
                                 <div class="form-group mb-2">
                                     <label class="small">Примітка (опц.)</label>
                                     <input type="text" name="flights[${flightIndex}][note]" class="form-control form-control-sm" placeholder="Примітка">

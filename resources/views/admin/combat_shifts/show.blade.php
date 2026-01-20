@@ -12,6 +12,9 @@
             <a href="{{ route('combat_shifts.report', $shift->id) }}" class="btn btn-primary ml-2">
                 <i class="fas fa-file-alt"></i> Звіт по залишку
             </a>
+            <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
+                <i class="fas fa-paper-plane"></i> Звіт по польотам
+            </a>
             <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
                 <i class="fas fa-edit"></i> Редагувати
             </a>
@@ -124,6 +127,7 @@
                                                 <th>БК</th>
                                                 <th>Координати</th>
                                                 <th>Стрім</th>
+                                                <th>Детонація</th>
                                                 <th>Результат</th>
                                                 <th>Примітка</th>
                                                 <th>Дії</th>
@@ -137,6 +141,7 @@
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td>{{ $flight['coordinates'] }}</td>
                                                     <td>{{ $flight['stream'] }}</td>
+                                                    <td>{{ $flight['detonation'] ?? 'ні' }}</td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {

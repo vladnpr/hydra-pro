@@ -74,6 +74,18 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="detonation">Детонація</label>
+                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror" required>
+                                <option value="так" {{ old('detonation', $flight->detonation) == 'так' ? 'selected' : '' }}>Так</option>
+                                <option value="ні" {{ old('detonation', $flight->detonation) == 'ні' ? 'selected' : '' }}>Ні</option>
+                                <option value="інше" {{ old('detonation', $flight->detonation) == 'інше' ? 'selected' : '' }}>Інше</option>
+                            </select>
+                            @error('detonation')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="stream">Стрім (необов'язково)</label>
                             <input type="text" name="stream" id="stream" class="form-control @error('stream') is-invalid @enderror" value="{{ old('stream', $flight->stream) }}" placeholder="Посилання на стрім">
                             @error('stream')

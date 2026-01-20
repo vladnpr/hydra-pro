@@ -62,6 +62,17 @@ class CombatShiftsController extends Controller
         return view('admin.combat_shifts.report', compact('shift', 'dayNumber'));
     }
 
+    public function flightsReport(int $id, \Illuminate\Http\Request $request)
+    {
+        $shift = $this->service->getShiftById($id);
+        $date = $request->query('date', date('Y-m-d'));
+
+        // Отримуємо польоти за обрану дату
+        $flights = $shift->flights[$date] ?? [];
+
+        return view('admin.combat_shifts.flights_report', compact('shift', 'date', 'flights'));
+    }
+
     public function edit(int $id)
     {
         $shift = $this->service->getShiftById($id);

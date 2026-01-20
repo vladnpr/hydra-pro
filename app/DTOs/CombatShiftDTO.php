@@ -63,6 +63,7 @@ class CombatShiftDTO
                 'coordinates' => $f->coordinates,
                 'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
                 'result' => $f->result,
+                'detonation' => $f->detonation,
                 'stream' => $f->stream,
                 'note' => $f->note,
             ]))->toArray(),

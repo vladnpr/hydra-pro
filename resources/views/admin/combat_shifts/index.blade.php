@@ -63,6 +63,9 @@
                                         <a href="{{ route('combat_shifts.report', $shift->id) }}" class="btn btn-secondary btn-sm" title="Звіт">
                                             <i class="fas fa-file-alt"></i>
                                         </a>
+                                        <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-default btn-sm" title="Звіт по польотам">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </a>
                                         <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm" title="Редагувати">
                                             <i class="fas fa-edit"></i>
                                         </a>

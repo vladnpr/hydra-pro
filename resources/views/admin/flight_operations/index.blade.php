@@ -90,6 +90,18 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="detonation">Детонація</label>
+                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror" required>
+                                <option value="так" {{ old('detonation') == 'так' ? 'selected' : '' }}>Так</option>
+                                <option value="ні" {{ old('detonation') == 'ні' || !old('detonation') ? 'selected' : '' }}>Ні</option>
+                                <option value="інше" {{ old('detonation') == 'інше' ? 'selected' : '' }}>Інше</option>
+                            </select>
+                            @error('detonation')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="stream">Стрім (необов'язково)</label>
                             <input type="text" name="stream" id="stream" class="form-control @error('stream') is-invalid @enderror" value="{{ old('stream') }}" placeholder="Посилання на стрім">
                             @error('stream')
@@ -144,6 +156,7 @@
                                                 <th>БК</th>
                                                 <th>Координати</th>
                                                 <th>Стрім</th>
+                                                <th>Детонація</th>
                                                 <th>Результат</th>
                                                 <th>Дії</th>
                                             </tr>
@@ -156,6 +169,7 @@
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td>{{ $flight['coordinates'] }}</td>
                                                     <td>{{ $flight['stream'] }}</td>
+                                                    <td>{{ $flight['detonation'] ?? 'ні' }}</td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {

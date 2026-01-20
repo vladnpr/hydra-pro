@@ -20,6 +20,7 @@ class CombatShiftFlightStoreRequest extends FormRequest
             'coordinates' => 'required|string|max:255',
             'flight_time' => 'required|date',
             'result' => 'required|string|max:255',
+            'detonation' => 'required|in:так,ні,інше',
             'stream' => 'nullable|string|max:255',
             'note' => 'nullable|string',
         ];

@@ -12,6 +12,9 @@
             <button onclick="window.print()" class="btn btn-success ml-2">
                 <i class="fas fa-print"></i> Друкувати
             </button>
+            <button id="copy-report" class="btn btn-info ml-2">
+                <i class="fas fa-copy"></i> Копіювати
+            </button>
         </div>
     </div>
 @endsection
@@ -65,6 +68,27 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        document.getElementById('copy-report').addEventListener('click', function() {
+            const content = document.getElementById('report-content').innerText;
+            navigator.clipboard.writeText(content).then(() => {
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
+                btn.classList.replace('btn-info', 'btn-success');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('btn-success', 'btn-info');
+                }, 2000);
+            }).catch(err => {
+                console.error('Помилка копіювання: ', err);
+                alert('Не вдалося скопіювати текст');
+            });
+        });
+    </script>
 @endsection
 
 @section('css')
