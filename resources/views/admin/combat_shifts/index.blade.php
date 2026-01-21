@@ -141,6 +141,13 @@
                                             @endif
 
                                             @if($shift->status === 'opened' && $isUserInShift)
+                                                <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-warning btn-sm" title="Відключитися" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
+                                                        <i class="fas fa-sign-out-alt"></i>
+                                                    </button>
+                                                </form>
+
                                                 <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     <button type="submit" class="btn btn-danger btn-sm" title="Завершити" onclick="return confirm('Ви впевнені, що хочете завершити це чергування?')">
