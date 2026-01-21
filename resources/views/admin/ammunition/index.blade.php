@@ -27,13 +27,13 @@
                     </div>
                 </div>
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-hover text-nowrap">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Назва</th>
                                 <th>Статус</th>
-                                <th>Дії</th>
+                                <th style="width: 150px">Дії</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,23 +43,25 @@
                                     <td>{{ $item->name }}</td>
                                     <td>
                                         <span class="badge badge-{{ $item->status_color }}">
-                                            {{ $item->status ? 'активний' : 'неактивний'}}
+                                            {{ $item->status ? 'акт.' : 'неакт.'}}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('ammunition.show', $item->id) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('ammunition.edit', $item->id) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('ammunition.destroy', $item->id) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <div class="btn-group">
+                                            <a href="{{ route('ammunition.show', $item->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('ammunition.edit', $item->id) }}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('ammunition.destroy', $item->id) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

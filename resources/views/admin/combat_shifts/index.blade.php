@@ -80,17 +80,17 @@
                     <h3 class="card-title">Список чергувань</h3>
                 </div>
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-hover text-nowrap">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Позиція</th>
-                                <th>Екіпаж</th>
+                                <th class="d-none d-lg-table-cell">Екіпаж</th>
                                 <th>Статус</th>
-                                <th>Початок</th>
-                                <th>Завершення</th>
+                                <th class="d-none d-md-table-cell">Початок</th>
+                                <th class="d-none d-lg-table-cell">Завершення</th>
                                 <th>Звіти</th>
-                                <th>Дії</th>
+                                <th style="width: 150px">Дії</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -98,7 +98,7 @@
                                 <tr>
                                     <td>{{ $shift->id }}</td>
                                     <td>{{ $shift->position_name }}</td>
-                                    <td>
+                                    <td class="d-none d-lg-table-cell">
                                         @foreach($shift->crew as $member)
                                             <span class="badge badge-info">{{ $member['callsign'] }}</span>
                                         @endforeach
@@ -108,8 +108,8 @@
                                             {{ $shift->status_label }}
                                         </span>
                                     </td>
-                                    <td>{{ $shift->started_at }}</td>
-                                    <td>{{ $shift->ended_at ?? '-' }}</td>
+                                    <td class="d-none d-md-table-cell">{{ $shift->started_at }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ $shift->ended_at ?? '-' }}</td>
                                     <td>
                                         <div class="btn-group">
                                             <a href="{{ route('combat_shifts.report', $shift->id) }}" class="btn btn-secondary btn-sm" title="Звіт">
@@ -126,43 +126,28 @@
                                             $isUserInShift = in_array(auth()->id(), $userIds);
                                         @endphp
 
-                                        @if($shift->status === 'opened' && !$isUserInShift && !$activeShift)
-                                            <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm" title="Приєднатися">
-                                                    <i class="fas fa-sign-in-alt"></i> Приєднатися
-                                                </button>
-                                            </form>
-                                        @endif
-
-                                        @if($shift->status === 'opened')
-                                            @if($isUserInShift)
-                                                <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Завершити" onclick="return confirm('Ви впевнені, що хочете завершити це чергування?')">
-                                                        <i class="fas fa-stop-circle"></i> Завершити
-                                                    </button>
-                                                </form>
-                                                <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-warning btn-sm" title="Покинути" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
-                                                        <i class="fas fa-sign-out-alt"></i> Покинути
-                                                    </button>
-                                                </form>
-                                            @endif
-                                        @else
-                                            <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="mr-2">
-                                                @csrf
-                                                <button type="submit" class="btn btn-success btn-sm" title="Відновити" onclick="return confirm('Ви впевнені, що хочете відновити це чергування?')">
-                                                    <i class="fas fa-undo"></i> Відновити
-                                                </button>
-                                            </form>
-                                        @endif
-
                                         <div class="btn-group">
                                             <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm" title="Перегляд">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+
+                                            @if($shift->status === 'opened' && !$isUserInShift && !$activeShift)
+                                                <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success btn-sm" title="Приєднатися">
+                                                        <i class="fas fa-sign-in-alt"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
+
+                                            @if($shift->status === 'opened' && $isUserInShift)
+                                                <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Завершити" onclick="return confirm('Ви впевнені, що хочете завершити це чергування?')">
+                                                        <i class="fas fa-stop-circle"></i>
+                                                    </button>
+                                                </form>
+                                            @endif
 
                                             <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm" title="Редагувати">
                                                 <i class="fas fa-edit"></i>

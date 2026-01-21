@@ -13,8 +13,8 @@
                 <div class="card-header">
                     <h3 class="card-title">Інформація про боєприпас</h3>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered text-nowrap">
                         <tr>
                             <th style="width: 30%">ID</th>
                             <td>{{ $item->id }}</td>

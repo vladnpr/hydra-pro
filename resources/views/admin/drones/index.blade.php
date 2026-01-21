@@ -28,14 +28,14 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-hover text-nowrap">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Назва</th>
-                                <th>Модель</th>
+                                <th class="d-none d-md-table-cell">Модель</th>
                                 <th>Статус</th>
-                                <th>Дії</th>
+                                <th style="width: 150px">Дії</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,26 +43,28 @@
                                 <tr>
                                     <td>{{ $drone->id }}</td>
                                     <td>{{ $drone->name }}</td>
-                                    <td>{{ $drone->model }}</td>
+                                    <td class="d-none d-md-table-cell">{{ $drone->model }}</td>
                                     <td>
                                         <span class="badge badge-{{ $drone->status_color }}">
-                                            {{ $drone->status == 1 ? 'активний' : 'неактивний'}}
+                                            {{ $drone->status == 1 ? 'акт.' : 'неакт.'}}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('drones.show', $drone->id) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('drones.edit', $drone->id) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('drones.destroy', $drone->id) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <div class="btn-group">
+                                            <a href="{{ route('drones.show', $drone->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('drones.edit', $drone->id) }}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('drones.destroy', $drone->id) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

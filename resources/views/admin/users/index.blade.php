@@ -29,16 +29,16 @@
     @endif
 
     <div class="card">
-        <div class="card-body p-0">
-            <table class="table table-hover text-nowrap">
+        <div class="card-body table-responsive p-0">
+            <table class="table table-hover">
                 <thead>
                     <tr>
                         <th>ID</th>
                         <th>Ім'я</th>
-                        <th>Email</th>
+                        <th class="d-none d-md-table-cell">Email</th>
                         <th>Роль</th>
-                        <th>Створено</th>
-                        <th style="width: 150px">Дії</th>
+                        <th class="d-none d-lg-table-cell">Створено</th>
+                        <th style="width: 100px">Дії</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -46,7 +46,7 @@
                         <tr>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
+                            <td class="d-none d-md-table-cell">{{ $user->email }}</td>
                             <td>
                                 @php
                                     $roleBadge = match($user->role) {
@@ -55,23 +55,32 @@
                                         'guest' => 'secondary',
                                         default => 'info'
                                     };
+                                    $shortRole = match($user->role) {
+                                        'admin' => 'adm',
+                                        'user' => 'usr',
+                                        'guest' => 'gst',
+                                        default => $user->role
+                                    };
                                 @endphp
-                                <span class="badge badge-{{ $roleBadge }}">{{ $user->role }}</span>
+                                <span class="badge badge-{{ $roleBadge }} d-none d-md-inline">{{ $user->role }}</span>
+                                <span class="badge badge-{{ $roleBadge }} d-inline d-md-none">{{ $shortRole }}</span>
                             </td>
-                            <td>{{ $user->created_at->format('d.m.Y H:i') }}</td>
+                            <td class="d-none d-lg-table-cell">{{ $user->created_at->format('d.m.Y H:i') }}</td>
                             <td>
-                                <a href="{{ route('users.edit', $user->id) }}" class="btn btn-info btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                @if($user->id !== auth()->id())
-                                    <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline-block">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </form>
-                                @endif
+                                <div class="btn-group">
+                                    <a href="{{ route('users.edit', $user->id) }}" class="btn btn-info btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    @if($user->id !== auth()->id())
+                                        <form action="{{ route('users.destroy', $user->id) }}" method="POST" style="display:inline-block">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
