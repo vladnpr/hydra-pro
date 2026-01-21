@@ -296,7 +296,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Назва</th>
-                                                <th style="width: 100px;">Кількість</th>
+                                                <th style="width: 100px;">Фактична кількість</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -318,7 +318,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Назва</th>
-                                                <th style="width: 100px;">Кількість</th>
+                                                <th style="width: 100px;">Фактична кількість</th>
                                             </tr>
                                         </thead>
                                         <tbody>

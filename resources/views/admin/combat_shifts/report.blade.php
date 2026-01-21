@@ -9,6 +9,9 @@
             <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей
             </a>
+            <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
+                <i class="fas fa-paper-plane"></i> Звіт по польотам
+            </a>
             <button onclick="window.print()" class="btn btn-success ml-2">
                 <i class="fas fa-print"></i> Друкувати
             </button>

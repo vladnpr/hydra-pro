@@ -188,7 +188,13 @@
                                                         <select name="flights[{{ $index }}][drone_id]" class="form-control form-control-sm" required>
                                                             <option value="">Оберіть дрон</option>
                                                             @foreach($drones as $drone)
-                                                                <option value="{{ $drone->id }}" {{ $droneId == $drone->id ? 'selected' : '' }}>{{ $drone->name }} ({{ $drone->model }})</option>
+                                                                @php
+                                                                    $droneData = collect($shift->drones)->firstWhere('id', $drone->id);
+                                                                    $remainder = $droneData ? $droneData['quantity'] : 0;
+                                                                @endphp
+                                                                <option value="{{ $drone->id }}" {{ $droneId == $drone->id ? 'selected' : '' }}>
+                                                                    {{ $drone->name }} ({{ $drone->model }}) (Фактично: {{ $remainder }})
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -199,7 +205,13 @@
                                                         <select name="flights[{{ $index }}][ammunition_id]" class="form-control form-control-sm" required>
                                                             <option value="">Оберіть БК</option>
                                                             @foreach($ammunition as $item)
-                                                                <option value="{{ $item->id }}" {{ $ammunitionId == $item->id ? 'selected' : '' }}>{{ $item->name }}</option>
+                                                                @php
+                                                                    $ammunitionData = collect($shift->ammunition)->firstWhere('id', $item->id);
+                                                                    $remainder = $ammunitionData ? $ammunitionData['quantity'] : 0;
+                                                                @endphp
+                                                                <option value="{{ $item->id }}" {{ $ammunitionId == $item->id ? 'selected' : '' }}>
+                                                                    {{ $item->name }} (Фактично: {{ $remainder }})
+                                                                </option>
                                                             @endforeach
                                                         </select>
                                                     </div>
@@ -332,7 +344,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Назва</th>
-                                                <th style="width: 100px;">Кількість</th>
+                                                <th style="width: 100px;">Фактична кількість</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -354,7 +366,7 @@
                                         <thead>
                                             <tr>
                                                 <th>Назва</th>
-                                                <th style="width: 100px;">Кількість</th>
+                                                <th style="width: 100px;">Фактична кількість</th>
                                             </tr>
                                         </thead>
                                         <tbody>

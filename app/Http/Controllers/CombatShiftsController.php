@@ -125,7 +125,7 @@ class CombatShiftsController extends Controller
         $drones = $this->droneRepository->getActive();
         $ammunition = $this->ammunitionRepository->getActive();
 
-        // Prepare current quantities for the form
+        // Prepare quantities for the form
         $currentDrones = [];
         foreach ($shift->drones as $d) {
             $currentDrones[$d['id']] = $d['quantity'];

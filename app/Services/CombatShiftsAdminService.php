@@ -58,7 +58,7 @@ class CombatShiftsAdminService
     public function createShift(CreateCombatShiftDTO $dto): CombatShiftDTO
     {
         return DB::transaction(function () use ($dto) {
-            $shift = $this->repository->create([
+            $shiftModel = $this->repository->create([
                 'position_id' => $dto->position_id,
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
@@ -68,37 +68,38 @@ class CombatShiftsAdminService
             ]);
 
             if (!empty($dto->user_ids)) {
-                $this->repository->syncUsers($shift, $dto->user_ids);
+                $this->repository->syncUsers($shiftModel, $dto->user_ids);
             } else {
-                // Default to current user if none provided
-                $this->repository->syncUsers($shift, [Auth::id()]);
-            }
-
-            if (!empty($dto->drones)) {
-                $this->repository->syncDrones($shift, $this->formatPivotData($dto->drones));
-            }
-
-            if (!empty($dto->ammunition)) {
-                $this->repository->syncAmmunition($shift, $this->formatPivotData($dto->ammunition));
+                $this->repository->syncUsers($shiftModel, [Auth::id()]);
             }
 
             if (!empty($dto->crew)) {
-                $this->repository->syncCrew($shift, $dto->crew);
+                $this->repository->syncCrew($shiftModel, $dto->crew);
             }
 
             if (!empty($dto->flights)) {
-                $this->repository->syncFlights($shift, $dto->flights);
+                $this->repository->syncFlights($shiftModel, $dto->flights);
             }
 
-            return CombatShiftDTO::fromModel($shift->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
+            $shift = CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
+
+            if (!empty($dto->drones)) {
+                $this->repository->syncDrones($shiftModel, $this->formatPivotData($shift, $dto->drones, 'drone'));
+            }
+
+            if (!empty($dto->ammunition)) {
+                $this->repository->syncAmmunition($shiftModel, $this->formatPivotData($shift, $dto->ammunition, 'ammunition'));
+            }
+
+            return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
     }
 
     public function updateShift(int $id, UpdateCombatShiftDTO $dto): CombatShiftDTO
     {
         return DB::transaction(function () use ($id, $dto) {
-            $shift = $this->repository->find($id);
-            if (!$shift) {
+            $shiftModel = $this->repository->find($id);
+            if (!$shiftModel) {
                 throw new ModelNotFoundException("Combat shift with ID {$id} not found");
             }
 
@@ -114,15 +115,18 @@ class CombatShiftsAdminService
             $this->repository->update($id, $updateData);
 
             if (!empty($dto->user_ids)) {
-                $this->repository->syncUsers($shift, $dto->user_ids);
+                $this->repository->syncUsers($shiftModel, $dto->user_ids);
             }
 
-            $this->repository->syncDrones($shift, $this->formatPivotData($dto->drones));
-            $this->repository->syncAmmunition($shift, $this->formatPivotData($dto->ammunition));
-            $this->repository->syncCrew($shift, $dto->crew);
-            $this->repository->syncFlights($shift, $dto->flights);
+            $this->repository->syncCrew($shiftModel, $dto->crew);
+            $this->repository->syncFlights($shiftModel, $dto->flights);
 
-            return CombatShiftDTO::fromModel($shift->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
+            $shift = CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
+
+            $this->repository->syncDrones($shiftModel, $this->formatPivotData($shift, $dto->drones, 'drone'));
+            $this->repository->syncAmmunition($shiftModel, $this->formatPivotData($shift, $dto->ammunition, 'ammunition'));
+
+            return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
     }
 
@@ -183,12 +187,23 @@ class CombatShiftsAdminService
         ];
     }
 
-    private function formatPivotData(array $items): array
+    private function formatPivotData(CombatShiftDTO $shift, array $items, string $type): array
     {
         $formatted = [];
         foreach ($items as $id => $quantity) {
-            if ($quantity > 0) {
-                $formatted[$id] = ['quantity' => $quantity];
+            if ($quantity >= 0) {
+                // Determine how many were consumed
+                $consumed = 0;
+                if ($type === 'drone') {
+                    $consumed = collect($shift->flights)->flatten(1)->where('drone_id', $id)->count();
+                } else {
+                    $consumed = collect($shift->flights)->flatten(1)->where('ammunition_id', $id)->count();
+                }
+
+                // $quantity from form is the 'Actual' (remaining) amount.
+                // Database stores the 'initial' amount.
+                // So initial = actual + consumed.
+                $formatted[$id] = ['quantity' => $quantity + $consumed];
             }
         }
         return $formatted;

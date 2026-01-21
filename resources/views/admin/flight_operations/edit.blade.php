@@ -20,9 +20,9 @@
                         <div class="form-group">
                             <label for="drone_id">Дрон</label>
                             <select name="drone_id" id="drone_id" class="form-control @error('drone_id') is-invalid @enderror" required>
-                                @foreach($activeShift->drones as $drone)
+                                @foreach($userActiveShift->drones as $drone)
                                     <option value="{{ $drone['id'] }}" {{ old('drone_id', $flight->drone_id) == $drone['id'] ? 'selected' : '' }}>
-                                        {{ $drone['name'] }} ({{ $drone['model'] }})
+                                        {{ $drone['name'] }} ({{ $drone['model'] }}) (Фактично: {{ $drone['quantity'] }})
                                     </option>
                                 @endforeach
                             </select>
@@ -34,9 +34,9 @@
                         <div class="form-group">
                             <label for="ammunition_id">Боєприпас</label>
                             <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
-                                @foreach($activeShift->ammunition as $item)
+                                @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id', $flight->ammunition_id) == $item['id'] ? 'selected' : '' }}>
-                                        {{ $item['name'] }}
+                                        {{ $item['name'] }} (Фактично: {{ $item['quantity'] }})
                                     </option>
                                 @endforeach
                             </select>

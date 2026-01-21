@@ -62,6 +62,10 @@
     </div>
 @endsection
 
+                @php
+                    $userIds = collect($shift->users)->pluck('id')->toArray();
+                    $isUserInShift = in_array(auth()->id(), $userIds);
+                @endphp
 @section('content')
     @if(session('success'))
         <div class="alert alert-success alert-dismissible">
@@ -274,12 +278,12 @@
                     <h3 class="card-title">Ресурси на чергуванні</h3>
                 </div>
                 <div class="card-body table-responsive">
-                    <h5>Дрони (залишок)</h5>
+                    <h5>Дрони</h5>
                     <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Назва</th>
-                                <th>Кількість</th>
+                                <th>Фактична кількість</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -296,12 +300,12 @@
                         </tbody>
                     </table>
 
-                    <h5 class="mt-4">Боєприпаси (залишок)</h5>
+                    <h5 class="mt-4">Боєприпаси</h5>
                     <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Назва</th>
-                                <th>Кількість</th>
+                                <th>Фактична кількість</th>
                             </tr>
                         </thead>
                         <tbody>

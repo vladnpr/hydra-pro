@@ -37,7 +37,7 @@
                                 <option value="">Оберіть дрон</option>
                                 @foreach($userActiveShift->drones as $drone)
                                     <option value="{{ $drone['id'] }}" {{ old('drone_id') == $drone['id'] ? 'selected' : '' }}>
-                                        {{ $drone['name'] }} ({{ $drone['model'] }}) (Залишок: {{ $drone['quantity'] }})
+                                        {{ $drone['name'] }} ({{ $drone['model'] }}) (Фактично: {{ $drone['quantity'] }})
                                     </option>
                                 @endforeach
                             </select>
@@ -52,7 +52,7 @@
                                 <option value="">Оберіть БК</option>
                                 @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id') == $item['id'] ? 'selected' : '' }}>
-                                        {{ $item['name'] }} (Залишок: {{ $item['quantity'] }})
+                                        {{ $item['name'] }} (Фактично: {{ $item['quantity'] }})
                                     </option>
                                 @endforeach
                             </select>

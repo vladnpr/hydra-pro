@@ -46,6 +46,7 @@ class CombatShiftDTO
                     'id' => $d->id,
                     'name' => $d->name,
                     'model' => $d->model,
+                    'initial_quantity' => $d->pivot->quantity,
                     'quantity' => $d->pivot->quantity - $consumed
                 ];
             })->toArray(),
@@ -54,6 +55,7 @@ class CombatShiftDTO
                 return [
                     'id' => $a->id,
                     'name' => $a->name,
+                    'initial_quantity' => $a->pivot->quantity,
                     'quantity' => $a->pivot->quantity - $consumed
                 ];
             })->toArray(),
