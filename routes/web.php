@@ -20,8 +20,11 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
         Route::get('combat-shifts-active-reports', [CombatShiftsController::class, 'activeShiftsReports'])->name('combat_shifts.active_reports');
         Route::get('combat_shifts/{id}/report', [CombatShiftsController::class, 'report'])->name('combat_shifts.report');
         Route::get('combat_shifts/{id}/flights-report', [CombatShiftsController::class, 'flightsReport'])->name('combat_shifts.flights_report');
-        Route::get('active-shift/flights-report', [CombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
-        Route::get('active-shift/remains-report', [CombatShiftsController::class, 'activeRemainsReport'])->name('combat_shifts.active_remains_report');
+
+        Route::group(['middleware' => 'can:manage-combat'], function () {
+            Route::get('active-shift/flights-report', [CombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
+            Route::get('active-shift/remains-report', [CombatShiftsController::class, 'activeRemainsReport'])->name('combat_shifts.active_remains_report');
+        });
     });
 
     Route::resource('combat_shifts', CombatShiftsController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);

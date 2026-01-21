@@ -365,11 +365,13 @@ return [
                     'text' => 'Польоти',
                     'icon' => 'fas fa-fw fa-paper-plane',
                     'route' => 'combat_shifts.active_flights_report',
+                    'can' => 'manage-combat',
                 ],
                 [
                     'text' => 'Залишок',
                     'icon' => 'fas fa-fw fa-boxes',
                     'route' => 'combat_shifts.active_remains_report',
+                    'can' => 'manage-combat',
                 ],
             ],
         ],
