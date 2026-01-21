@@ -28,14 +28,14 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body table-responsive p-0">
-                    <table class="table table-hover text-nowrap">
+                    <table class="table table-hover">
                         <thead>
                             <tr>
                                 <th>ID</th>
                                 <th>Назва</th>
-                                <th>Опис</th>
+                                <th class="d-none d-lg-table-cell">Опис</th>
                                 <th>Статус</th>
-                                <th>Дії</th>
+                                <th style="width: 150px">Дії</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,26 +43,28 @@
                                 <tr>
                                     <td>{{ $position->id }}</td>
                                     <td>{{ $position->name }}</td>
-                                    <td>{{ Str::limit($position->description, 50) }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ Str::limit($position->description, 50) }}</td>
                                     <td>
                                         <span class="badge badge-{{ $position->status_color }}">
-                                            {{ $position->status ? 'активна' : 'неактивна' }}
+                                            {{ $position->status ? 'акт.' : 'неакт.' }}
                                         </span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('positions.show', $position->id) }}" class="btn btn-primary btn-sm">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        <a href="{{ route('positions.edit', $position->id) }}" class="btn btn-info btn-sm">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        <form action="{{ route('positions.destroy', $position->id) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <div class="btn-group">
+                                            <a href="{{ route('positions.show', $position->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            <a href="{{ route('positions.edit', $position->id) }}" class="btn btn-info btn-sm">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('positions.destroy', $position->id) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty

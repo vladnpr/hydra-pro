@@ -52,15 +52,15 @@
                 <div class="card-header">
                     <h3 class="card-title">Основна інформація</h3>
                 </div>
-                <div class="card-body">
-                    <table class="table table-bordered">
+                <div class="card-body table-responsive">
+                    <table class="table table-bordered text-nowrap">
                         <tr>
                             <th style="width: 30%">Позиція</th>
                             <td>{{ $shift->position_name }}</td>
                         </tr>
                         <tr>
                             <th>Екіпаж системи</th>
-                            <td>
+                            <td class="text-wrap">
                                 @foreach($shift->users as $user)
                                     <span class="badge badge-primary">{{ $user['name'] }}</span>
                                 @endforeach
@@ -93,8 +93,8 @@
                 <div class="card-header">
                     <h3 class="card-title">Екіпаж</h3>
                 </div>
-                <div class="card-body">
-                    <table class="table table-sm">
+                <div class="card-body table-responsive">
+                    <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Позивний</th>
@@ -145,26 +145,26 @@
                                     <table class="table table-sm table-striped mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="pl-3">Час</th>
+                                                <th class="pl-3 text-nowrap">Час</th>
                                                 <th>Дрон</th>
                                                 <th>БК</th>
-                                                <th>Координати</th>
-                                                <th>Стрім</th>
-                                                <th>Детонація</th>
-                                                <th>Результат</th>
-                                                <th>Примітка</th>
+                                                <th class="d-none d-lg-table-cell">Координати</th>
+                                                <th class="d-none d-xl-table-cell">Стрім</th>
+                                                <th class="d-none d-md-table-cell">Дет.</th>
+                                                <th>Рез.</th>
+                                                <th class="d-none d-lg-table-cell">Примітка</th>
                                                 <th>Дії</th>
                                             </tr>
                                         </thead>
                                         <tbody>
                                             @foreach($flights as $flight)
                                                 <tr>
-                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</td>
-                                                    <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
+                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td>{{ $flight['drone_name'] }}</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
-                                                    <td>{{ $flight['coordinates'] }}</td>
-                                                    <td>{{ $flight['stream'] }}</td>
-                                                    <td>{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                    <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
+                                                    <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
+                                                    <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {
@@ -173,21 +173,30 @@
                                                                 'недольот' => 'danger',
                                                                 default => 'secondary'
                                                             };
+                                                            $shortResult = match($flight['result']) {
+                                                                'влучання' => 'вл.',
+                                                                'удар в районі цілі' => 'уд.',
+                                                                'недольот' => 'нд.',
+                                                                default => $flight['result']
+                                                            };
                                                         @endphp
-                                                        <span class="badge badge-{{ $badgeClass }}">{{ $flight['result'] }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline">{{ $flight['result'] }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" title="{{ $flight['result'] }}">{{ $shortResult }}</span>
                                                     </td>
-                                                    <td class="small">{{ $flight['note'] }}</td>
+                                                    <td class="small d-none d-lg-table-cell">{{ $flight['note'] }}</td>
                                                     <td>
-                                                        <a href="{{ route('flights.edit', $flight['id']) }}" class="btn btn-xs btn-info">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <form action="{{ route('flights.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('flights.edit', $flight['id']) }}" class="btn btn-xs btn-info">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <form action="{{ route('flights.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -210,9 +219,9 @@
                 <div class="card-header">
                     <h3 class="card-title">Ресурси на чергуванні</h3>
                 </div>
-                <div class="card-body">
+                <div class="card-body table-responsive">
                     <h5>Дрони (залишок)</h5>
-                    <table class="table table-sm">
+                    <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Назва</th>
@@ -234,7 +243,7 @@
                     </table>
 
                     <h5 class="mt-4">Боєприпаси (залишок)</h5>
-                    <table class="table table-sm">
+                    <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Назва</th>

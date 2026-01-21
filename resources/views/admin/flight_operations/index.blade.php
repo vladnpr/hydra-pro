@@ -151,12 +151,12 @@
                                     <table class="table table-sm table-striped mb-0">
                                         <thead>
                                             <tr>
-                                                <th class="pl-3">Час</th>
+                                                <th class="pl-3 text-nowrap">Час</th>
                                                 <th>Дрон</th>
                                                 <th>БК</th>
-                                                <th>Координати</th>
-                                                <th>Стрім</th>
-                                                <th>Детонація</th>
+                                                <th class="d-none d-lg-table-cell">Координати</th>
+                                                <th class="d-none d-xl-table-cell">Стрім</th>
+                                                <th class="d-none d-md-table-cell">Детонація</th>
                                                 <th>Результат</th>
                                                 <th>Дії</th>
                                             </tr>
@@ -164,12 +164,12 @@
                                         <tbody>
                                             @foreach($flights as $flight)
                                                 <tr>
-                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</td>
-                                                    <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
+                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td>{{ $flight['drone_name'] }}</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
-                                                    <td>{{ $flight['coordinates'] }}</td>
-                                                    <td>{{ $flight['stream'] }}</td>
-                                                    <td>{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                    <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
+                                                    <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
+                                                    <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {
@@ -178,20 +178,29 @@
                                                                 'недольот' => 'danger',
                                                                 default => 'secondary'
                                                             };
+                                                            $shortResult = match($flight['result']) {
+                                                                'влучання' => 'влуч.',
+                                                                'удар в районі цілі' => 'удар',
+                                                                'недольот' => 'нед.',
+                                                                default => $flight['result']
+                                                            };
                                                         @endphp
-                                                        <span class="badge badge-{{ $badgeClass }}">{{ $flight['result'] }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline">{{ $flight['result'] }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none">{{ $shortResult }}</span>
                                                     </td>
                                                     <td>
-                                                        <a href="{{ route('flight_operations.edit', $flight['id']) }}" class="btn btn-xs btn-info">
-                                                            <i class="fas fa-edit"></i>
-                                                        </a>
-                                                        <form action="{{ route('flight_operations.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
-                                                            @csrf
-                                                            @method('DELETE')
-                                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </form>
+                                                        <div class="btn-group">
+                                                            <a href="{{ route('flight_operations.edit', $flight['id']) }}" class="btn btn-xs btn-info">
+                                                                <i class="fas fa-edit"></i>
+                                                            </a>
+                                                            <form action="{{ route('flight_operations.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
+                                                                @csrf
+                                                                @method('DELETE')
+                                                                <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </form>
+                                                        </div>
                                                     </td>
                                                 </tr>
                                             @endforeach

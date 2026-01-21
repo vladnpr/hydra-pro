@@ -269,7 +269,7 @@
                             <div class="card-body">
                                 <h5>Дрони</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-sm">
+                                    <table class="table table-sm text-nowrap">
                                         <thead>
                                             <tr>
                                                 <th>Назва</th>
@@ -291,7 +291,7 @@
 
                                 <h5 class="mt-4">Боєприпаси</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-sm">
+                                    <table class="table table-sm text-nowrap">
                                         <thead>
                                             <tr>
                                                 <th>Назва</th>
