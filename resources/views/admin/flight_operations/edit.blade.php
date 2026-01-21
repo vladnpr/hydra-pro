@@ -3,7 +3,7 @@
 @section('title', 'Редагувати виліт')
 
 @section('content_header')
-    <h1>Редагувати виліт (Зміна #{{ $activeShift->id }})</h1>
+    <h1>Редагувати виліт (Зміна #{{ $userActiveShift->id }})</h1>
 @endsection
 
 @section('content')
@@ -13,7 +13,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Дані вильоту</h3>
                 </div>
-                <form action="{{ route('flight_operations.update', $flight->id) }}" method="POST">
+                <form action="{{ route('flight_operations.update', $flight->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="card-body">
@@ -94,6 +94,32 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="video">Відео вильоту (макс. 75мб) @if($flight->video_path) <span class="badge badge-success">Вже завантажено</span> @endif</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" name="video" class="custom-file-input @error('video') is-invalid @enderror" id="video" accept="video/*">
+                                    <label class="custom-file-label" for="video">Оберіть файл для оновлення</label>
+                                </div>
+                            </div>
+                            @if($flight->video_path)
+                                <div class="mt-2 text-center bg-black rounded p-2">
+                                    <video height="200" controls>
+                                        <source src="{{ Storage::url($flight->video_path) }}" type="video/mp4">
+                                        Ваш браузер не підтримує відео.
+                                    </video>
+                                    <div class="mt-2">
+                                        <a href="{{ route('flight_operations.download', $flight->id) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-download"></i> Скачати поточне відео
+                                        </a>
+                                    </div>
+                                </div>
+                            @endif
+                            @error('video')
+                                <span class="text-danger small">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="note">Примітка (необов'язково)</label>
                             <textarea name="note" id="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note', $flight->note) }}</textarea>
                             @error('note')
@@ -103,12 +129,31 @@
                     </div>
                     <div class="card-footer">
                         <a href="{{ route('flight_operations.index') }}" class="btn btn-default">Скасувати</a>
+                        @can('manage-combat')
                         <button type="submit" class="btn btn-primary float-right">
                             <i class="fas fa-save"></i> Оновити дані
                         </button>
+                        @endcan
                     </div>
                 </form>
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function () {
+            $('.custom-file-input').on('change', function () {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+        });
+    </script>
+@endsection
+
+@section('css')
+    <style>
+        .bg-black { background-color: #000; }
+    </style>
 @endsection

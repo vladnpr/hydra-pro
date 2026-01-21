@@ -54,6 +54,35 @@
                             <p class="m-0">Результат: {{ $flight['result'] }}</p>
                             <p class="m-0">Детонація: {{ $flight['detonation'] ?? 'ні' }}</p>
                             <p class="m-0">Коментар: {{ $flight['note'] }}</p>
+                            @if(!empty($flight['video_path']))
+                                <p class="m-0 no-print">
+                                    <a href="{{ route('flight_operations.download', $flight['id']) }}" class="btn btn-xs btn-success mt-1">
+                                        <i class="fas fa-download"></i> Скачати відео
+                                    </a>
+                                    <button type="button" class="btn btn-xs btn-secondary mt-1 ml-1" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}">
+                                        <i class="fas fa-video"></i> Переглянути
+                                    </button>
+                                </p>
+
+                                <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                    <div class="modal-dialog modal-lg" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Відео вильоту ({{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }})</h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body text-center bg-black">
+                                                <video width="100%" controls>
+                                                    <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                    Ваш браузер не підтримує відео.
+                                                </video>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
                         </div>
                     @empty
                         <div class="text-center">
@@ -68,7 +97,13 @@
 
 @section('js')
     <script>
-        function copyToClipboard(text) {
+        $(document).ready(function () {
+            $('.modal').on('hidden.bs.modal', function () {
+                let video = $(this).find('video')[0];
+                if (video) video.pause();
+            });
+
+            function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 return navigator.clipboard.writeText(text);
             } else {
@@ -133,6 +168,7 @@
 
 @section('css')
     <style>
+        .bg-black { background-color: #000; }
         @media print {
             .main-header, .main-sidebar, .main-footer, .content-header .btn, .no-print {
                 display: none !important;

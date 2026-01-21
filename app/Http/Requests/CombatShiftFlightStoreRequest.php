@@ -23,6 +23,7 @@ class CombatShiftFlightStoreRequest extends FormRequest
             'detonation' => 'required|in:так,ні,інше',
             'stream' => 'nullable|string|max:255',
             'note' => 'nullable|string',
+            'video' => 'nullable|file|mimetypes:video/mp4,video/mpeg,video/quicktime,video/x-msvideo,video/x-flv,video/webm|max:76800',
         ];
     }
 }

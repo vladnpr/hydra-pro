@@ -6,7 +6,7 @@
     <div class="d-flex justify-content-between align-items-center">
         <h1>Бойові чергування</h1>
         <div class="d-flex">
-            @if(auth()->user()->isAdmin() || auth()->user()->isUser())
+            @can('manage-combat')
                 @if(!$userActiveShift)
                     <a href="{{ route('combat_shifts.create') }}" class="btn btn-primary mr-2">
                         <i class="fas fa-plus"></i> Розпочати нове чергування
@@ -14,7 +14,7 @@
                 @else
                     <span class="badge badge-info align-self-center mr-2">У вас вже є активне чергування</span>
                 @endif
-            @endif
+            @endcan
             <a href="{{ route('combat_shifts.active_reports') }}" class="btn btn-info">
                 <i class="fas fa-file-alt"></i> Звіти по активним змінам
             </a>
@@ -141,7 +141,7 @@
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
-                                            @if(auth()->user()->isAdmin() || auth()->user()->isUser())
+                                            @can('manage-combat')
                                                 @if($shift->status === 'opened' && !$isUserInShift && !$userActiveShift)
                                                     <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;">
                                                         @csrf
@@ -177,7 +177,7 @@
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
-                                            @endif
+                                            @endcan
                                         </div>
                                     </td>
                                 </tr>
