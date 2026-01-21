@@ -139,6 +139,35 @@
                     </table>
                 </div>
             </div>
+            @if(!empty($shift->damaged_drones) || !empty($shift->damaged_coils))
+                <div class="card card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">Пошкоджене майно</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        @if(!empty($shift->damaged_drones))
+                            <div class="p-3 border-bottom">
+                                <h6><strong>Пошкоджені дрони</strong></h6>
+                                <ul class="mb-0">
+                                    @foreach($shift->damaged_drones as $item)
+                                        <li>{{ $item['name'] }} - {{ $item['quantity'] }} шт.</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if(!empty($shift->damaged_coils))
+                            <div class="p-3">
+                                <h6><strong>Пошкоджені катушки</strong></h6>
+                                <ul class="mb-0">
+                                    @foreach($shift->damaged_coils as $item)
+                                        <li>{{ $item['name'] }} - {{ $item['quantity'] }} шт.</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
             <div class="card card-success">
                 <div class="card-header">
                     <h3 class="card-title">Вильоти</h3>

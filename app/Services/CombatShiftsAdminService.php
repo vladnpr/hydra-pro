@@ -55,6 +55,8 @@ class CombatShiftsAdminService
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
                 'ended_at' => $dto->ended_at,
+                'damaged_drones' => $dto->damaged_drones,
+                'damaged_coils' => $dto->damaged_coils,
             ]);
 
             if (!empty($dto->user_ids)) {
@@ -97,6 +99,8 @@ class CombatShiftsAdminService
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
                 'ended_at' => $dto->ended_at,
+                'damaged_drones' => $dto->damaged_drones,
+                'damaged_coils' => $dto->damaged_coils,
             ];
 
             $this->repository->update($id, $updateData);

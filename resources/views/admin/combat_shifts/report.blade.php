@@ -64,6 +64,28 @@
                             </ol>
                         </div>
                     </div>
+
+                    @if(!empty($shift->damaged_drones))
+                        <div class="damaged-drones-block mb-4">
+                            <p class="font-weight-bold mb-2">Пошкоджені дрони:</p>
+                            <ul class="list-unstyled pl-0">
+                                @foreach($shift->damaged_drones as $item)
+                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if(!empty($shift->damaged_coils))
+                        <div class="damaged-coils-block mb-4">
+                            <p class="font-weight-bold mb-2">Пошкоджені катушки:</p>
+                            <ul class="list-unstyled pl-0">
+                                @foreach($shift->damaged_coils as $item)
+                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

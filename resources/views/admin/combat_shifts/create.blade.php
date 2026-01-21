@@ -225,6 +225,63 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="card card-danger">
+                            <div class="card-header">
+                                <h3 class="card-title">Пошкодження</h3>
+                                <div class="card-tools">
+                                    <button type="button" class="btn btn-tool" id="add-damaged-drone">
+                                        <i class="fas fa-plus"></i> Додати дрон
+                                    </button>
+                                    <button type="button" class="btn btn-tool" id="add-damaged-coil">
+                                        <i class="fas fa-plus"></i> Додати катушку
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <h6>Пошкоджені дрони</h6>
+                                <div id="damaged-drones-container">
+                                    @if(old('damaged_drones'))
+                                        @foreach(old('damaged_drones') as $index => $item)
+                                            <div class="damaged-item row mb-2">
+                                                <div class="col-md-7">
+                                                    <input type="text" name="damaged_drones[{{ $index }}][name]" class="form-control form-control-sm" placeholder="Назва дрона" value="{{ $item['name'] }}" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input type="number" name="damaged_drones[{{ $index }}][quantity]" class="form-control form-control-sm" placeholder="К-ть" value="{{ $item['quantity'] }}" min="1" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-damaged-item">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+
+                                <h6 class="mt-3">Пошкоджені катушки</h6>
+                                <div id="damaged-coils-container">
+                                    @if(old('damaged_coils'))
+                                        @foreach(old('damaged_coils') as $index => $item)
+                                            <div class="damaged-item row mb-2">
+                                                <div class="col-md-7">
+                                                    <input type="text" name="damaged_coils[{{ $index }}][name]" class="form-control form-control-sm" placeholder="Назва катушки" value="{{ $item['name'] }}" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <input type="number" name="damaged_coils[{{ $index }}][quantity]" class="form-control form-control-sm" placeholder="К-ть" value="{{ $item['quantity'] }}" min="1" required>
+                                                </div>
+                                                <div class="col-md-2">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-damaged-item">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-6">
@@ -413,6 +470,53 @@
 
             $(document).on('click', '.remove-flight', function() {
                 $(this).closest('.flight-item').remove();
+            });
+
+            let damagedDroneIndex = {{ old('damaged_drones') ? count(old('damaged_drones')) : 0 }};
+            let damagedCoilIndex = {{ old('damaged_coils') ? count(old('damaged_coils')) : 0 }};
+
+            $('#add-damaged-drone').click(function() {
+                const html = `
+                    <div class="damaged-item row mb-2">
+                        <div class="col-md-7">
+                            <input type="text" name="damaged_drones[${damagedDroneIndex}][name]" class="form-control form-control-sm" placeholder="Назва дрона" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" name="damaged_drones[${damagedDroneIndex}][quantity]" class="form-control form-control-sm" placeholder="К-ть" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger btn-sm remove-damaged-item">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $('#damaged-drones-container').append(html);
+                damagedDroneIndex++;
+            });
+
+            $('#add-damaged-coil').click(function() {
+                const html = `
+                    <div class="damaged-item row mb-2">
+                        <div class="col-md-7">
+                            <input type="text" name="damaged_coils[${damagedCoilIndex}][name]" class="form-control form-control-sm" placeholder="Назва катушки" required>
+                        </div>
+                        <div class="col-md-3">
+                            <input type="number" name="damaged_coils[${damagedCoilIndex}][quantity]" class="form-control form-control-sm" placeholder="К-ть" value="1" min="1" required>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-danger btn-sm remove-damaged-item">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                $('#damaged-coils-container').append(html);
+                damagedCoilIndex++;
+            });
+
+            $(document).on('click', '.remove-damaged-item', function() {
+                $(this).closest('.damaged-item').remove();
             });
         });
     </script>

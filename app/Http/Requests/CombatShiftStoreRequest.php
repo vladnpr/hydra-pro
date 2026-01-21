@@ -36,6 +36,12 @@ class CombatShiftStoreRequest extends FormRequest
             'flights.*.detonation' => 'required_with:flights|in:так,ні,інше',
             'flights.*.stream' => 'nullable|string|max:255',
             'flights.*.note' => 'nullable|string',
+            'damaged_drones' => 'nullable|array',
+            'damaged_drones.*.name' => 'required_with:damaged_drones|string|max:255',
+            'damaged_drones.*.quantity' => 'required_with:damaged_drones|integer|min:1',
+            'damaged_coils' => 'nullable|array',
+            'damaged_coils.*.name' => 'required_with:damaged_coils|string|max:255',
+            'damaged_coils.*.quantity' => 'required_with:damaged_coils|integer|min:1',
         ];
     }
 }

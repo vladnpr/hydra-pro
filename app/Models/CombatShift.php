@@ -18,11 +18,15 @@ class CombatShift extends Model
         'status',
         'started_at',
         'ended_at',
+        'damaged_drones',
+        'damaged_coils',
     ];
 
     protected $casts = [
         'started_at' => 'datetime',
         'ended_at' => 'datetime',
+        'damaged_drones' => 'array',
+        'damaged_coils' => 'array',
     ];
 
     public function users(): BelongsToMany

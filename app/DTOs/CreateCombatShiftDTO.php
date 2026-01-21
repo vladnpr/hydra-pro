@@ -15,7 +15,9 @@ class CreateCombatShiftDTO
         public readonly array $drones, // [id => quantity, ...]
         public readonly array $ammunition, // [id => quantity, ...]
         public readonly array $crew, // [['callsign' => '...', 'role' => '...'], ...]
-        public readonly array $flights, // [['drone_id' => ..., 'ammunition_id' => ..., 'coordinates' => ..., 'flight_time' => ..., 'result' => ..., 'stream' => ..., 'note' => ...], ...]
+        public readonly array $flights,
+        public readonly array $damaged_drones,
+        public readonly array $damaged_coils,
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -30,6 +32,8 @@ class CreateCombatShiftDTO
             ammunition: $request->validated('ammunition', []),
             crew: $request->validated('crew', []),
             flights: $request->validated('flights', []),
+            damaged_drones: $request->validated('damaged_drones', []),
+            damaged_coils: $request->validated('damaged_coils', []),
         );
     }
 }
