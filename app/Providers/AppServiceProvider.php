@@ -43,11 +43,11 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('manage-ammunition', function (User $user) {
-            return $user->isAdmin();
+            return $user->isAdmin() || $user->isUser();
         });
 
         Gate::define('manage-drones', function (User $user) {
-            return $user->isAdmin();
+            return $user->isAdmin() || $user->isUser();
         });
 
         Gate::define('access-combat', function (User $user) {
