@@ -27,9 +27,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
         });
     });
 
-    Route::resource('combat_shifts', CombatShiftsController::class)->except(['create', 'store', 'edit', 'update', 'destroy']);
     Route::group(['middleware' => 'can:manage-combat'], function () {
-        Route::resource('combat_shifts', CombatShiftsController::class)->only(['create', 'store', 'edit', 'update', 'destroy']);
         Route::post('combat_shifts/{id}/join', [CombatShiftsController::class, 'join'])->name('combat_shifts.join');
         Route::post('combat_shifts/{id}/leave', [CombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
         Route::post('combat_shifts/{id}/finish', [CombatShiftsController::class, 'finish'])->name('combat_shifts.finish');
@@ -45,8 +43,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
         Route::delete('flights/{id}', [App\Http\Controllers\CombatShiftFlightsController::class, 'destroy'])->name('flights.destroy');
     });
 
-    Route::get('combat_shifts', [CombatShiftsController::class, 'index'])->name('combat_shifts.index');
-    Route::get('combat_shifts/{id}', [CombatShiftsController::class, 'show'])->name('combat_shifts.show');
+    Route::resource('combat_shifts', CombatShiftsController::class);
 
     Route::get('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'index'])->name('flight_operations.index');
     Route::get('flight-operations/{id}/download', [App\Http\Controllers\FlightOperationsController::class, 'downloadVideo'])->name('flight_operations.download');
