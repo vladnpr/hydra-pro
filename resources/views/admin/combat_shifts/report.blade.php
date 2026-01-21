@@ -72,9 +72,28 @@
 
 @section('js')
     <script>
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            } else {
+                let textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                return new Promise((res, rej) => {
+                    document.execCommand('copy') ? res() : rej();
+                    textArea.remove();
+                });
+            }
+        }
+
         document.getElementById('copy-report').addEventListener('click', function() {
             const content = document.getElementById('report-content').innerText;
-            navigator.clipboard.writeText(content).then(() => {
+            copyToClipboard(content).then(() => {
                 const btn = this;
                 const originalHtml = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
