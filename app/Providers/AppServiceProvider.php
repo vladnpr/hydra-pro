@@ -58,6 +58,10 @@ class AppServiceProvider extends ServiceProvider
             return !$user->isGuest();
         });
 
+        Gate::define('manage-combat', function (User $user) {
+            return $user->isAdmin() || $user->isUser();
+        });
+
         view()->composer('*', function ($view) {
             if (Auth::check()) {
                 $service = $this->app->make(CombatShiftsAdminService::class);

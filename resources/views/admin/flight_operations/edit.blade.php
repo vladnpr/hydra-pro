@@ -129,9 +129,11 @@
                     </div>
                     <div class="card-footer">
                         <a href="{{ route('flight_operations.index') }}" class="btn btn-default">Скасувати</a>
+                        @can('manage-combat')
                         <button type="submit" class="btn btn-primary float-right">
                             <i class="fas fa-save"></i> Оновити дані
                         </button>
+                        @endcan
                     </div>
                 </form>
             </div>

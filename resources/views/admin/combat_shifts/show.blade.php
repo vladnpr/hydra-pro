@@ -15,7 +15,7 @@
             <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
                 <i class="fas fa-paper-plane"></i> Звіт по польотам
             </a>
-            @if(auth()->user()->isAdmin() || auth()->user()->isUser())
+            @can('manage-combat')
                 <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
                     <i class="fas fa-edit"></i> Редагувати
                 </a>
@@ -57,7 +57,7 @@
                         </button>
                     </form>
                 @endif
-            @endif
+            @endcan
         </div>
     </div>
 @endsection
@@ -277,18 +277,22 @@
                                                     </td>
                                                     <td class="small d-none d-lg-table-cell">{{ $flight['note'] }}</td>
                                                     <td>
-                                                        <div class="btn-group">
-                                                            <a href="{{ route('flights.edit', $flight['id']) }}" class="btn btn-xs btn-info">
-                                                                <i class="fas fa-edit"></i>
-                                                            </a>
-                                                            <form action="{{ route('flights.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
-                                                                    <i class="fas fa-trash"></i>
-                                                                </button>
-                                                            </form>
-                                                        </div>
+                                                        @can('manage-combat')
+                                                            <div class="btn-group">
+                                                                <a href="{{ route('flights.edit', $flight['id']) }}" class="btn btn-xs btn-info">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                                <form action="{{ route('flights.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                                        <i class="fas fa-trash"></i>
+                                                                    </button>
+                                                                </form>
+                                                            </div>
+                                                        @else
+                                                            -
+                                                        @endcan
                                                     </td>
                                                 </tr>
                                             @endforeach
