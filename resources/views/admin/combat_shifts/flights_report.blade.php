@@ -47,7 +47,7 @@
                     @forelse($flights as $flight)
                         <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
                             <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                            <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</p>
+                            <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
                             <p class="m-0">Стрім: {{ $flight['stream'] ?: 'без стріму' }}</p>
                             <p class="m-0">Дрон: {{ $flight['drone_name'] }} {{ $flight['drone_model'] }}</p>
                             <p class="m-0">БК: {{ $flight['ammunition_name'] }}</p>

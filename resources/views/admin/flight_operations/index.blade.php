@@ -164,7 +164,7 @@
                                         <tbody>
                                             @foreach($flights as $flight)
                                                 <tr>
-                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</td>
                                                     <td>{{ $flight['drone_name'] }} ({{ $flight['drone_model'] ?? '' }})</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td>{{ $flight['coordinates'] }}</td>
