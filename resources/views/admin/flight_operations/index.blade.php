@@ -4,10 +4,10 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Бойові вильоти (Активна зміна #{{ $activeShift->id }})</h1>
+        <h1>Бойові вильоти (Активна зміна #{{ $userActiveShift->id }})</h1>
         <div>
-            <span class="badge badge-success">Позиція: {{ $activeShift->position_name }}</span>
-            <span class="badge badge-info ml-2">Початок: {{ $activeShift->started_at }}</span>
+            <span class="badge badge-success">Позиція: {{ $userActiveShift->position_name }}</span>
+            <span class="badge badge-info ml-2">Початок: {{ $userActiveShift->started_at }}</span>
         </div>
     </div>
 @endsection
@@ -29,13 +29,13 @@
                 </div>
                 <form action="{{ route('flight_operations.store') }}" method="POST">
                     @csrf
-                    <input type="hidden" name="combat_shift_id" value="{{ $activeShift->id }}">
+                    <input type="hidden" name="combat_shift_id" value="{{ $userActiveShift->id }}">
                     <div class="card-body">
                         <div class="form-group">
                             <label for="drone_id">Дрон</label>
                             <select name="drone_id" id="drone_id" class="form-control @error('drone_id') is-invalid @enderror" required>
                                 <option value="">Оберіть дрон</option>
-                                @foreach($activeShift->drones as $drone)
+                                @foreach($userActiveShift->drones as $drone)
                                     <option value="{{ $drone['id'] }}" {{ old('drone_id') == $drone['id'] ? 'selected' : '' }}>
                                         {{ $drone['name'] }} ({{ $drone['model'] }}) (Залишок: {{ $drone['quantity'] }})
                                     </option>
@@ -50,7 +50,7 @@
                             <label for="ammunition_id">Боєприпас</label>
                             <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
                                 <option value="">Оберіть БК</option>
-                                @foreach($activeShift->ammunition as $item)
+                                @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id') == $item['id'] ? 'selected' : '' }}>
                                         {{ $item['name'] }} (Залишок: {{ $item['quantity'] }})
                                     </option>
@@ -135,7 +135,7 @@
                     @php
                         $today = date('Y-m-d');
                     @endphp
-                    @forelse($activeShift->flights as $date => $flights)
+                    @forelse($userActiveShift->flights as $date => $flights)
                         <div class="card mb-0 shadow-none border-bottom">
                             <div class="card-header p-2 bg-light">
                                 <h3 class="card-title small">

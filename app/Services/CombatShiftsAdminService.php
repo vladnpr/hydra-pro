@@ -47,6 +47,14 @@ class CombatShiftsAdminService
         return CombatShiftDTO::fromModel($shift);
     }
 
+    /**
+     * @return Collection<CombatShiftDTO>
+     */
+    public function getActiveShifts(): Collection
+    {
+        return $this->repository->getActiveShifts()->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+    }
+
     public function createShift(CreateCombatShiftDTO $dto): CombatShiftDTO
     {
         return DB::transaction(function () use ($dto) {

@@ -24,7 +24,7 @@
             @endphp
 
             @if($shift->status === 'opened')
-                @if(!$isUserInShift && !$activeShift)
+                @if(!$isUserInShift && !$userActiveShift)
                     <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
                         @csrf
                         <button type="submit" class="btn btn-success">

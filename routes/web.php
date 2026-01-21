@@ -16,6 +16,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
     });
     Route::resource('positions', PositionsController::class);
     Route::resource('combat_shifts', CombatShiftsController::class);
+    Route::get('combat-shifts-active-reports', [CombatShiftsController::class, 'activeShiftsReports'])->name('combat_shifts.active_reports');
     Route::post('combat_shifts/{id}/join', [CombatShiftsController::class, 'join'])->name('combat_shifts.join');
     Route::post('combat_shifts/{id}/leave', [CombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
     Route::post('combat_shifts/{id}/finish', [CombatShiftsController::class, 'finish'])->name('combat_shifts.finish');

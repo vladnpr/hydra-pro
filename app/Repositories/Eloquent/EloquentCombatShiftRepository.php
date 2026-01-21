@@ -33,6 +33,14 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
             ->first();
     }
 
+    public function getActiveShifts(): Collection
+    {
+        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
+            ->where('status', 'opened')
+            ->latest()
+            ->get();
+    }
+
     public function update(int $id, array $data): bool
     {
         $shift = CombatShift::find($id);

@@ -357,6 +357,11 @@ return [
             'can' => 'access-combat',
             'submenu' => [
                 [
+                    'text' => 'Звіти по активним змінам',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                    'url' => 'admin/combat-shifts-active-reports',
+                ],
+                [
                     'text' => 'Польоти',
                     'icon' => 'fas fa-fw fa-paper-plane',
                     'route' => 'combat_shifts.active_flights_report',
