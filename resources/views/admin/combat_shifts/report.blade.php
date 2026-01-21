@@ -9,6 +9,9 @@
             <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей
             </a>
+            <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
+                <i class="fas fa-paper-plane"></i> Звіт по польотам
+            </a>
             <button onclick="window.print()" class="btn btn-success ml-2">
                 <i class="fas fa-print"></i> Друкувати
             </button>
@@ -64,6 +67,28 @@
                             </ol>
                         </div>
                     </div>
+
+                    @if(!empty($shift->damaged_drones))
+                        <div class="damaged-drones-block mb-4">
+                            <p class="font-weight-bold mb-2">Пошкоджені дрони:</p>
+                            <ul class="list-unstyled pl-0">
+                                @foreach($shift->damaged_drones as $item)
+                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+
+                    @if(!empty($shift->damaged_coils))
+                        <div class="damaged-coils-block mb-4">
+                            <p class="font-weight-bold mb-2">Пошкоджені катушки:</p>
+                            <ul class="list-unstyled pl-0">
+                                @foreach($shift->damaged_coils as $item)
+                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
                 </div>
             </div>
         </div>

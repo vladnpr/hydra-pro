@@ -20,6 +20,8 @@ class CombatShiftDTO
         public readonly array $ammunition,
         public readonly array $crew,
         public readonly array $flights,
+        public readonly array $damaged_drones,
+        public readonly array $damaged_coils,
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -44,6 +46,7 @@ class CombatShiftDTO
                     'id' => $d->id,
                     'name' => $d->name,
                     'model' => $d->model,
+                    'initial_quantity' => $d->pivot->quantity,
                     'quantity' => $d->pivot->quantity - $consumed
                 ];
             })->toArray(),
@@ -52,6 +55,7 @@ class CombatShiftDTO
                 return [
                     'id' => $a->id,
                     'name' => $a->name,
+                    'initial_quantity' => $a->pivot->quantity,
                     'quantity' => $a->pivot->quantity - $consumed
                 ];
             })->toArray(),
@@ -73,6 +77,8 @@ class CombatShiftDTO
                 'stream' => $f->stream,
                 'note' => $f->note,
             ]))->toArray(),
+            damaged_drones: $shift->damaged_drones ?? [],
+            damaged_coils: $shift->damaged_coils ?? [],
         );
     }
 }

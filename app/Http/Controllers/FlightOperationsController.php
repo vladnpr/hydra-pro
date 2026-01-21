@@ -21,16 +21,16 @@ class FlightOperationsController extends Controller
 
     public function index()
     {
-        $activeShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
 
-        if (!$activeShift) {
+        if (!$userActiveShift) {
             return view('admin.flight_operations.no_active_shift');
         }
 
         $drones = $this->droneRepository->getActive();
         $ammunition = $this->ammunitionRepository->getActive();
 
-        return view('admin.flight_operations.index', compact('activeShift', 'drones', 'ammunition'));
+        return view('admin.flight_operations.index', compact('userActiveShift', 'drones', 'ammunition'));
     }
 
     public function store(CombatShiftFlightStoreRequest $request): RedirectResponse
@@ -44,9 +44,9 @@ class FlightOperationsController extends Controller
     public function edit(int $id)
     {
         $flight = CombatShiftFlight::findOrFail($id);
-        $activeShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
 
-        if (!$activeShift || $flight->combat_shift_id !== $activeShift->id) {
+        if (!$userActiveShift || $flight->combat_shift_id !== $userActiveShift->id) {
             return redirect()->route('flight_operations.index')
                 ->with('error', 'Ви можете редагувати вильоти лише своєї активної зміни');
         }
@@ -54,15 +54,15 @@ class FlightOperationsController extends Controller
         $drones = $this->droneRepository->getActive();
         $ammunition = $this->ammunitionRepository->getActive();
 
-        return view('admin.flight_operations.edit', compact('flight', 'activeShift', 'drones', 'ammunition'));
+        return view('admin.flight_operations.edit', compact('flight', 'userActiveShift', 'drones', 'ammunition'));
     }
 
     public function update(CombatShiftFlightUpdateRequest $request, int $id): RedirectResponse
     {
         $flight = CombatShiftFlight::findOrFail($id);
-        $activeShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
 
-        if (!$activeShift || $flight->combat_shift_id !== $activeShift->id) {
+        if (!$userActiveShift || $flight->combat_shift_id !== $userActiveShift->id) {
             return redirect()->route('flight_operations.index')
                 ->with('error', 'Ви можете оновлювати вильоти лише своєї активної зміни');
         }
@@ -76,9 +76,9 @@ class FlightOperationsController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $flight = CombatShiftFlight::findOrFail($id);
-        $activeShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
 
-        if (!$activeShift || $flight->combat_shift_id !== $activeShift->id) {
+        if (!$userActiveShift || $flight->combat_shift_id !== $userActiveShift->id) {
             return redirect()->route('flight_operations.index')
                 ->with('error', 'Ви можете видаляти вильоти лише своєї активної зміни');
         }

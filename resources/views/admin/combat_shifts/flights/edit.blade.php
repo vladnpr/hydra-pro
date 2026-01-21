@@ -66,7 +66,7 @@
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
                                 <option value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
                                 <option value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                <option value="недольот" {{ old('result', $flight->result) == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                                <option value="втрата борту" {{ old('result', $flight->result) == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
                             @error('result')
                                 <span class="error invalid-feedback">{{ $message }}</span>

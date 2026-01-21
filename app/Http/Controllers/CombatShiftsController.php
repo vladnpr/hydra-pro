@@ -23,8 +23,15 @@ class CombatShiftsController extends Controller
     public function index()
     {
         $shifts = $this->service->getAllShifts();
-        $activeShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
-        return view('admin.combat_shifts.index', compact('shifts', 'activeShift'));
+        $activeShifts = $this->service->getActiveShifts();
+        $userActiveShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        return view('admin.combat_shifts.index', compact('shifts', 'userActiveShift'));
+    }
+
+    public function activeShiftsReports()
+    {
+        $activeShifts = $this->service->getActiveShifts();
+        return view('admin.combat_shifts.active_reports', compact('activeShifts'));
     }
 
     public function create()
@@ -58,7 +65,8 @@ class CombatShiftsController extends Controller
     public function show(int $id)
     {
         $shift = $this->service->getShiftById($id);
-        return view('admin.combat_shifts.show', compact('shift'));
+        $userActiveShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        return view('admin.combat_shifts.show', compact('shift', 'userActiveShift'));
     }
 
     public function report(int $id)
@@ -117,7 +125,7 @@ class CombatShiftsController extends Controller
         $drones = $this->droneRepository->getActive();
         $ammunition = $this->ammunitionRepository->getActive();
 
-        // Prepare current quantities for the form
+        // Prepare quantities for the form
         $currentDrones = [];
         foreach ($shift->drones as $d) {
             $currentDrones[$d['id']] = $d['quantity'];

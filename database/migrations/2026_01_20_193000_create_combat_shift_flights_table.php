@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('ammunition_id')->constrained('ammunition')->onDelete('cascade');
             $table->string('coordinates');
             $table->timestamp('flight_time');
-            $table->string('result'); // влучання, удар в районі цілі, недольот
+            $table->string('result'); // влучання, удар в районі цілі, втрата борту
             $table->text('note')->nullable();
             $table->timestamps();
         });

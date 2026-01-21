@@ -337,7 +337,7 @@ return [
         [
             'text' => 'Бойова робота',
             'icon' => 'fas fa-fw fa-crosshairs',
-            'can' => 'access-combat',
+            'can' => 'manage-drones',
             'submenu' => [
                 [
                     'text' => 'Бойові чергування',
@@ -354,8 +354,13 @@ return [
         [
             'text' => 'Звіти',
             'icon' => 'fas fa-fw fa-file-invoice',
-            'can' => 'access-combat',
+            'can' => 'view-reports',
             'submenu' => [
+                [
+                    'text' => 'Звіти по активним змінам',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                    'url' => 'admin/combat-shifts-active-reports',
+                ],
                 [
                     'text' => 'Польоти',
                     'icon' => 'fas fa-fw fa-paper-plane',

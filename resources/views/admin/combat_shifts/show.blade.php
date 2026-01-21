@@ -15,28 +15,57 @@
             <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
                 <i class="fas fa-paper-plane"></i> Звіт по польотам
             </a>
-            <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
-                <i class="fas fa-edit"></i> Редагувати
-            </a>
-            @if($shift->status === 'opened')
-                <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
-                    @csrf
-                    <button type="submit" class="btn btn-danger" onclick="return confirm('Ви впевнені, що хочете завершити чергування?')">
-                        <i class="fas fa-stop-circle"></i> Завершити чергування
-                    </button>
-                </form>
-            @else
-                <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
-                    @csrf
-                    <button type="submit" class="btn btn-success" onclick="return confirm('Ви впевнені, що хочете відновити чергування?')">
-                        <i class="fas fa-undo"></i> Відновити чергування
-                    </button>
-                </form>
+            @if(auth()->user()->isAdmin() || auth()->user()->isUser())
+                <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
+                    <i class="fas fa-edit"></i> Редагувати
+                </a>
+                @php
+                    $userIds = collect($shift->users)->pluck('id')->toArray();
+                    $isUserInShift = in_array(auth()->id(), $userIds);
+                @endphp
+
+                @if($shift->status === 'opened')
+                    @if(!$isUserInShift && !$userActiveShift)
+                        <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt"></i> Приєднатися
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($isUserInShift)
+                        <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Ви впевнені, що хочете покинути чергування?')">
+                                <i class="fas fa-sign-out-alt"></i> Відключитися
+                            </button>
+                        </form>
+
+                        <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Ви впевнені, що хочете завершити чергування?')">
+                                <i class="fas fa-stop-circle"></i> Завершити чергування
+                            </button>
+                        </form>
+                    @endif
+                @else
+                    <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                        @csrf
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Ви впевнені, що хочете відновити чергування?')">
+                            <i class="fas fa-undo"></i> Відновити чергування
+                        </button>
+                    </form>
+                @endif
             @endif
         </div>
     </div>
 @endsection
 
+                @php
+                    $userIds = collect($shift->users)->pluck('id')->toArray();
+                    $isUserInShift = in_array(auth()->id(), $userIds);
+                @endphp
 @section('content')
     @if(session('success'))
         <div class="alert alert-success alert-dismissible">
@@ -116,6 +145,35 @@
                     </table>
                 </div>
             </div>
+            @if(!empty($shift->damaged_drones) || !empty($shift->damaged_coils))
+                <div class="card card-danger">
+                    <div class="card-header">
+                        <h3 class="card-title">Пошкоджене майно</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        @if(!empty($shift->damaged_drones))
+                            <div class="p-3 border-bottom">
+                                <h6><strong>Пошкоджені дрони</strong></h6>
+                                <ul class="mb-0">
+                                    @foreach($shift->damaged_drones as $item)
+                                        <li>{{ $item['name'] }} - {{ $item['quantity'] }} шт.</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        @if(!empty($shift->damaged_coils))
+                            <div class="p-3">
+                                <h6><strong>Пошкоджені катушки</strong></h6>
+                                <ul class="mb-0">
+                                    @foreach($shift->damaged_coils as $item)
+                                        <li>{{ $item['name'] }} - {{ $item['quantity'] }} шт.</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
             <div class="card card-success">
                 <div class="card-header">
                     <h3 class="card-title">Вильоти</h3>
@@ -170,13 +228,13 @@
                                                             $badgeClass = match($flight['result']) {
                                                                 'влучання' => 'success',
                                                                 'удар в районі цілі' => 'warning',
-                                                                'недольот' => 'danger',
+                                                                'втрата борту' => 'danger',
                                                                 default => 'secondary'
                                                             };
                                                             $shortResult = match($flight['result']) {
                                                                 'влучання' => 'вл.',
                                                                 'удар в районі цілі' => 'уд.',
-                                                                'недольот' => 'нд.',
+                                                                'втрата борту' => 'втрата',
                                                                 default => $flight['result']
                                                             };
                                                         @endphp
@@ -220,12 +278,12 @@
                     <h3 class="card-title">Ресурси на чергуванні</h3>
                 </div>
                 <div class="card-body table-responsive">
-                    <h5>Дрони (залишок)</h5>
+                    <h5>Дрони</h5>
                     <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Назва</th>
-                                <th>Кількість</th>
+                                <th>Фактична кількість</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -242,12 +300,12 @@
                         </tbody>
                     </table>
 
-                    <h5 class="mt-4">Боєприпаси (залишок)</h5>
+                    <h5 class="mt-4">Боєприпаси</h5>
                     <table class="table table-sm text-nowrap">
                         <thead>
                             <tr>
                                 <th>Назва</th>
-                                <th>Кількість</th>
+                                <th>Фактична кількість</th>
                             </tr>
                         </thead>
                         <tbody>
