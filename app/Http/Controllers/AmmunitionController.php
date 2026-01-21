@@ -7,11 +7,18 @@ use App\DTOs\UpdateAmmunitionDTO;
 use App\Http\Requests\AmmunitionStoreRequest;
 use App\Http\Requests\AmmunitionUpdateRequest;
 use App\Services\AmmunitionAdminService;
+use Illuminate\Support\Facades\Gate;
 
 class AmmunitionController extends Controller
 {
     public function __construct(private readonly AmmunitionAdminService $service)
     {
+        $this->middleware(function ($request, $next) {
+            if (Gate::denies('manage-ammunition')) {
+                abort(403);
+            }
+            return $next($request);
+        });
     }
 
     public function index()

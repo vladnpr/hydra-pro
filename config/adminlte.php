@@ -312,27 +312,32 @@ return [
         [
             'text' => 'Ресурси та логістика',
             'icon' => 'fas fa-fw fa-boxes',
+            'can' => 'manage-drones',
             'submenu' => [
                 [
                     'text' => 'Дрони',
                     'url' => 'admin/storage/drones',
                     'icon' => 'fas fa-fw fa-helicopter',
+                    'can' => 'manage-drones',
                 ],
                 [
                     'text' => 'Боєприпаси',
                     'url' => 'admin/storage/ammunition',
                     'icon' => 'fas fa-fw fa-bomb',
+                    'can' => 'manage-ammunition',
                 ],
                 [
                     'text' => 'Позиції',
                     'icon' => 'fas fa-fw fa-map-marker-alt',
                     'url' => 'admin/positions',
+                    'can' => 'manage-positions',
                 ],
             ],
         ],
         [
             'text' => 'Бойова робота',
             'icon' => 'fas fa-fw fa-crosshairs',
+            'can' => 'access-combat',
             'submenu' => [
                 [
                     'text' => 'Бойові чергування',
@@ -349,6 +354,7 @@ return [
         [
             'text' => 'Звіти',
             'icon' => 'fas fa-fw fa-file-invoice',
+            'can' => 'access-combat',
             'submenu' => [
                 [
                     'text' => 'Польоти',

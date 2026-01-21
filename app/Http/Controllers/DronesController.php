@@ -7,12 +7,19 @@ use App\DTOs\UpdateDroneDTO;
 use App\Http\Requests\DroneStoreRequest;
 use App\Http\Requests\DroneUpdateRequest;
 use App\Services\DronesAdminService;
+use Illuminate\Support\Facades\Gate;
 
 class DronesController extends Controller
 {
 
     public function __construct(private readonly DronesAdminService $service)
     {
+        $this->middleware(function ($request, $next) {
+            if (Gate::denies('manage-drones')) {
+                abort(403);
+            }
+            return $next($request);
+        });
     }
 
     /**
