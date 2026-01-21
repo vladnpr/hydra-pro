@@ -19,12 +19,12 @@
                 <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
                     <i class="fas fa-edit"></i> Редагувати
                 </a>
-                @php
-                    $userIds = collect($shift->users)->pluck('id')->toArray();
-                    $isUserInShift = in_array(auth()->id(), $userIds);
-                @endphp
 
                 @if($shift->status === 'opened')
+                    @php
+                        $userIds = collect($shift->users)->pluck('id')->toArray();
+                        $isUserInShift = in_array(auth()->id(), $userIds);
+                    @endphp
                     @if(!$isUserInShift && !$userActiveShift)
                         <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
                             @csrf
@@ -62,11 +62,11 @@
     </div>
 @endsection
 
-                @php
-                    $userIds = collect($shift->users)->pluck('id')->toArray();
-                    $isUserInShift = in_array(auth()->id(), $userIds);
-                @endphp
 @section('content')
+    @php
+        $userIds = collect($shift->users)->pluck('id')->toArray();
+        $isUserInShift = in_array(auth()->id(), $userIds);
+    @endphp
     @if(session('success'))
         <div class="alert alert-success alert-dismissible">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>

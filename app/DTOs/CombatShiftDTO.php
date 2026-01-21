@@ -76,6 +76,7 @@ class CombatShiftDTO
                 'detonation' => $f->detonation,
                 'stream' => $f->stream,
                 'note' => $f->note,
+                'video_path' => $f->video_path,
             ]))->toArray(),
             damaged_drones: $shift->damaged_drones ?? [],
             damaged_coils: $shift->damaged_coils ?? [],

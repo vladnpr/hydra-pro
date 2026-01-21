@@ -27,7 +27,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Додати новий виліт</h3>
                 </div>
-                <form action="{{ route('flight_operations.store') }}" method="POST">
+                <form action="{{ route('flight_operations.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="combat_shift_id" value="{{ $userActiveShift->id }}">
                     <div class="card-body">
@@ -110,6 +110,19 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="video">Відео вильоту (макс. 75мб)</label>
+                            <div class="input-group">
+                                <div class="custom-file">
+                                    <input type="file" name="video" class="custom-file-input @error('video') is-invalid @enderror" id="video" accept="video/*">
+                                    <label class="custom-file-label" for="video">Оберіть файл</label>
+                                </div>
+                            </div>
+                            @error('video')
+                                <span class="text-danger small">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="note">Примітка (необов'язково)</label>
                             <textarea name="note" id="note" class="form-control @error('note') is-invalid @enderror" rows="2">{{ old('note') }}</textarea>
                             @error('note')
@@ -157,6 +170,7 @@
                                                 <th class="d-none d-lg-table-cell">Координати</th>
                                                 <th class="d-none d-xl-table-cell">Стрім</th>
                                                 <th class="d-none d-md-table-cell">Детонація</th>
+                                                <th>Відео</th>
                                                 <th>Результат</th>
                                                 <th>Дії</th>
                                             </tr>
@@ -170,6 +184,34 @@
                                                     <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
                                                     <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
                                                     <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                    <td>
+                                                        @if(!empty($flight['video_path']))
+                                                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}">
+                                                                <i class="fas fa-video"></i>
+                                                            </button>
+
+                                                            <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                                <div class="modal-dialog modal-lg" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">Відео вильоту ({{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }})</h5>
+                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body text-center bg-black">
+                                                                            <video width="100%" controls>
+                                                                                <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                                                Ваш браузер не підтримує відео.
+                                                                            </video>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {
@@ -218,4 +260,26 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function () {
+            $('.custom-file-input').on('change', function () {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+
+            $('.modal').on('hidden.bs.modal', function () {
+                let video = $(this).find('video')[0];
+                if (video) video.pause();
+            });
+        });
+    </script>
+@endsection
+
+@section('css')
+    <style>
+        .bg-black { background-color: #000; }
+    </style>
 @endsection

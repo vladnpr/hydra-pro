@@ -20,6 +20,7 @@ class CombatShiftFlight extends Model
         'detonation',
         'stream',
         'note',
+        'video_path',
     ];
 
     protected $casts = [

@@ -10,6 +10,7 @@ use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class FlightOperationsController extends Controller
 {
@@ -35,7 +36,13 @@ class FlightOperationsController extends Controller
 
     public function store(CombatShiftFlightStoreRequest $request): RedirectResponse
     {
-        CombatShiftFlight::create($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('video')) {
+            $data['video_path'] = $request->file('video')->store('flights/videos', 'public');
+        }
+
+        CombatShiftFlight::create($data);
 
         return redirect()->route('flight_operations.index')
             ->with('success', 'Виліт успішно додано');
@@ -67,7 +74,16 @@ class FlightOperationsController extends Controller
                 ->with('error', 'Ви можете оновлювати вильоти лише своєї активної зміни');
         }
 
-        $flight->update($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('video')) {
+            if ($flight->video_path) {
+                Storage::disk('public')->delete($flight->video_path);
+            }
+            $data['video_path'] = $request->file('video')->store('flights/videos', 'public');
+        }
+
+        $flight->update($data);
 
         return redirect()->route('flight_operations.index')
             ->with('success', 'Виліт успішно оновлено');
@@ -81,6 +97,10 @@ class FlightOperationsController extends Controller
         if (!$userActiveShift || $flight->combat_shift_id !== $userActiveShift->id) {
             return redirect()->route('flight_operations.index')
                 ->with('error', 'Ви можете видаляти вильоти лише своєї активної зміни');
+        }
+
+        if ($flight->video_path) {
+            Storage::disk('public')->delete($flight->video_path);
         }
 
         $flight->delete();
