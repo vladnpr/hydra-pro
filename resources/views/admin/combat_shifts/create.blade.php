@@ -191,7 +191,7 @@
                                                             <select name="flights[{{ $index }}][result]" class="form-control form-control-sm" required>
                                                                 <option value="влучання" {{ ($flight['result'] ?? '') == 'влучання' ? 'selected' : '' }}>Влучання</option>
                                                                 <option value="удар в районі цілі" {{ ($flight['result'] ?? '') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                                                <option value="недольот" {{ ($flight['result'] ?? '') == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                                                                <option value="втрата борту" {{ ($flight['result'] ?? '') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                                                             </select>
                                                         </div>
                                                     </div>
@@ -377,7 +377,7 @@
                                     <select name="flights[${flightIndex}][result]" class="form-control form-control-sm" required>
                                         <option value="влучання">Влучання</option>
                                         <option value="удар в районі цілі">Удар в районі цілі</option>
-                                        <option value="недольот">Недольот</option>
+                                        <option value="втрата борту">Втрата борту</option>
                                     </select>
                                 </div>
                             </div>

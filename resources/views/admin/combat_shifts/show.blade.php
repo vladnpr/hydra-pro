@@ -170,13 +170,13 @@
                                                             $badgeClass = match($flight['result']) {
                                                                 'влучання' => 'success',
                                                                 'удар в районі цілі' => 'warning',
-                                                                'недольот' => 'danger',
+                                                                'втрата борту' => 'danger',
                                                                 default => 'secondary'
                                                             };
                                                             $shortResult = match($flight['result']) {
                                                                 'влучання' => 'вл.',
                                                                 'удар в районі цілі' => 'уд.',
-                                                                'недольот' => 'нд.',
+                                                                'втрата борту' => 'втрата',
                                                                 default => $flight['result']
                                                             };
                                                         @endphp

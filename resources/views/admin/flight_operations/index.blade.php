@@ -82,7 +82,7 @@
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
                                 <option value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
                                 <option value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                <option value="недольот" {{ old('result') == 'недольот' ? 'selected' : '' }}>Недольот</option>
+                                <option value="втрата борту" {{ old('result') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
                             @error('result')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -175,13 +175,13 @@
                                                             $badgeClass = match($flight['result']) {
                                                                 'влучання' => 'success',
                                                                 'удар в районі цілі' => 'warning',
-                                                                'недольот' => 'danger',
+                                                                'втрата борту' => 'danger',
                                                                 default => 'secondary'
                                                             };
                                                             $shortResult = match($flight['result']) {
                                                                 'влучання' => 'влуч.',
                                                                 'удар в районі цілі' => 'удар',
-                                                                'недольот' => 'нед.',
+                                                                'втрата борту' => 'втрата',
                                                                 default => $flight['result']
                                                             };
                                                         @endphp

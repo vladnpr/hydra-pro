@@ -100,7 +100,7 @@
             <div class="small-box bg-danger">
                 <div class="inner">
                     <h3>{{ $stats['total_misses'] }}</h3>
-                    <p>Недольоти</p>
+                    <p>Втрата борту</p>
                 </div>
                 <div class="icon">
                     <i class="fas fa-times-circle"></i>
