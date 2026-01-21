@@ -7,11 +7,18 @@ use App\DTOs\UpdatePositionDTO;
 use App\Http\Requests\PositionStoreRequest;
 use App\Http\Requests\PositionUpdateRequest;
 use App\Services\PositionsAdminService;
+use Illuminate\Support\Facades\Gate;
 
 class PositionsController extends Controller
 {
     public function __construct(private readonly PositionsAdminService $service)
     {
+        $this->middleware(function ($request, $next) {
+            if (Gate::denies('manage-positions')) {
+                abort(403);
+            }
+            return $next($request);
+        });
     }
 
     /**
