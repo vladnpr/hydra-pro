@@ -33,6 +33,7 @@
                             <label for="role">Роль</label>
                             <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
                                 <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Користувач</option>
+                                <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Менеджер</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Адміністратор</option>
                                 <option value="guest" {{ old('role') == 'guest' ? 'selected' : '' }}>Гість</option>
                             </select>

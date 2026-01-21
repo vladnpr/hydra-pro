@@ -51,12 +51,14 @@
                                 @php
                                     $roleBadge = match($user->role) {
                                         'admin' => 'danger',
+                                        'manager' => 'success',
                                         'user' => 'primary',
                                         'guest' => 'secondary',
                                         default => 'info'
                                     };
                                     $shortRole = match($user->role) {
                                         'admin' => 'adm',
+                                        'manager' => 'mng',
                                         'user' => 'usr',
                                         'guest' => 'gst',
                                         default => $user->role

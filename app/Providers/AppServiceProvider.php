@@ -50,6 +50,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isUser();
         });
 
+        Gate::define('view-reports', function (User $user) {
+            return $user->isAdmin() || $user->isManager() || $user->isUser();
+        });
+
         Gate::define('access-combat', function (User $user) {
             return !$user->isGuest();
         });

@@ -15,46 +15,48 @@
             <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
                 <i class="fas fa-paper-plane"></i> Звіт по польотам
             </a>
-            <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
-                <i class="fas fa-edit"></i> Редагувати
-            </a>
-            @php
-                $userIds = collect($shift->users)->pluck('id')->toArray();
-                $isUserInShift = in_array(auth()->id(), $userIds);
-            @endphp
+            @if(auth()->user()->isAdmin() || auth()->user()->isUser())
+                <a href="{{ route('combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
+                    <i class="fas fa-edit"></i> Редагувати
+                </a>
+                @php
+                    $userIds = collect($shift->users)->pluck('id')->toArray();
+                    $isUserInShift = in_array(auth()->id(), $userIds);
+                @endphp
 
-            @if($shift->status === 'opened')
-                @if(!$isUserInShift && !$userActiveShift)
-                    <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                @if($shift->status === 'opened')
+                    @if(!$isUserInShift && !$userActiveShift)
+                        <form action="{{ route('combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt"></i> Приєднатися
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($isUserInShift)
+                        <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Ви впевнені, що хочете покинути чергування?')">
+                                <i class="fas fa-sign-out-alt"></i> Відключитися
+                            </button>
+                        </form>
+
+                        <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-danger" onclick="return confirm('Ви впевнені, що хочете завершити чергування?')">
+                                <i class="fas fa-stop-circle"></i> Завершити чергування
+                            </button>
+                        </form>
+                    @endif
+                @else
+                    <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
                         @csrf
-                        <button type="submit" class="btn btn-success">
-                            <i class="fas fa-sign-in-alt"></i> Приєднатися
+                        <button type="submit" class="btn btn-success" onclick="return confirm('Ви впевнені, що хочете відновити чергування?')">
+                            <i class="fas fa-undo"></i> Відновити чергування
                         </button>
                     </form>
                 @endif
-
-                @if($isUserInShift)
-                    <form action="{{ route('combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
-                        @csrf
-                        <button type="submit" class="btn btn-warning" onclick="return confirm('Ви впевнені, що хочете покинути чергування?')">
-                            <i class="fas fa-sign-out-alt"></i> Відключитися
-                        </button>
-                    </form>
-
-                    <form action="{{ route('combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
-                        @csrf
-                        <button type="submit" class="btn btn-danger" onclick="return confirm('Ви впевнені, що хочете завершити чергування?')">
-                            <i class="fas fa-stop-circle"></i> Завершити чергування
-                        </button>
-                    </form>
-                @endif
-            @else
-                <form action="{{ route('combat_shifts.reopen', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
-                    @csrf
-                    <button type="submit" class="btn btn-success" onclick="return confirm('Ви впевнені, що хочете відновити чергування?')">
-                        <i class="fas fa-undo"></i> Відновити чергування
-                    </button>
-                </form>
             @endif
         </div>
     </div>
