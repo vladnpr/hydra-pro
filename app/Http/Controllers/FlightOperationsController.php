@@ -11,6 +11,7 @@ use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FlightOperationsController extends Controller
 {
@@ -19,6 +20,17 @@ class FlightOperationsController extends Controller
         private readonly DroneRepositoryInterface $droneRepository,
         private readonly AmmunitionRepositoryInterface $ammunitionRepository
     ) {}
+
+    public function downloadVideo(int $id): StreamedResponse|RedirectResponse
+    {
+        $flight = CombatShiftFlight::findOrFail($id);
+
+        if (!$flight->video_path || !Storage::disk('public')->exists($flight->video_path)) {
+            return redirect()->back()->with('error', 'Відео не знайдено');
+        }
+
+        return Storage::disk('public')->download($flight->video_path);
+    }
 
     public function index()
     {

@@ -35,6 +35,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
     Route::get('flight-operations/{id}/edit', [App\Http\Controllers\FlightOperationsController::class, 'edit'])->name('flight_operations.edit');
     Route::put('flight-operations/{id}', [App\Http\Controllers\FlightOperationsController::class, 'update'])->name('flight_operations.update');
     Route::delete('flight-operations/{id}', [App\Http\Controllers\FlightOperationsController::class, 'destroy'])->name('flight_operations.destroy');
+    Route::get('flight-operations/{id}/download', [App\Http\Controllers\FlightOperationsController::class, 'downloadVideo'])->name('flight_operations.download');
 
     Route::get('flights/{id}/edit', [App\Http\Controllers\CombatShiftFlightsController::class, 'edit'])->name('flights.edit');
     Route::put('flights/{id}', [App\Http\Controllers\CombatShiftFlightsController::class, 'update'])->name('flights.update');

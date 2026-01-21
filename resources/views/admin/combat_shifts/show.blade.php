@@ -209,6 +209,7 @@
                                                 <th class="d-none d-lg-table-cell">Координати</th>
                                                 <th class="d-none d-xl-table-cell">Стрім</th>
                                                 <th class="d-none d-md-table-cell">Дет.</th>
+                                                <th>Відео</th>
                                                 <th>Рез.</th>
                                                 <th class="d-none d-lg-table-cell">Примітка</th>
                                                 <th>Дії</th>
@@ -223,6 +224,39 @@
                                                     <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
                                                     <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
                                                     <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                    <td>
+                                                        @if(!empty($flight['video_path']))
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                                    <i class="fas fa-video"></i>
+                                                                </button>
+                                                                <a href="{{ route('flight_operations.download', $flight['id']) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                                    <i class="fas fa-download"></i>
+                                                                </a>
+                                                            </div>
+
+                                                            <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                                <div class="modal-dialog modal-lg" role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title">Відео вильоту ({{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }})</h5>
+                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body text-center bg-black">
+                                                                            <video width="100%" controls>
+                                                                                <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                                                Ваш браузер не підтримує відео.
+                                                                            </video>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        @else
+                                                            -
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         @php
                                                             $badgeClass = match($flight['result']) {
@@ -325,4 +359,21 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function () {
+            $('.modal').on('hidden.bs.modal', function () {
+                let video = $(this).find('video')[0];
+                if (video) video.pause();
+            });
+        });
+    </script>
+@endsection
+
+@section('css')
+    <style>
+        .bg-black { background-color: #000; }
+    </style>
 @endsection

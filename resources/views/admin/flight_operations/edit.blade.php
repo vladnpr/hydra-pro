@@ -107,6 +107,11 @@
                                         <source src="{{ Storage::url($flight->video_path) }}" type="video/mp4">
                                         Ваш браузер не підтримує відео.
                                     </video>
+                                    <div class="mt-2">
+                                        <a href="{{ route('flight_operations.download', $flight->id) }}" class="btn btn-sm btn-success">
+                                            <i class="fas fa-download"></i> Скачати поточне відео
+                                        </a>
+                                    </div>
                                 </div>
                             @endif
                             @error('video')

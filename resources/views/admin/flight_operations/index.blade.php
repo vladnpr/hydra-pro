@@ -186,9 +186,14 @@
                                                     <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
                                                     <td>
                                                         @if(!empty($flight['video_path']))
-                                                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}">
-                                                                <i class="fas fa-video"></i>
-                                                            </button>
+                                                            <div class="btn-group">
+                                                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                                    <i class="fas fa-video"></i>
+                                                                </button>
+                                                                <a href="{{ route('flight_operations.download', $flight['id']) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                                    <i class="fas fa-download"></i>
+                                                                </a>
+                                                            </div>
 
                                                             <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
                                                                 <div class="modal-dialog modal-lg" role="document">
