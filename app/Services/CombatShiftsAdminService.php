@@ -13,9 +13,7 @@ use Illuminate\Support\Facades\Auth;
 
 class CombatShiftsAdminService
 {
-    public function __construct(
-        private CombatShiftRepositoryInterface $repository
-    )
+    public function __construct(private CombatShiftRepositoryInterface $repository)
     {
     }
 
@@ -177,31 +175,15 @@ class CombatShiftsAdminService
 
     public function getGlobalStats(): array
     {
-        $totalFlights = \App\Models\CombatShiftFlight::all()->count();
-
-        $totalHits = \App\Models\CombatShiftFlight::with('ammunition')->where([
-            'result' => 'влучання',
-        ])->whereHas('ammunition', function ($query) {
-            $query->where('name', 'NOT IN', 'Інше');
-        })->count();
-
-        $totalAreaHits = \App\Models\CombatShiftFlight::with('ammunition')
-            ->where('result', 'удар в районі цілі')
-            ->count();
-
-        $totalMisses = \App\Models\CombatShiftFlight::where('result', 'втрата борту')->count();
-
-        $totalDetonations = \App\Models\CombatShiftFlight::where('detonation', 'так')->count();
-
-        $totalNonDetonations = \App\Models\CombatShiftFlight::where('detonation', 'ні')->count();
+        $flights = \App\Models\CombatShiftFlight::all();
 
         return [
-            'total_flights' => $totalFlights,
-            'total_hits' => $totalHits,
-            'total_area_hits' => $totalAreaHits,
-            'total_misses' => $totalMisses,
-            'total_detonations' => $totalDetonations,
-            'total_non_detonations' => $totalNonDetonations,
+            'total_flights' => $flights->count(),
+            'total_hits' => $flights->where('result', 'влучання')->count(),
+            'total_area_hits' => $flights->where('result', 'удар в районі цілі')->count(),
+            'total_misses' => $flights->where('result', 'втрата борту')->count(),
+            'total_detonations' => $flights->where('detonation', 'так')->count(),
+            'total_non_detonations' => $flights->where('detonation', 'ні')->count(),
         ];
     }
 
