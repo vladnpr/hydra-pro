@@ -163,7 +163,8 @@
                 alert('Не вдалося скопіювати текст');
             });
         });
-    </script>
+    });
+</script>
 @endsection
 
 @section('css')
