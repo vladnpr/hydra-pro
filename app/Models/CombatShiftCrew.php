@@ -20,6 +20,6 @@ class CombatShiftCrew extends Model
 
     public function combatShift(): BelongsTo
     {
-        return $this->belongsTo(CombatShift::class);
+        return $this->belongsTo(CombatShift::class)->withTrashed();
     }
 }

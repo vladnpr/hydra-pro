@@ -4,14 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class CombatShift extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'position_id',
@@ -42,6 +42,7 @@ class CombatShift extends Model
     public function drones(): BelongsToMany
     {
         return $this->belongsToMany(Drone::class, 'combat_shift_drone')
+            ->withTrashed()
             ->withPivot('quantity')
             ->withTimestamps();
     }
@@ -49,6 +50,7 @@ class CombatShift extends Model
     public function ammunition(): BelongsToMany
     {
         return $this->belongsToMany(Ammunition::class, 'combat_shift_ammunition')
+            ->withTrashed()
             ->withPivot('quantity')
             ->withTimestamps();
     }
