@@ -91,9 +91,22 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 
     public function syncFlights(CombatShift $shift, array $flights): void
     {
-        $shift->flights()->delete();
-        if (!empty($flights)) {
-            $shift->flights()->createMany($flights);
+        $existingIds = $shift->flights()->pluck('id')->toArray();
+        $newIds = collect($flights)->pluck('id')->filter()->toArray();
+
+        // Delete flights that are not in the new list
+        $toDelete = array_diff($existingIds, $newIds);
+        if (!empty($toDelete)) {
+            $shift->flights()->whereIn('id', $toDelete)->delete();
+        }
+
+        // Update or Create flights
+        foreach ($flights as $flightData) {
+            if (!empty($flightData['id'])) {
+                $shift->flights()->where('id', $flightData['id'])->update($flightData);
+            } else {
+                $shift->flights()->create($flightData);
+            }
         }
     }
 }
