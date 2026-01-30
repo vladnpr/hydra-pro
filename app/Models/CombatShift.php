@@ -42,6 +42,7 @@ class CombatShift extends Model
     public function drones(): BelongsToMany
     {
         return $this->belongsToMany(Drone::class, 'combat_shift_drone')
+            ->withTrashed()
             ->withPivot('quantity')
             ->withTimestamps();
     }
@@ -49,6 +50,7 @@ class CombatShift extends Model
     public function ammunition(): BelongsToMany
     {
         return $this->belongsToMany(Ammunition::class, 'combat_shift_ammunition')
+            ->withTrashed()
             ->withPivot('quantity')
             ->withTimestamps();
     }

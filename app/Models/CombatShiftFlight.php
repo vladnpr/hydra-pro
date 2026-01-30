@@ -34,11 +34,11 @@ class CombatShiftFlight extends Model
 
     public function drone(): BelongsTo
     {
-        return $this->belongsTo(Drone::class);
+        return $this->belongsTo(Drone::class)->withTrashed();
     }
 
     public function ammunition(): BelongsTo
     {
-        return $this->belongsTo(Ammunition::class);
+        return $this->belongsTo(Ammunition::class)->withTrashed();
     }
 }
