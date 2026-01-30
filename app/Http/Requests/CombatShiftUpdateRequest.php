@@ -28,6 +28,8 @@ class CombatShiftUpdateRequest extends FormRequest
             'crew.*.callsign' => 'required_with:crew|string|max:255',
             'crew.*.role' => 'required_with:crew|string|max:255',
             'flights' => 'nullable|array',
+            'flights.*.id' => 'nullable|integer|exists:combat_shift_flights,id',
+            'flights.*.video_path' => 'nullable|string|max:255',
             'flights.*.drone_id' => 'required_with:flights|exists:drones,id',
             'flights.*.ammunition_id' => 'required_with:flights|exists:ammunition,id',
             'flights.*.coordinates' => 'required_with:flights|string|max:255',

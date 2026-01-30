@@ -181,6 +181,12 @@
                                             $note = $flight['note'] ?? '';
                                         @endphp
                                         <div class="flight-item border p-2 mb-3 bg-light">
+                                            @if(!empty($flight['id']))
+                                                <input type="hidden" name="flights[{{ $index }}][id]" value="{{ $flight['id'] }}">
+                                            @endif
+                                            @if(!empty($flight['video_path']))
+                                                <input type="hidden" name="flights[{{ $index }}][video_path]" value="{{ $flight['video_path'] }}">
+                                            @endif
                                             <div class="row">
                                                 <div class="col-md-6">
                                                     <div class="form-group mb-2">
