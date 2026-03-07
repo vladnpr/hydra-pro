@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\CombatShiftDTO;
 use App\DTOs\CreateCombatShiftDTO;
 use App\DTOs\UpdateCombatShiftDTO;
+use App\Repositories\CombatShiftFlightsRepository;
 use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,7 +14,10 @@ use Illuminate\Support\Facades\Auth;
 
 class CombatShiftsAdminService
 {
-    public function __construct(private CombatShiftRepositoryInterface $repository)
+    public function __construct(
+        readonly private CombatShiftRepositoryInterface $repository,
+        readonly private CombatShiftFlightsRepository $flightRepository,
+    )
     {
     }
 
@@ -175,10 +179,11 @@ class CombatShiftsAdminService
 
     public function getGlobalStats(): array
     {
-        $flights = \App\Models\CombatShiftFlight::all();
+        $flights = $this->flightRepository->getAllFlights();
 
         return [
             'total_flights' => $flights->count(),
+            'total_combat_flights' => $flights->where('detonation', '!=', 'влучання')->count(),
             'total_hits' => $flights->where('result', 'влучання')->count(),
             'total_area_hits' => $flights->where('result', 'удар в районі цілі')->count(),
             'total_misses' => $flights->where('result', 'втрата борту')->count(),
