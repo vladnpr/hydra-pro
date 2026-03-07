@@ -340,12 +340,12 @@ return [
             'can' => 'manage-drones',
             'submenu' => [
                 [
-                    'text' => 'Бойові чергування',
+                    'text' => 'Чергування',
                     'icon' => 'fas fa-fw fa-shield-alt',
                     'url' => 'admin/combat_shifts',
                 ],
                 [
-                    'text' => 'Бойові вильоти',
+                    'text' => 'Вильоти',
                     'icon' => 'fas fa-fw fa-paper-plane',
                     'url' => 'admin/flight-operations',
                 ],

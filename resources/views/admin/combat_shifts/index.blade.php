@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Бойові чергування')
+@section('title', 'Чергування')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Бойові чергування</h1>
+        <h1>Чергування</h1>
         <div class="d-flex">
             @can('manage-combat')
                 @if(!$userActiveShift)
