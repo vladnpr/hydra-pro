@@ -177,13 +177,17 @@ class CombatShiftsAdminService
         }
     }
 
-    public function getGlobalStats(): array
+    public function getDashboardStats(?int $shiftId): array
     {
-        $flights = $this->flightRepository->getAllFlights();
+        if ($shiftId) {
+            $flights = $this->flightRepository->getFlightsByShift($shiftId);
+        } else {
+            $flights = $this->flightRepository->getAllFlights();
+        }
 
         return [
             'total_flights' => $flights->count(),
-            'total_combat_flights' => $flights->where('detonation', '!=', 'влучання')->count(),
+            'total_combat_flights' => $flights->where('detonation', '!=', 'інше')->count(),
             'total_hits' => $flights->where('result', 'влучання')->count(),
             'total_area_hits' => $flights->where('result', 'удар в районі цілі')->count(),
             'total_misses' => $flights->where('result', 'втрата борту')->count(),

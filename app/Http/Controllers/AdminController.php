@@ -24,8 +24,8 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $stats = $this->combatShiftsService->getGlobalStats();
         $activeShift = $this->combatShiftsService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        $stats = $this->combatShiftsService->getDashboardStats($activeShift->id);
 
         return view('admin.dashboard', compact('stats', 'activeShift'));
     }
