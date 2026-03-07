@@ -141,13 +141,13 @@
                 </div>
                 <div class="card-body">
                     @php
-                        $hitRate = $stats['total_flights'] > 0 ? round(($stats['total_hits'] / $stats['total_flights']) * 100, 1) : 0;
-                        $detonationRate = $stats['total_flights'] > 0 ? round(($stats['total_detonations'] / $stats['total_flights']) * 100, 1) : 0;
+                        $hitRate = $stats['total_combat_flights'] > 0 ? round(($stats['total_hits'] / $stats['total_combat_flights']) * 100, 1) : 0;
+                        $detonationRate = $stats['total_combat_flights'] > 0 ? round(($stats['total_detonations'] / $stats['total_combat_flights']) * 100, 1) : 0;
                     @endphp
 
                     <div class="progress-group">
                         Відсоток влучань
-                        <span class="float-right"><b>{{ $stats['total_hits'] }}</b>/{{ $stats['total_flights'] }}</span>
+                        <span class="float-right"><b>{{ $stats['total_hits'] }}</b>/{{ $stats['total_combat_flights'] }}</span>
                         <div class="progress progress-sm">
                             <div class="progress-bar bg-primary" style="width: {{ $hitRate }}%"></div>
                         </div>
@@ -156,7 +156,7 @@
 
                     <div class="progress-group mt-4">
                         Надійність БК (детонація)
-                        <span class="float-right"><b>{{ $stats['total_detonations'] }}</b>/{{ $stats['total_flights'] }}</span>
+                        <span class="float-right"><b>{{ $stats['total_detonations'] }}</b>/{{ $stats['total_combat_flights'] }}</span>
                         <div class="progress progress-sm">
                             <div class="progress-bar bg-success" style="width: {{ $detonationRate }}%"></div>
                         </div>
