@@ -1,6 +1,6 @@
 @extends('adminlte::page')
 
-@section('title', 'Бойові вильоти')
+@section('title', 'Вильоти')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
