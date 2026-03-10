@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="remains-section">
-                        <h5 class="font-weight-bold mb-3">В наявності</h5>
+                        <h5 class="font-weight-bold mb-3">Витрачено</h5>
 
                         <div class="drones-block mb-4">
                             <p class="font-weight-bold mb-2">Дрони:</p>
