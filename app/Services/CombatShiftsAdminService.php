@@ -12,11 +12,11 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class CombatShiftsAdminService
+readonly class CombatShiftsAdminService
 {
     public function __construct(
-        readonly private CombatShiftRepositoryInterface $repository,
-        readonly private CombatShiftFlightsRepository $flightRepository,
+        readonly private CombatShiftRepositoryInterface $combatShiftRepository,
+        readonly private CombatShiftFlightsRepository   $flightRepository,
     )
     {
     }
@@ -26,12 +26,12 @@ class CombatShiftsAdminService
      */
     public function getAllShifts(): Collection
     {
-        return $this->repository->all()->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+        return $this->combatShiftRepository->all()->map(fn($shift) => CombatShiftDTO::fromModel($shift));
     }
 
     public function getShiftById(int $id): CombatShiftDTO
     {
-        $shift = $this->repository->find($id);
+        $shift = $this->combatShiftRepository->find($id);
 
         if (!$shift) {
             throw new ModelNotFoundException("Combat shift with ID {$id} not found");
@@ -42,7 +42,7 @@ class CombatShiftsAdminService
 
     public function getActiveShiftByUserId(int $userId): ?CombatShiftDTO
     {
-        $shift = $this->repository->findActiveByUserId($userId);
+        $shift = $this->combatShiftRepository->findActiveByUserId($userId);
 
         if (!$shift) {
             return null;
@@ -56,13 +56,13 @@ class CombatShiftsAdminService
      */
     public function getActiveShifts(): Collection
     {
-        return $this->repository->getActiveShifts()->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+        return $this->combatShiftRepository->getActiveShifts()->map(fn($shift) => CombatShiftDTO::fromModel($shift));
     }
 
     public function createShift(CreateCombatShiftDTO $dto): CombatShiftDTO
     {
         return DB::transaction(function () use ($dto) {
-            $shiftModel = $this->repository->create([
+            $shiftModel = $this->combatShiftRepository->create([
                 'position_id' => $dto->position_id,
                 'status' => $dto->status,
                 'started_at' => $dto->started_at,
@@ -72,27 +72,27 @@ class CombatShiftsAdminService
             ]);
 
             if (!empty($dto->user_ids)) {
-                $this->repository->syncUsers($shiftModel, $dto->user_ids);
+                $this->combatShiftRepository->syncUsers($shiftModel, $dto->user_ids);
             } else {
-                $this->repository->syncUsers($shiftModel, [Auth::id()]);
+                $this->combatShiftRepository->syncUsers($shiftModel, [Auth::id()]);
             }
 
             if (!empty($dto->crew)) {
-                $this->repository->syncCrew($shiftModel, $dto->crew);
+                $this->combatShiftRepository->syncCrew($shiftModel, $dto->crew);
             }
 
             if (!empty($dto->flights)) {
-                $this->repository->syncFlights($shiftModel, $dto->flights);
+                $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
             }
 
             $shift = CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
 
             if (!empty($dto->drones)) {
-                $this->repository->syncDrones($shiftModel, $this->formatPivotData($shift, $dto->drones, 'drone'));
+                $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($shift, $dto->drones, 'drone'));
             }
 
             if (!empty($dto->ammunition)) {
-                $this->repository->syncAmmunition($shiftModel, $this->formatPivotData($shift, $dto->ammunition, 'ammunition'));
+                $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($shift, $dto->ammunition, 'ammunition'));
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
@@ -102,7 +102,7 @@ class CombatShiftsAdminService
     public function updateShift(int $id, UpdateCombatShiftDTO $dto): CombatShiftDTO
     {
         return DB::transaction(function () use ($id, $dto) {
-            $shiftModel = $this->repository->find($id);
+            $shiftModel = $this->combatShiftRepository->find($id);
             if (!$shiftModel) {
                 throw new ModelNotFoundException("Combat shift with ID {$id} not found");
             }
@@ -116,19 +116,19 @@ class CombatShiftsAdminService
                 'damaged_coils' => $dto->damaged_coils,
             ];
 
-            $this->repository->update($id, $updateData);
+            $this->combatShiftRepository->update($id, $updateData);
 
             if (!empty($dto->user_ids)) {
-                $this->repository->syncUsers($shiftModel, $dto->user_ids);
+                $this->combatShiftRepository->syncUsers($shiftModel, $dto->user_ids);
             }
 
-            $this->repository->syncCrew($shiftModel, $dto->crew);
-            $this->repository->syncFlights($shiftModel, $dto->flights);
+            $this->combatShiftRepository->syncCrew($shiftModel, $dto->crew);
+            $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
 
             $shift = CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
 
-            $this->repository->syncDrones($shiftModel, $this->formatPivotData($shift, $dto->drones, 'drone'));
-            $this->repository->syncAmmunition($shiftModel, $this->formatPivotData($shift, $dto->ammunition, 'ammunition'));
+            $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($shift, $dto->drones, 'drone'));
+            $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($shift, $dto->ammunition, 'ammunition'));
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
@@ -136,30 +136,30 @@ class CombatShiftsAdminService
 
     public function deleteShift(int $id): bool
     {
-        return $this->repository->delete($id);
+        return $this->combatShiftRepository->delete($id);
     }
 
     public function joinShift(int $shiftId, int $userId): void
     {
-        $shift = $this->repository->find($shiftId);
+        $shift = $this->combatShiftRepository->find($shiftId);
         if ($shift && $shift->status === 'opened') {
-            $this->repository->attachUser($shift, $userId);
+            $this->combatShiftRepository->attachUser($shift, $userId);
         }
     }
 
     public function leaveShift(int $shiftId, int $userId): void
     {
-        $shift = $this->repository->find($shiftId);
+        $shift = $this->combatShiftRepository->find($shiftId);
         if ($shift) {
-            $this->repository->detachUser($shift, $userId);
+            $this->combatShiftRepository->detachUser($shift, $userId);
         }
     }
 
     public function finishShift(int $shiftId): void
     {
-        $shift = $this->repository->find($shiftId);
+        $shift = $this->combatShiftRepository->find($shiftId);
         if ($shift && $shift->status === 'opened') {
-            $this->repository->update($shiftId, [
+            $this->combatShiftRepository->update($shiftId, [
                 'status' => 'closed',
                 'ended_at' => now(),
             ]);
@@ -168,9 +168,9 @@ class CombatShiftsAdminService
 
     public function reopenShift(int $shiftId): void
     {
-        $shift = $this->repository->find($shiftId);
+        $shift = $this->combatShiftRepository->find($shiftId);
         if ($shift && $shift->status === 'closed') {
-            $this->repository->update($shiftId, [
+            $this->combatShiftRepository->update($shiftId, [
                 'status' => 'opened',
                 'ended_at' => null,
             ]);

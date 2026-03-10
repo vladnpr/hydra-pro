@@ -373,6 +373,12 @@ return [
                     'route' => 'combat_shifts.active_remains_report',
                     'can' => 'manage-combat',
                 ],
+                [
+                    'text' => 'Витрати',
+                    'icon' => 'fas fa-fw fa-bomb',
+                    'route' => 'combat_shifts.active_spending_fpv_report',
+                    'can' => 'manage-combat',
+                ],
             ],
         ],
         [
