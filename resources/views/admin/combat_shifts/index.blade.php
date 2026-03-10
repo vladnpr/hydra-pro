@@ -127,7 +127,7 @@
                                     <td class="d-none d-lg-table-cell">{{ $shift->ended_at ?? '-' }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            @if ($shift->ended_at)
+                                            @if (!$shift->ended_at)
                                                 <a href="{{ route('combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-default btn-sm" title="Витрати">
                                                     <i class="fas fa-bomb"></i>
                                                 </a>
