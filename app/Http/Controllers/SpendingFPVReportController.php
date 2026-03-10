@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Presenters\FPVSpendingReportPresenter;
 use App\Services\SpendingFPVReportService;
-use Illuminate\Http\Request;
 
 class SpendingFPVReportController extends Controller
 {
@@ -13,9 +13,19 @@ class SpendingFPVReportController extends Controller
     {
     }
 
-    public function index()
+    public function spendFPVReport(int $shiftId)
     {
-        $reportData = $this->spendingFPVReportService->getSpendingFPVReport(10);
+        $reportData = $this->spendingFPVReportService->getSpendingFPVReport($shiftId);
 
+        $presenter = new FPVSpendingReportPresenter(
+            $reportData->getShiftId(),
+            $reportData->getPositionName(),
+            $reportData->getDrones(),
+            $reportData->getAmmunition(),
+        );
+
+        return view('admin.combat_shifts.spending_fpv_report', [
+            'presenter' => $presenter
+        ]);
     }
 }

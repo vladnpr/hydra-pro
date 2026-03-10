@@ -4,12 +4,14 @@ namespace App\Services;
 
 use App\DTOs\SpendFPVDTO;
 use App\Repositories\CombatShiftFlightsRepository;
+use App\Repositories\Eloquent\EloquentCombatShiftRepository;
 use Carbon\Carbon;
 
 readonly class SpendingFPVReportService
 {
     public function __construct(
-        private CombatShiftFlightsRepository $flightRepository
+        private CombatShiftFlightsRepository $flightRepository,
+        private EloquentCombatShiftRepository $shiftRepository,
     )
     {
     }
@@ -18,6 +20,8 @@ readonly class SpendingFPVReportService
     {
         $today = Carbon::today();
         $tomorrow = Carbon::tomorrow();
+
+        $shift = $this->shiftRepository->find($shiftId);
 
         $spendData = $this->flightRepository->getSpendingByFlightsDate($shiftId, $today, $tomorrow);
 
@@ -39,6 +43,10 @@ readonly class SpendingFPVReportService
             ])
             ->values();
 
-        return new SpendFPVDTO($droneStats, $ammunitionStats);
+        return new SpendFPVDTO(
+            $shiftId,
+            $shift->position->name,
+            $droneStats,
+            $ammunitionStats);
     }
 }
