@@ -25,6 +25,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
         Route::group(['middleware' => 'can:manage-combat'], function () {
             Route::get('active-shift/flights-report', [CombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
             Route::get('active-shift/remains-report', [CombatShiftsController::class, 'activeRemainsReport'])->name('combat_shifts.active_remains_report');
+            Route::get('active-shift/active-spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'activeSpendFPVReport'])->name('combat_shifts.active_spending_fpv_report');
         });
     });
 
