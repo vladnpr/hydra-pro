@@ -2,11 +2,15 @@
 
 @section('title', 'Звіт по залишку')
 
+@php
+    /** @var \App\Presenters\FPVSpendingReportPresenter $presenter */
+@endphp
+
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по залишку</h1>
+        <h1>Звіт по витратам</h1>
         <div>
-            <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default">
+            <a href="{{ route('combat_shifts.show', $presenter->getShiftId()) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей
             </a>
             <button onclick="window.print()" class="btn btn-success ml-2">
@@ -25,14 +29,9 @@
             <div class="card">
                 <div class="card-body p-5" id="report-content">
                     <div class="report-header mb-4">
-                        <h4 class="mb-3">Позиція {{ $shift->position_name }}</h4>
-                        <h5>День {{ $dayNumber }}</h5>
-                    </div>
-
-                    <div class="crew-section mb-4">
-                        @foreach($shift->crew as $index => $member)
-                            <p class="mb-1">{{ $index + 1 }}. {{ $member['callsign'] }}</p>
-                        @endforeach
+                        <h4 class="mb-3">Позиція "{{ $presenter->getPositionName() }}"</h4>
+                        <br/>
+                        <h5>Витрати</h5>
                     </div>
 
                     <div class="remains-section">
@@ -41,9 +40,9 @@
                         <div class="drones-block mb-4">
                             <p class="font-weight-bold mb-2">Дрони:</p>
                             <ul class="list-unstyled pl-0">
-                                @forelse($shift->drones as $drone)
-                                    @if($drone['quantity'] > 0)
-                                        <li class="mb-1">{{ $drone['name'] }} {{ $drone['model'] }} - {{ $drone['quantity'] }} шт</li>
+                                @forelse($presenter->getDrones() as $drone)
+                                    @if($drone)
+                                        <li class="mb-1">{{ $drone['name'] }} - {{ $drone['count'] }} шт</li>
                                     @endif
                                 @empty
                                     <li>Відсутні</li>
@@ -54,9 +53,9 @@
                         <div class="ammunition-block">
                             <p class="font-weight-bold mb-2">БК:</p>
                             <ol class="pl-0" style="list-style-type: none;">
-                                @forelse($shift->ammunition as $index => $item)
-                                    @if($item['quantity'] > 0)
-                                        <li class="mb-1">{{ $index + 1 }}. {{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                @forelse($presenter->getAmmunition() as $ammunition)
+                                    @if($ammunition)
+                                        <li class="mb-1">{{ $ammunition['name'] }} - {{ $ammunition['count'] }} шт</li>
                                     @endif
                                 @empty
                                     <li>Відсутні</li>
@@ -64,28 +63,6 @@
                             </ol>
                         </div>
                     </div>
-
-                    @if(!empty($shift->damaged_drones))
-                        <div class="damaged-drones-block mb-4">
-                            <p class="font-weight-bold mb-2">Пошкоджені дрони:</p>
-                            <ul class="list-unstyled pl-0">
-                                @foreach($shift->damaged_drones as $item)
-                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
-
-                    @if(!empty($shift->damaged_coils))
-                        <div class="damaged-coils-block mb-4">
-                            <p class="font-weight-bold mb-2">Пошкоджені катушки:</p>
-                            <ul class="list-unstyled pl-0">
-                                @foreach($shift->damaged_coils as $item)
-                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                 </div>
             </div>
         </div>

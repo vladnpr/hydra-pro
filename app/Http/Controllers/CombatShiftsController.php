@@ -14,29 +14,29 @@ use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 class CombatShiftsController extends Controller
 {
     public function __construct(
-        private readonly CombatShiftsAdminService $service,
-        private readonly PositionRepositoryInterface $positionRepository,
-        private readonly DroneRepositoryInterface $droneRepository,
+        private readonly CombatShiftsAdminService      $combatShiftsAdminService,
+        private readonly PositionRepositoryInterface   $positionRepository,
+        private readonly DroneRepositoryInterface      $droneRepository,
         private readonly AmmunitionRepositoryInterface $ammunitionRepository
     ) {}
 
     public function index()
     {
-        $shifts = $this->service->getAllShifts();
-        $activeShifts = $this->service->getActiveShifts();
-        $userActiveShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        $shifts = $this->combatShiftsAdminService->getAllShifts();
+        $activeShifts = $this->combatShiftsAdminService->getActiveShifts();
+        $userActiveShift = $this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
         return view('admin.combat_shifts.index', compact('shifts', 'userActiveShift'));
     }
 
     public function activeShiftsReports()
     {
-        $activeShifts = $this->service->getActiveShifts();
+        $activeShifts = $this->combatShiftsAdminService->getActiveShifts();
         return view('admin.combat_shifts.active_reports', compact('activeShifts'));
     }
 
     public function create()
     {
-        if ($this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id())) {
+        if ($this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id())) {
             return redirect()->route('combat_shifts.index')
                 ->with('error', 'У вас вже є відкрите чергування. Спочатку завершіть його.');
         }
@@ -50,13 +50,13 @@ class CombatShiftsController extends Controller
 
     public function store(CombatShiftStoreRequest $request)
     {
-        if ($this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id())) {
+        if ($this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id())) {
             return redirect()->route('combat_shifts.index')
                 ->with('error', 'У вас вже є відкрите чергування.');
         }
 
         $dto = CreateCombatShiftDTO::fromRequest($request);
-        $this->service->createShift($dto);
+        $this->combatShiftsAdminService->createShift($dto);
 
         return redirect()->route('combat_shifts.index')
             ->with('success', 'Чергування успішно розпочато');
@@ -64,14 +64,14 @@ class CombatShiftsController extends Controller
 
     public function show(int $id)
     {
-        $shift = $this->service->getShiftById($id);
-        $userActiveShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
+        $userActiveShift = $this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
         return view('admin.combat_shifts.show', compact('shift', 'userActiveShift'));
     }
 
     public function report(int $id)
     {
-        $shift = $this->service->getShiftById($id);
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
 
         // Номер дня вираховується від дня старту зміни
         // Перший день зміни - це День 1
@@ -84,7 +84,7 @@ class CombatShiftsController extends Controller
 
     public function flightsReport(int $id, \Illuminate\Http\Request $request)
     {
-        $shift = $this->service->getShiftById($id);
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
         $date = $request->query('date', now()->format('Y-m-d'));
 
         // Отримуємо польоти за обрану дату
@@ -95,7 +95,7 @@ class CombatShiftsController extends Controller
 
     public function activeFlightsReport(\Illuminate\Http\Request $request)
     {
-        $activeShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        $activeShift = $this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
 
         if (!$activeShift) {
             return redirect()->route('flight_operations.index')
@@ -107,7 +107,7 @@ class CombatShiftsController extends Controller
 
     public function activeRemainsReport()
     {
-        $activeShift = $this->service->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        $activeShift = $this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
 
         if (!$activeShift) {
             return redirect()->route('flight_operations.index')
@@ -119,7 +119,7 @@ class CombatShiftsController extends Controller
 
     public function edit(int $id)
     {
-        $shift = $this->service->getShiftById($id);
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
         $users = \App\Models\User::all();
         $positions = $this->positionRepository->getActive();
         $drones = $this->droneRepository->getActive();
@@ -142,7 +142,7 @@ class CombatShiftsController extends Controller
     public function update(CombatShiftUpdateRequest $request, int $id)
     {
         $dto = UpdateCombatShiftDTO::fromRequest($request);
-        $this->service->updateShift($id, $dto);
+        $this->combatShiftsAdminService->updateShift($id, $dto);
 
         return redirect()->route('combat_shifts.index')
             ->with('success', 'Чергування успішно оновлено');
@@ -150,7 +150,7 @@ class CombatShiftsController extends Controller
 
     public function destroy(int $id)
     {
-        $this->service->deleteShift($id);
+        $this->combatShiftsAdminService->deleteShift($id);
 
         return redirect()->route('combat_shifts.index')
             ->with('success', 'Чергування успішно видалено');
@@ -160,12 +160,12 @@ class CombatShiftsController extends Controller
     {
         $userId = \Illuminate\Support\Facades\Auth::id();
 
-        if ($this->service->getActiveShiftByUserId($userId)) {
+        if ($this->combatShiftsAdminService->getActiveShiftByUserId($userId)) {
             return redirect()->route('combat_shifts.index')
                 ->with('error', 'У вас вже є активне чергування.');
         }
 
-        $this->service->joinShift($id, $userId);
+        $this->combatShiftsAdminService->joinShift($id, $userId);
 
         return redirect()->route('combat_shifts.index')
             ->with('success', 'Ви приєдналися до чергування');
@@ -174,7 +174,7 @@ class CombatShiftsController extends Controller
     public function leave(int $id)
     {
         $userId = \Illuminate\Support\Facades\Auth::id();
-        $this->service->leaveShift($id, $userId);
+        $this->combatShiftsAdminService->leaveShift($id, $userId);
 
         return redirect()->route('combat_shifts.index')
             ->with('success', 'Ви покинули чергування');
@@ -182,7 +182,7 @@ class CombatShiftsController extends Controller
 
     public function finish(int $id)
     {
-        $this->service->finishShift($id);
+        $this->combatShiftsAdminService->finishShift($id);
 
         return redirect()->route('combat_shifts.show', $id)
             ->with('success', 'Чергування успішно завершено');
@@ -190,7 +190,7 @@ class CombatShiftsController extends Controller
 
     public function reopen(int $id)
     {
-        $this->service->reopenShift($id);
+        $this->combatShiftsAdminService->reopenShift($id);
 
         return redirect()->route('combat_shifts.show', $id)
             ->with('success', 'Чергування успішно відновлено');
