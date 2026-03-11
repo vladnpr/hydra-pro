@@ -10,6 +10,7 @@ use App\Services\CombatShiftsAdminService;
 use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
+use App\Enums\PositionTypesEnum;
 
 class CombatShiftsController extends Controller
 {
@@ -44,7 +45,7 @@ class CombatShiftsController extends Controller
         $users = \App\Models\User::all();
         $positions = $this->positionRepository->getActive();
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
         return view('admin.combat_shifts.create', compact('positions', 'drones', 'ammunition', 'users'));
     }
 
@@ -123,7 +124,7 @@ class CombatShiftsController extends Controller
         $users = \App\Models\User::all();
         $positions = $this->positionRepository->getActive();
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
 
         // Prepare quantities for the form
         $currentDrones = [];
