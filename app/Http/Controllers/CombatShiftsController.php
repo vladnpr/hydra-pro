@@ -43,7 +43,7 @@ class CombatShiftsController extends Controller
         }
 
         $users = \App\Models\User::all();
-        $positions = $this->positionRepository->getActive();
+        $positions = $this->positionRepository->getActive(PositionTypesEnum::FPV->value);
         $drones = $this->droneRepository->getActive();
         $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
         return view('admin.combat_shifts.create', compact('positions', 'drones', 'ammunition', 'users'));
@@ -122,7 +122,7 @@ class CombatShiftsController extends Controller
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
         $users = \App\Models\User::all();
-        $positions = $this->positionRepository->getActive();
+        $positions = $this->positionRepository->getActive(PositionTypesEnum::FPV->value);
         $drones = $this->droneRepository->getActive();
         $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
 

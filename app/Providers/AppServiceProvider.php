@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Eloquent\EloquentDroneRepository;
+use App\Repositories\Contracts\ReconDroneRepositoryInterface;
+use App\Repositories\Eloquent\EloquentReconDroneRepository;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAmmunitionRepository;
 use App\Repositories\Contracts\PositionRepositoryInterface;
@@ -24,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(DroneRepositoryInterface::class, EloquentDroneRepository::class);
+        $this->app->bind(ReconDroneRepositoryInterface::class, EloquentReconDroneRepository::class);
         $this->app->bind(AmmunitionRepositoryInterface::class, EloquentAmmunitionRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, EloquentPositionRepository::class);
         $this->app->bind(CombatShiftRepositoryInterface::class, EloquentCombatShiftRepository::class);

@@ -13,9 +13,10 @@ interface PositionRepositoryInterface
     public function all(): Collection;
 
     /**
+     * @param string|null $type
      * @return Collection<Position>
      */
-    public function getActive(): Collection;
+    public function getActive(?string $type = null): Collection;
 
     public function create(array $data): Position;
 
