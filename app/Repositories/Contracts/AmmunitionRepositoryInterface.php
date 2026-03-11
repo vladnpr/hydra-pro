@@ -8,14 +8,16 @@ use App\Models\Ammunition;
 interface AmmunitionRepositoryInterface
 {
     /**
+     * @param string|null $type
      * @return Collection<Ammunition>
      */
-    public function all(): Collection;
+    public function all(?string $type = null): Collection;
 
     /**
+     * @param string|null $type
      * @return Collection<Ammunition>
      */
-    public function getActive(): Collection;
+    public function getActive(?string $type = null): Collection;
 
     public function create(array $data): Ammunition;
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DTOs\CreateAmmunitionDTO;
 use App\DTOs\UpdateAmmunitionDTO;
+use App\Enums\PositionTypesEnum;
 use App\Http\Requests\AmmunitionStoreRequest;
 use App\Http\Requests\AmmunitionUpdateRequest;
 use App\Services\AmmunitionAdminService;
@@ -23,7 +24,7 @@ class AmmunitionController extends Controller
 
     public function index()
     {
-        $ammunition = $this->service->getAllAmmunition();
+        $ammunition = $this->service->getAllAmmunition(PositionTypesEnum::FPV->value);
         return view('admin.ammunition.index', compact('ammunition'));
     }
 

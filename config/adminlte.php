@@ -310,6 +310,17 @@ return [
             'can' => 'manage-blog',
         ],
         [
+            'text' => 'Позиції',
+            'url' => 'admin/positions',
+            'icon' => 'fas fa-map-marker-alt',
+            'can' => 'manage-positions',
+        ],
+        // FPV-----------------------------------------
+        [
+            'header' => 'FPV-напрямок',
+            'can' => 'manage-fpv-drones'
+        ],
+        [
             'text' => 'FPV',
             'icon' => 'fas fa-crosshairs',
             'can' => 'manage-fpv-drones',
@@ -329,12 +340,6 @@ return [
                             'url' => 'admin/storage/ammunition',
                             'icon' => 'fas fa-bomb',
                             'can' => 'manage-fpv-ammunition',
-                        ],
-                        [
-                            'text' => 'Позиції',
-                            'url' => 'admin/positions',
-                            'icon' => 'fas fa-map-marker-alt',
-                            'can' => 'manage-positions',
                         ],
                     ],
                 ],
@@ -357,6 +362,34 @@ return [
                 ],
 
             ],
+        ],
+        // end FPV-----------------------------------------
+        // RECON_______________________________________
+        [
+            'header' => 'RECON-напрямок',
+            'can' => 'manage-recon'
+        ],
+        [
+            'text' => 'RECON',
+            'icon' => 'fas fa-binoculars',
+            'can' => 'manage-recon',
+            'submenu' => [
+                [
+                    'text' => 'Дрони',
+                    'url' => 'admin/recon/drones',
+                    'icon' => 'fas fa-helicopter',
+                ],
+                [
+                    'text' => 'Боєприпаси',
+                    'url' => 'admin/recon/ammunition',
+                    'icon' => 'fas fa-bomb',
+                ],
+            ]
+        ],
+        // END RECON__________________________________
+        [
+            'header' => 'Звітність',
+            'can' => 'view-reports'
         ],
         [
             'text' => 'Звіти',
@@ -387,6 +420,10 @@ return [
                     'can' => 'manage-combat',
                 ],
             ],
+        ],
+        [
+            'header' => 'Менеджмент корисутвачів',
+            'can' => 'manage-users'
         ],
         [
             'text' => 'Користувачі',

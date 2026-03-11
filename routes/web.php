@@ -16,6 +16,11 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
     });
     Route::resource('positions', PositionsController::class);
 
+    Route::group(['middleware' => 'can:manage-recon', 'prefix' => 'recon', 'as' => 'recon.'], function () {
+        Route::resource('drones', \App\Http\Controllers\Recon\ReconDronesController::class);
+        Route::resource('ammunition', \App\Http\Controllers\Recon\ReconAmmunitionController::class);
+    });
+
     Route::group(['middleware' => 'can:view-reports'], function () {
         Route::get('combat-shifts-active-reports', [CombatShiftsController::class, 'activeShiftsReports'])->name('combat_shifts.active_reports');
         Route::get('combat_shifts/{shiftId}/spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'spendFPVReport'])->name('combat_shifts.spending_fpv_report');

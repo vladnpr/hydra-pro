@@ -16,11 +16,12 @@ class AmmunitionAdminService
     }
 
     /**
+     * @param string|null $type
      * @return Collection<AmmunitionDTO>
      */
-    public function getAllAmmunition(): Collection
+    public function getAllAmmunition(?string $type = null): Collection
     {
-        return $this->repository->all()->map(fn($item) => AmmunitionDTO::fromModel($item));
+        return $this->repository->all($type)->map(fn($item) => AmmunitionDTO::fromModel($item));
     }
 
     public function getAmmunitionById(int $id): AmmunitionDTO
@@ -38,6 +39,7 @@ class AmmunitionAdminService
     {
         $item = $this->repository->create([
             'name' => $dto->name,
+            'type' => $dto->type,
             'status' => $dto->status,
         ]);
 
@@ -48,6 +50,7 @@ class AmmunitionAdminService
     {
         $this->repository->update($id, [
             'name' => $dto->name,
+            'type' => $dto->type,
             'status' => $dto->status,
         ]);
 

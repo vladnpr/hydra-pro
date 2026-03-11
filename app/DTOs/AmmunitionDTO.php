@@ -9,6 +9,7 @@ class AmmunitionDTO
     public function __construct(
         public readonly int $id,
         public readonly string $name,
+        public readonly string $type,
         public readonly bool $status,
         public readonly string $status_color,
     ) {}
@@ -18,6 +19,7 @@ class AmmunitionDTO
         return new self(
             id: $ammunition->id,
             name: $ammunition->name,
+            type: $ammunition->type,
             status: (bool) $ammunition->status,
             status_color: $ammunition->status_color,
         );
