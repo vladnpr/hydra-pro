@@ -14,7 +14,7 @@ class AmmunitionController extends Controller
     public function __construct(private readonly AmmunitionAdminService $service)
     {
         $this->middleware(function ($request, $next) {
-            if (Gate::denies('manage-ammunition')) {
+            if (Gate::denies('manage-fpv-ammunition')) {
                 abort(403);
             }
             return $next($request);

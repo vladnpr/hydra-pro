@@ -310,45 +310,52 @@ return [
             'can' => 'manage-blog',
         ],
         [
-            'text' => 'Ресурси та логістика',
-            'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'manage-drones',
+            'text' => 'FPV',
+            'icon' => 'fas fa-crosshairs',
+            'can' => 'manage-fpv-drones',
             'submenu' => [
+
                 [
-                    'text' => 'Дрони',
-                    'url' => 'admin/storage/drones',
-                    'icon' => 'fas fa-fw fa-helicopter',
-                    'can' => 'manage-drones',
+                    'text' => 'Ресурси та логістика',
+                    'icon' => 'fas fa-warehouse',
+                    'submenu' => [
+                        [
+                            'text' => 'Дрони',
+                            'url' => 'admin/storage/drones',
+                            'icon' => 'fas fa-helicopter',
+                        ],
+                        [
+                            'text' => 'Боєприпаси',
+                            'url' => 'admin/storage/ammunition',
+                            'icon' => 'fas fa-bomb',
+                            'can' => 'manage-fpv-ammunition',
+                        ],
+                        [
+                            'text' => 'Позиції',
+                            'url' => 'admin/positions',
+                            'icon' => 'fas fa-map-marker-alt',
+                            'can' => 'manage-positions',
+                        ],
+                    ],
                 ],
+
                 [
-                    'text' => 'Боєприпаси',
-                    'url' => 'admin/storage/ammunition',
-                    'icon' => 'fas fa-fw fa-bomb',
-                    'can' => 'manage-ammunition',
+                    'text' => 'Бойова робота',
+                    'icon' => 'fas fa-bullseye',
+                    'submenu' => [
+                        [
+                            'text' => 'Чергування',
+                            'icon' => 'fas fa-shield-alt',
+                            'url' => 'admin/combat_shifts',
+                        ],
+                        [
+                            'text' => 'Вильоти',
+                            'icon' => 'fas fa-paper-plane',
+                            'url' => 'admin/flight-operations',
+                        ],
+                    ],
                 ],
-                [
-                    'text' => 'Позиції',
-                    'icon' => 'fas fa-fw fa-map-marker-alt',
-                    'url' => 'admin/positions',
-                    'can' => 'manage-positions',
-                ],
-            ],
-        ],
-        [
-            'text' => 'Бойова робота',
-            'icon' => 'fas fa-fw fa-crosshairs',
-            'can' => 'manage-drones',
-            'submenu' => [
-                [
-                    'text' => 'Чергування',
-                    'icon' => 'fas fa-fw fa-shield-alt',
-                    'url' => 'admin/combat_shifts',
-                ],
-                [
-                    'text' => 'Вильоти',
-                    'icon' => 'fas fa-fw fa-paper-plane',
-                    'url' => 'admin/flight-operations',
-                ],
+
             ],
         ],
         [
