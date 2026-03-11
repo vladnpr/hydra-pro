@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('positions', function (Blueprint $table) {
             $table->string('type')
-                ->default('fpv')
+                ->default(\App\Enums\PositionTypesEnum::FPV->value)
                 ->after('status');
         });
     }
