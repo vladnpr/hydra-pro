@@ -33,6 +33,7 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Назва</th>
+                                <th>Тип</th>
                                 <th class="d-none d-lg-table-cell">Опис</th>
                                 <th>Статус</th>
                                 <th style="width: 150px">Дії</th>
@@ -43,6 +44,7 @@
                                 <tr>
                                     <td>{{ $position->id }}</td>
                                     <td>{{ $position->name }}</td>
+                                    <td>{{ $position->type }}</td>
                                     <td class="d-none d-lg-table-cell">{{ Str::limit($position->description, 50) }}</td>
                                     <td>
                                         <span class="badge badge-{{ $position->status_color }}">
@@ -67,11 +69,11 @@
                                         </div>
                                     </td>
                                 </tr>
-                            @empty
+                                @empty
                                 <tr>
-                                    <td colspan="5" class="text-center">Позицій не знайдено.</td>
+                                    <td colspan="6" class="text-center">Позицій не знайдено.</td>
                                 </tr>
-                            @endforelse
+                                @endforelse
                         </tbody>
                     </table>
                 </div>

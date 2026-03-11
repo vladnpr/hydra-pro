@@ -10,6 +10,7 @@ class PositionDTO
         public readonly int $id,
         public readonly string $name,
         public readonly ?string $description,
+        public readonly string $type,
         public readonly bool $status,
         public readonly string $status_color,
     ) {}
@@ -20,6 +21,7 @@ class PositionDTO
             id: $position->id,
             name: $position->name,
             description: $position->description,
+            type: $position->type,
             status: $position->status,
             status_color: $position->status_color,
         );

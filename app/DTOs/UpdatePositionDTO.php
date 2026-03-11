@@ -9,6 +9,7 @@ class UpdatePositionDTO
     public function __construct(
         public readonly string $name,
         public readonly ?string $description,
+        public readonly string $type,
         public readonly bool $status,
     ) {}
 
@@ -17,6 +18,7 @@ class UpdatePositionDTO
         return new self(
             name: $request->validated('name'),
             description: $request->validated('description'),
+            type: $request->validated('type'),
             status: (bool) $request->validated('status'),
         );
     }

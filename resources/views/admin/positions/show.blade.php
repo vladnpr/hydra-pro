@@ -20,6 +20,11 @@
 
                     <hr>
 
+                    <strong><i class="fas fa-layer-group mr-1"></i> Тип</strong>
+                    <p class="text-muted">{{ $position->type }}</p>
+
+                    <hr>
+
                     <strong><i class="fas fa-file-alt mr-1"></i> Опис</strong>
                     <p class="text-muted">{{ $position->description ?: 'Опис відсутній' }}</p>
 
