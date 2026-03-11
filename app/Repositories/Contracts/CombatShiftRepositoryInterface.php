@@ -7,11 +7,11 @@ use Illuminate\Support\Collection;
 
 interface CombatShiftRepositoryInterface
 {
-    public function all(): Collection;
+    public function all(?string $type = null): Collection;
     public function create(array $data): CombatShift;
     public function find(int $id): ?CombatShift;
     public function findActiveByUserId(int $userId): ?CombatShift;
-    public function getActiveShifts(): Collection;
+    public function getActiveShifts(?string $type = null): Collection;
     public function update(int $id, array $data): bool;
     public function delete(int $id): bool;
     public function syncUsers(CombatShift $shift, array $userIds): void;

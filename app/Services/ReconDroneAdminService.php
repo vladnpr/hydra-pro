@@ -32,6 +32,15 @@ class ReconDroneAdminService
         return $drone;
     }
 
+    /**
+     * @param int $positionId
+     * @return Collection<ReconDrone>
+     */
+    public function getDronesByPosition(int $positionId): Collection
+    {
+        return $this->repository->getByPosition($positionId);
+    }
+
     public function createDrone(array $data): ReconDrone
     {
         return $this->repository->create($data);

@@ -17,8 +17,15 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
     Route::resource('positions', PositionsController::class);
 
     Route::group(['middleware' => 'can:manage-recon', 'prefix' => 'recon', 'as' => 'recon.'], function () {
+        Route::get('drones/by-position/{positionId}', [\App\Http\Controllers\Recon\ReconDronesController::class, 'getByPosition'])->name('drones.by_position');
         Route::resource('drones', \App\Http\Controllers\Recon\ReconDronesController::class);
         Route::resource('ammunition', \App\Http\Controllers\Recon\ReconAmmunitionController::class);
+
+        Route::post('combat_shifts/{id}/join', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'join'])->name('combat_shifts.join');
+        Route::post('combat_shifts/{id}/leave', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
+        Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'finish'])->name('combat_shifts.finish');
+        Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'reopen'])->name('combat_shifts.reopen');
+        Route::resource('combat_shifts', \App\Http\Controllers\Recon\ReconCombatShiftsController::class);
     });
 
     Route::group(['middleware' => 'can:view-reports'], function () {

@@ -17,6 +17,12 @@ interface ReconDroneRepositoryInterface
      */
     public function getActive(): Collection;
 
+    /**
+     * @param int $positionId
+     * @return Collection<ReconDrone>
+     */
+    public function getByPosition(int $positionId): Collection;
+
     public function create(array $data): ReconDrone;
 
     public function find(int $id): ?ReconDrone;

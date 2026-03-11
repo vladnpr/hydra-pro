@@ -18,7 +18,7 @@ class ReconDroneStoreRequest extends FormRequest
         return [
             'name' => 'required|string|max:255',
             'serial_number' => 'nullable|string|max:255|unique:recon_drones,serial_number',
-            'status' => ['required', Rule::in(['active', 'lost', 'repair'])],
+            'status' => ['required', Rule::in(['active', 'lost', 'repair', 'non_operational'])],
             'position_id' => [
                 'required',
                 Rule::exists('positions', 'id')->where(function ($query) {

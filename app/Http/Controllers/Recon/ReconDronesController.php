@@ -72,4 +72,9 @@ class ReconDronesController extends Controller
         return redirect()->route('recon.drones.index')
             ->with('success', 'Дрон успішно видалено');
     }
+
+    public function getByPosition(int $positionId)
+    {
+        return response()->json($this->service->getDronesByPosition($positionId));
+    }
 }

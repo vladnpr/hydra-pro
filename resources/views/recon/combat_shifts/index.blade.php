@@ -1,0 +1,160 @@
+@extends('adminlte::page')
+
+@section('title', 'RECON Чергування')
+
+@section('content_header')
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>RECON Чергування</h1>
+        <div class="d-flex">
+            @can('manage-recon')
+                @if(!$userActiveShift)
+                    <a href="{{ route('recon.combat_shifts.create') }}" class="btn btn-primary mr-2">
+                        <i class="fas fa-plus"></i> Розпочати нове чергування
+                    </a>
+                @else
+                    <span class="badge badge-info align-self-center mr-2">У вас вже є активне чергування</span>
+                @endif
+            @endcan
+        </div>
+    </div>
+@endsection
+
+@section('content')
+    @if($userActiveShift)
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-outline card-success">
+                    <div class="card-header">
+                        <h3 class="card-title">
+                            <i class="fas fa-clock mr-1"></i>
+                            Ваша активна зміна (RECON)
+                        </h3>
+                        <div class="card-tools">
+                            <a href="{{ route('recon.combat_shifts.show', $userActiveShift->id) }}" class="btn btn-tool">
+                                <i class="fas fa-eye mr-1"></i> Деталі
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <strong>Позиція:</strong> {{ $userActiveShift->position_name }}
+                            </div>
+                            <div class="col-md-4">
+                                <strong>Початок:</strong> {{ $userActiveShift->started_at }}
+                            </div>
+                            <div class="col-md-4 text-right">
+                                <form action="{{ route('recon.combat_shifts.finish', $userActiveShift->id) }}" method="POST" style="display:inline-block;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Завершити чергування?')">
+                                        <i class="fas fa-stop-circle mr-1"></i> Завершити
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="alert alert-success alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-check"></i> Успіх!</h5>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-ban"></i> Помилка!</h5>
+            {{ session('error') }}
+        </div>
+    @endif
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Список RECON чергувань</h3>
+                </div>
+                <div class="card-body table-responsive p-0">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Позиція</th>
+                                <th class="d-none d-lg-table-cell">Екіпаж</th>
+                                <th>Статус</th>
+                                <th class="d-none d-md-table-cell">Початок</th>
+                                <th class="d-none d-lg-table-cell">Завершення</th>
+                                <th style="width: 150px">Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @php
+                                $currentUserId = auth()->id();
+                            @endphp
+                            @forelse($shifts as $shift)
+                                @php
+                                    $userIds = collect($shift->users)->pluck('id')->toArray();
+                                    $isUserInShift = in_array($currentUserId, $userIds);
+                                @endphp
+                                <tr>
+                                    <td>{{ $shift->id }}</td>
+                                    <td>{{ $shift->position_name }}</td>
+                                    <td class="d-none d-lg-table-cell">
+                                        @foreach($shift->users as $user)
+                                            <span class="badge badge-info">{{ $user['name'] }}</span>
+                                        @endforeach
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-{{ $shift->status_color }}">
+                                            {{ $shift->status_label }}
+                                        </span>
+                                    </td>
+                                    <td class="d-none d-md-table-cell">{{ $shift->started_at }}</td>
+                                    <td class="d-none d-lg-table-cell">{{ $shift->ended_at ?? '-' }}</td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                            @can('manage-recon')
+                                                <a href="{{ route('recon.combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('recon.combat_shifts.destroy', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            @endcan
+
+                                            @if($shift->status === 'opened' && !$isUserInShift && !$userActiveShift)
+                                                <form action="{{ route('recon.combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    <button type="submit" class="btn btn-success btn-sm">
+                                                        Приєднатися
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center">Чергувань не знайдено.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection

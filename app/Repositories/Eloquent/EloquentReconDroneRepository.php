@@ -18,6 +18,11 @@ class EloquentReconDroneRepository implements ReconDroneRepositoryInterface
         return ReconDrone::where('status', 'active')->with('position')->get();
     }
 
+    public function getByPosition(int $positionId): Collection
+    {
+        return ReconDrone::where('position_id', $positionId)->get();
+    }
+
     public function create(array $data): ReconDrone
     {
         return ReconDrone::create($data);

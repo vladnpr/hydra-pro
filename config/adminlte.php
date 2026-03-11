@@ -375,6 +375,11 @@ return [
             'can' => 'manage-recon',
             'submenu' => [
                 [
+                    'text' => 'Чергування',
+                    'url' => 'admin/recon/combat_shifts',
+                    'icon' => 'fas fa-shield-alt',
+                ],
+                [
                     'text' => 'Дрони',
                     'url' => 'admin/recon/drones',
                     'icon' => 'fas fa-helicopter',

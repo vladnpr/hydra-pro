@@ -37,8 +37,60 @@ class CombatShiftFlight extends Model
         return $this->belongsTo(Drone::class)->withTrashed();
     }
 
+
     public function ammunition(): BelongsTo
     {
         return $this->belongsTo(Ammunition::class)->withTrashed();
+    }
+
+    protected static function booted()
+    {
+        static::created(function ($flight) {
+            if ($flight->combat_shift_id && $flight->ammunition_id) {
+                app(\App\Services\CombatShiftsAdminService::class)->updateAmmunitionQuantity($flight->combat_shift_id, $flight->ammunition_id, -1);
+            }
+            if ($flight->combat_shift_id && $flight->drone_id) {
+                app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $flight->drone_id, -1);
+            }
+        });
+
+        static::deleted(function ($flight) {
+            if ($flight->combat_shift_id && $flight->ammunition_id) {
+                app(\App\Services\CombatShiftsAdminService::class)->updateAmmunitionQuantity($flight->combat_shift_id, $flight->ammunition_id, 1);
+            }
+            if ($flight->combat_shift_id && $flight->drone_id) {
+                app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $flight->drone_id, 1);
+            }
+        });
+
+        static::updating(function ($flight) {
+            $oldAmmunitionId = $flight->getOriginal('ammunition_id');
+            $newAmmunitionId = $flight->ammunition_id;
+            $oldDroneId = $flight->getOriginal('drone_id');
+            $newDroneId = $flight->drone_id;
+
+            if ($oldAmmunitionId != $newAmmunitionId) {
+                if ($flight->combat_shift_id && $oldAmmunitionId) {
+                    app(\App\Services\CombatShiftsAdminService::class)->updateAmmunitionQuantity($flight->combat_shift_id, $oldAmmunitionId, 1);
+                }
+                if ($flight->combat_shift_id && $newAmmunitionId) {
+                    app(\App\Services\CombatShiftsAdminService::class)->updateAmmunitionQuantity($flight->combat_shift_id, $newAmmunitionId, -1);
+                }
+            }
+
+            if ($oldDroneId != $newDroneId) {
+                if ($flight->combat_shift_id && $oldDroneId) {
+                    app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $oldDroneId, 1);
+                }
+                if ($flight->combat_shift_id && $newDroneId) {
+                    app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $newDroneId, -1);
+                }
+            }
+        });
+    }
+
+    public function position(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    {
+        return $this->hasOneThrough(Position::class, CombatShift::class, 'id', 'id', 'combat_shift_id', 'position_id');
     }
 }

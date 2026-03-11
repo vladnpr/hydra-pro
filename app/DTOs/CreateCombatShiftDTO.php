@@ -18,6 +18,7 @@ class CreateCombatShiftDTO
         public readonly array $flights,
         public readonly array $damaged_drones,
         public readonly array $damaged_coils,
+        public readonly array $new_recon_drones = [],
     ) {}
 
     public static function fromRequest(Request $request): self
@@ -34,6 +35,7 @@ class CreateCombatShiftDTO
             flights: $request->validated('flights', []),
             damaged_drones: $request->validated('damaged_drones', []),
             damaged_coils: $request->validated('damaged_coils', []),
+            new_recon_drones: $request->validated('new_recon_drones', []),
         );
     }
 }

@@ -31,6 +31,7 @@ class ReconDrone extends Model
             'active' => 'success',
             'lost' => 'danger',
             'repair' => 'warning',
+            'non_operational' => 'secondary',
             default => 'info',
         };
     }

@@ -49,6 +49,7 @@
                             <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
                                 <option value="active" {{ old('status') === 'active' || old('status') === null ? 'selected' : '' }}>Активний</option>
                                 <option value="repair" {{ old('status') === 'repair' ? 'selected' : '' }}>В ремонті</option>
+                                <option value="non_operational" {{ old('status') === 'non_operational' ? 'selected' : '' }}>Не боєготовий</option>
                                 <option value="lost" {{ old('status') === 'lost' ? 'selected' : '' }}>Втрачений</option>
                             </select>
                             @error('status')

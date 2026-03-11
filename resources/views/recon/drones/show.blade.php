@@ -35,6 +35,7 @@
                             @if($drone->status === 'active') Активний
                             @elseif($drone->status === 'lost') Втрачений
                             @elseif($drone->status === 'repair') В ремонті
+                            @elseif($drone->status === 'non_operational') Не боєготовий
                             @else {{ $drone->status }} @endif
                         </span>
                     </p>

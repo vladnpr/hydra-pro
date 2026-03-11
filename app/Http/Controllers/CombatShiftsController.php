@@ -23,15 +23,19 @@ class CombatShiftsController extends Controller
 
     public function index()
     {
-        $shifts = $this->combatShiftsAdminService->getAllShifts();
-        $activeShifts = $this->combatShiftsAdminService->getActiveShifts();
+        $shifts = $this->combatShiftsAdminService->getAllShifts(PositionTypesEnum::FPV->value);
         $userActiveShift = $this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        if ($userActiveShift && $userActiveShift->type !== PositionTypesEnum::FPV->value) {
+            $userActiveShift = null;
+        }
+
         return view('admin.combat_shifts.index', compact('shifts', 'userActiveShift'));
     }
 
     public function activeShiftsReports()
     {
-        $activeShifts = $this->combatShiftsAdminService->getActiveShifts();
+        $activeShifts = $this->combatShiftsAdminService->getActiveShifts(PositionTypesEnum::FPV->value);
         return view('admin.combat_shifts.active_reports', compact('activeShifts'));
     }
 
@@ -121,6 +125,9 @@ class CombatShiftsController extends Controller
     public function edit(int $id)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
+        if ($shift->type !== PositionTypesEnum::FPV->value) {
+            abort(404);
+        }
         $users = \App\Models\User::all();
         $positions = $this->positionRepository->getActive(PositionTypesEnum::FPV->value);
         $drones = $this->droneRepository->getActive();
