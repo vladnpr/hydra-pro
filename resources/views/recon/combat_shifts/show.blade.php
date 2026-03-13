@@ -9,9 +9,6 @@
             <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
-            <a href="{{ route('combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-warning ml-2">
-                <i class="fas fa-bomb"></i> Звіт по витратам
-            </a>
             <a href="{{ route('recon.combat_shifts.report', $shift->id) }}" class="btn btn-primary ml-2">
                 <i class="fas fa-file-alt"></i> Звіт по залишку
             </a>
