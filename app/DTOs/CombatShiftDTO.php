@@ -74,7 +74,8 @@ class CombatShiftDTO
             })->toArray(),
             crew: $shift->crew->map(fn($c) => [
                 'callsign' => $c->callsign,
-                'role' => $c->role
+                'role' => $c->role,
+                'shift_type' => $c->shift_type?->value ?? 'day'
             ])->toArray(),
             flights: $shift->flights->sortByDesc('flight_time')->groupBy(fn($f) => $f->flight_time->format('Y-m-d'))->map(fn($dayFlights) => $dayFlights->map(fn($f) => [
                 'id' => $f->id,
