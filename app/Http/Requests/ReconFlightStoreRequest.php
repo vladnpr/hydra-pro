@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\ReconMissionResultsEnum;
 use App\Enums\ReconMissionTypesEnum;
+use App\Enums\ShiftTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
@@ -40,8 +41,8 @@ class ReconFlightStoreRequest extends FormRequest
             'coordinates' => 'required|string|max:255',
             'flight_time' => 'required|date',
             'result' => ['required', new Enum(ReconMissionResultsEnum::class)],
+            'shift_type' => ['nullable', new Enum(ShiftTypeEnum::class)],
             'video' => 'nullable|file|mimetypes:video/mp4,video/mpeg,video/quicktime,video/x-msvideo,video/x-flv,video/webm|max:76800',
-            'description' => 'nullable|string|max:1000',
         ];
     }
 

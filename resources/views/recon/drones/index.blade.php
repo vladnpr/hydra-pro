@@ -33,6 +33,7 @@
                                 <th>ID</th>
                                 <th>Назва</th>
                                 <th>Серійний номер</th>
+                                <th>Зміна</th>
                                 <th>Позиція</th>
                                 <th>Статус</th>
                                 <th style="width: 150px">Дії</th>
@@ -44,6 +45,17 @@
                                     <td>{{ $drone->id }}</td>
                                     <td>{{ $drone->name }}</td>
                                     <td>{{ $drone->serial_number ?: '-' }}</td>
+                                    <td>
+                                        @if($drone->shift_type?->value === 'day')
+                                            <i class="fas fa-sun text-warning" title="Денний"></i>
+                                        @elseif($drone->shift_type?->value === 'night')
+                                            <i class="fas fa-moon text-secondary" title="Нічний"></i>
+                                        @elseif($drone->shift_type?->value === 'both')
+                                            <i class="fas fa-sun text-warning"></i> / <i class="fas fa-moon text-secondary"></i>
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td>{{ $drone->position->name }}</td>
                                     <td>
                                         <span class="badge badge-{{ $drone->status_color }}">

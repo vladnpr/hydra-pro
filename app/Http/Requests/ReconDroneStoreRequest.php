@@ -3,8 +3,10 @@
 namespace App\Http\Requests;
 
 use App\Enums\PositionTypesEnum;
+use App\Enums\ShiftTypeEnum;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Enum;
 
 class ReconDroneStoreRequest extends FormRequest
 {
@@ -19,13 +21,13 @@ class ReconDroneStoreRequest extends FormRequest
             'name' => 'required|string|max:255',
             'serial_number' => 'nullable|string|max:255|unique:recon_drones,serial_number',
             'status' => ['required', Rule::in(['active', 'lost', 'repair', 'non_operational'])],
+            'shift_type' => ['required', new Enum(ShiftTypeEnum::class)],
             'position_id' => [
                 'required',
                 Rule::exists('positions', 'id')->where(function ($query) {
                     $query->where('type', PositionTypesEnum::RECON->value);
                 }),
             ],
-            'shift_type' => ['required', Rule::in(['day', 'night', 'both'])],
         ];
     }
 

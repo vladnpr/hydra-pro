@@ -27,7 +27,6 @@ class CombatShiftStoreRequest extends FormRequest
             'crew' => 'nullable|array',
             'crew.*.callsign' => 'required_with:crew|string|max:255',
             'crew.*.role' => 'required_with:crew|string|max:255',
-            'crew.*.shift_type' => 'required_with:crew|in:day,night,both',
             'flights' => 'nullable|array',
             'flights.*.drone_id' => 'required_with:flights|exists:drones,id',
             'flights.*.ammunition_id' => 'required_with:flights|exists:ammunition,id',

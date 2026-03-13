@@ -25,7 +25,6 @@ class ReconCombatShiftStoreRequest extends FormRequest
             'crew' => 'nullable|array',
             'crew.*.callsign' => 'required_with:crew|string|max:255',
             'crew.*.role' => 'required_with:crew|string|max:255',
-            'crew.*.shift_type' => 'required_with:crew|in:day,night,both',
             'flights' => 'nullable|array',
             'flights.*.ammunition_id' => 'required_with:flights|exists:ammunition,id',
             'flights.*.coordinates' => 'required_with:flights|string|max:255',

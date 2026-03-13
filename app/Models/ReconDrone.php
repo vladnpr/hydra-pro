@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ShiftTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,10 @@ class ReconDrone extends Model
         'status',
         'position_id',
         'shift_type',
+    ];
+
+    protected $casts = [
+        'shift_type' => ShiftTypeEnum::class,
     ];
 
     public function position(): BelongsTo

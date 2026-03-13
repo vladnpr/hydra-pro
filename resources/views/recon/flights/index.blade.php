@@ -5,9 +5,23 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Польоти RECON (Активна зміна #{{ $userActiveShift->id }})</h1>
-        <div>
-            <span class="badge badge-success">Позиція: {{ $userActiveShift->position_name }}</span>
-            <span class="badge badge-info ml-2">Початок: {{ $userActiveShift->started_at }}</span>
+        <div class="d-flex align-items-center">
+            <div class="mr-4">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
+                        <input type="radio" name="global_shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }}>
+                        <i class="fas fa-sun"></i> Денна
+                    </label>
+                    <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
+                        <input type="radio" name="global_shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }}>
+                        <i class="fas fa-moon"></i> Нічна
+                    </label>
+                </div>
+            </div>
+            <div>
+                <span class="badge badge-success">Позиція: {{ $userActiveShift->position_name }}</span>
+                <span class="badge badge-info ml-2">Початок: {{ $userActiveShift->started_at }}</span>
+            </div>
         </div>
     </div>
 @endsection
@@ -148,14 +162,6 @@
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
-
-                        <div class="form-group">
-                            <label for="description">Опис (примітки)</label>
-                            <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" rows="2" placeholder="Додаткова інформація...">{{ old('description') }}</textarea>
-                            @error('description')
-                                <span class="error invalid-feedback">{{ $message }}</span>
-                            @enderror
-                        </div>
                     </div>
                     <div class="card-footer text-right">
                         <button type="submit" class="btn btn-primary">
@@ -177,12 +183,12 @@
                             <thead>
                                 <tr>
                                     <th>Час</th>
+                                    <th>Зміна</th>
                                     <th>Дрон</th>
                                     <th>Тип</th>
                                     <th>БК</th>
                                     <th>Координати</th>
                                     <th>Результат</th>
-                                    <th>Опис</th>
                                     <th>Відео</th>
                                     <th>Дії</th>
                                 </tr>
@@ -191,6 +197,13 @@
                                 @forelse($flights as $flight)
                                     <tr>
                                         <td>{{ $flight->flight_time->format('H:i d.m') }}</td>
+                                        <td>
+                                            @if($flight->shift_type === 'day')
+                                                <i class="fas fa-sun text-warning" title="Денна"></i>
+                                            @else
+                                                <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                            @endif
+                                        </td>
                                         <td>{{ $flight->drone->name }}</td>
                                         <td>
                                             <span class="badge badge-info">
@@ -225,13 +238,6 @@
                                                 };
                                             @endphp
                                             <span class="badge badge-{{ $badgeClass }}">{{ $resultLabel }}</span>
-                                        </td>
-                                        <td>
-                                            @if($flight->description)
-                                                <span title="{{ $flight->description }}">{{ Str::limit($flight->description, 20) }}</span>
-                                            @else
-                                                -
-                                            @endif
                                         </td>
                                         <td>
                                             @if($flight->video_path)
@@ -278,7 +284,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="8" class="text-center p-4">Польотів ще не зафіксовано</td>
+                                        <td colspan="9" class="text-center p-4">Польотів ще не зафіксовано</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -386,6 +392,24 @@
             $('.modal').on('hidden.bs.modal', function () {
                 let video = $(this).find('video')[0];
                 if (video) video.pause();
+            });
+
+            $('input[name="global_shift_type"]').on('change', function() {
+                let shiftType = $(this).val();
+                $.ajax({
+                    url: '{{ route('recon.flights.set_shift_type') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        shift_type: shiftType
+                    },
+                    success: function() {
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('Помилка при зміні типу зміни');
+                    }
+                });
             });
         });
     </script>

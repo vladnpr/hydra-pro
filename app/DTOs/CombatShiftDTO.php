@@ -38,6 +38,7 @@ class CombatShiftDTO
                     'serial_number' => $d->serial_number,
                     'status' => $d->status,
                     'status_color' => $d->status_color,
+                    'shift_type' => $d->shift_type?->value ?? 'day',
                 ])->toArray();
         }
 

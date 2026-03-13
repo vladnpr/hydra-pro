@@ -29,6 +29,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
 
         Route::get('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'index'])->name('flights.index');
         Route::post('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'store'])->name('flights.store');
+        Route::post('flights/set-shift-type', [\App\Http\Controllers\Recon\ReconFlightController::class, 'setShiftType'])->name('flights.set_shift_type');
         Route::get('flights/{id}/download', [\App\Http\Controllers\Recon\ReconFlightController::class, 'downloadVideo'])->name('flights.download');
         Route::delete('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'destroy'])->name('flights.destroy');
     });

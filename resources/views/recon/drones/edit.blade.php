@@ -57,11 +57,13 @@
                             @enderror
                         </div>
                         <div class="form-group">
-                            <label for="shift_type">Тип зміни</label>
+                            <label for="shift_type">Тип зміни (Денний/Нічний)</label>
                             <select name="shift_type" id="shift_type" class="form-control @error('shift_type') is-invalid @enderror" required>
-                                <option value="day" {{ old('shift_type', $drone->shift_type) === 'day' ? 'selected' : '' }}>Денна</option>
-                                <option value="night" {{ old('shift_type', $drone->shift_type) === 'night' ? 'selected' : '' }}>Нічна</option>
-                                <option value="both" {{ old('shift_type', $drone->shift_type) === 'both' ? 'selected' : '' }}>Обидві</option>
+                                @foreach(\App\Enums\ShiftTypeEnum::cases() as $type)
+                                    <option value="{{ $type->value }}" {{ old('shift_type', $drone->shift_type->value ?? '') === $type->value ? 'selected' : '' }}>
+                                        {{ $type->label() }}
+                                    </option>
+                                @endforeach
                             </select>
                             @error('shift_type')
                                 <span class="error invalid-feedback">{{ $message }}</span>

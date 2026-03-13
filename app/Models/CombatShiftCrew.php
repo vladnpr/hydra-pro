@@ -16,7 +16,6 @@ class CombatShiftCrew extends Model
         'combat_shift_id',
         'callsign',
         'role',
-        'shift_type',
     ];
 
     public function combatShift(): BelongsTo

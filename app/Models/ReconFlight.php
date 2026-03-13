@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\ReconMissionResultsEnum;
 use App\Enums\ReconMissionTypesEnum;
+use App\Enums\ShiftTypeEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -19,14 +20,15 @@ class ReconFlight extends Model
         'coordinates',
         'flight_time',
         'result',
+        'shift_type',
         'video_path',
-        'description',
     ];
 
     protected $casts = [
         'flight_time' => 'datetime',
         'mission_type' => ReconMissionTypesEnum::class,
         'result' => ReconMissionResultsEnum::class,
+        'shift_type' => ShiftTypeEnum::class,
     ];
 
     public function ammunition(): \Illuminate\Database\Eloquent\Relations\BelongsToMany

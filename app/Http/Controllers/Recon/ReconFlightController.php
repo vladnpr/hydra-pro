@@ -10,8 +10,11 @@ use App\Models\Ammunition;
 use App\Models\CombatShift;
 use App\Enums\ReconMissionResultsEnum;
 use App\Enums\PositionTypesEnum;
+use App\Enums\ShiftTypeEnum;
 use App\Services\CombatShiftsAdminService;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -34,6 +37,17 @@ class ReconFlightController extends Controller
         return Storage::disk('public')->download($flight->video_path);
     }
 
+    public function setShiftType(Request $request): JsonResponse
+    {
+        $request->validate([
+            'shift_type' => 'required|string|in:day,night'
+        ]);
+
+        session(['recon_active_shift_type' => $request->shift_type]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function index()
     {
         $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
@@ -42,15 +56,21 @@ class ReconFlightController extends Controller
             return view('recon.flights.no_active_shift');
         }
 
+        $activeShiftType = session('recon_active_shift_type', ShiftTypeEnum::DAY->value);
+
         $flights = ReconFlight::with(['drone', 'ammunition'])
             ->whereIn('recon_drone_id', collect($userActiveShift->recon_drones)->pluck('id'))
             ->orderBy('flight_time', 'desc')
             ->get();
 
-        $drones = collect($userActiveShift->recon_drones)->where('status', 'active');
+        $drones = collect($userActiveShift->recon_drones)
+            ->where('status', 'active')
+            ->filter(function ($drone) use ($activeShiftType) {
+                return ($drone['shift_type'] ?? 'day') === 'both' || ($drone['shift_type'] ?? 'day') === $activeShiftType;
+            });
         $ammunition = collect($userActiveShift->ammunition)->where('quantity', '>', 0);
 
-        return view('recon.flights.index', compact('userActiveShift', 'flights', 'drones', 'ammunition'));
+        return view('recon.flights.index', compact('userActiveShift', 'flights', 'drones', 'ammunition', 'activeShiftType'));
     }
 
     public function store(ReconFlightStoreRequest $request): RedirectResponse
@@ -62,6 +82,7 @@ class ReconFlightController extends Controller
         }
 
         $data = $request->validated();
+        $data['shift_type'] = session('recon_active_shift_type', ShiftTypeEnum::DAY->value);
 
         if ($request->hasFile('video')) {
             $data['video_path'] = $request->file('video')->store('recon/flights/videos', 'public');
