@@ -198,10 +198,14 @@
                                     <tr>
                                         <td>{{ $flight->flight_time->format('H:i d.m') }}</td>
                                         <td>
-                                            @if($flight->shift_type === 'day')
+                                            @if($flight->shift_type?->value === 'day')
                                                 <i class="fas fa-sun text-warning" title="Денна"></i>
-                                            @else
+                                            @elseif($flight->shift_type?->value === 'night')
                                                 <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                            @elseif($flight->shift_type?->value === 'both')
+                                                <i class="fas fa-sun text-warning" title="Денна"></i> / <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                            @else
+                                                -
                                             @endif
                                         </td>
                                         <td>{{ $flight->drone->name }}</td>
