@@ -38,13 +38,14 @@ class ReconFlight extends Model
     public function ammunition(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
     {
         return $this->belongsToMany(Ammunition::class, 'recon_flight_ammunition', 'recon_flight_id', 'ammunition_id')
+            ->withTrashed()
             ->withPivot('quantity')
             ->withTimestamps();
     }
 
     public function drone(): BelongsTo
     {
-        return $this->belongsTo(ReconDrone::class, 'recon_drone_id');
+        return $this->belongsTo(ReconDrone::class, 'recon_drone_id')->withTrashed();
     }
 
     /**

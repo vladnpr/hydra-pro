@@ -315,7 +315,7 @@ return [
             'icon' => 'fas fa-map-marker-alt',
             'can' => 'manage-positions',
         ],
-        // FPV-----------------------------------------
+        // FPV___________________________________________________
         [
             'header' => 'FPV-напрямок',
             'can' => 'manage-fpv-drones'
