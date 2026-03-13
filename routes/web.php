@@ -6,10 +6,10 @@ use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\CombatShiftsController;
 use Illuminate\Support\Facades\Route;
 
-Auth::routes();
+Auth::routes(['verify' => true]);
 
 Route::get('/', [App\Http\Controllers\AdminController::class, 'index'])->name('home');
-Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'], function () {
+Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix' => 'admin'], function () {
     Route::group(['prefix' => 'storage'], function () {
         Route::resource('drones', DronesController::class);
         Route::resource('ammunition', AmmunitionController::class);

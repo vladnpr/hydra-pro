@@ -14,7 +14,7 @@ class AdminController extends Controller
      */
     public function __construct(private readonly CombatShiftsAdminService $combatShiftsService)
     {
-        $this->middleware('auth');
+        $this->middleware(['auth', 'verified']);
     }
 
     /**
