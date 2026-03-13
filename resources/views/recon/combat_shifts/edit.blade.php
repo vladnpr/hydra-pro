@@ -92,12 +92,23 @@
                                 <div id="crew-container">
                                     @php $crewData = old('crew', $shift->crew); @endphp
                                     @foreach($crewData as $index => $member)
+                                        @php
+                                            $memberArray = is_array($member) ? $member : $member->toArray();
+                                            $shiftType = $memberArray['shift_type'] ?? '';
+                                        @endphp
                                         <div class="crew-member row mb-2">
-                                            <div class="col-md-5">
-                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ is_array($member) ? $member['callsign'] : $member->callsign }}" required>
+                                            <div class="col-md-3">
+                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ $memberArray['callsign'] }}" required>
                                             </div>
-                                            <div class="col-md-5">
-                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ is_array($member) ? $member['role'] : $member->role }}" required>
+                                            <div class="col-md-3">
+                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ $memberArray['role'] }}" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <select name="crew[{{ $index }}][shift_type]" class="form-control form-control-sm" required>
+                                                    <option value="day" {{ $shiftType == 'day' ? 'selected' : '' }}>Денна</option>
+                                                    <option value="night" {{ $shiftType == 'night' ? 'selected' : '' }}>Нічна</option>
+                                                    <option value="both" {{ $shiftType == 'both' || empty($shiftType) ? 'selected' : '' }}>Обидві</option>
+                                                </select>
                                             </div>
                                             <div class="col-md-2">
                                                 <button type="button" class="btn btn-danger btn-sm remove-crew-member">
@@ -171,11 +182,18 @@
             $('#add-crew-member').click(function() {
                 let html = `
                     <div class="crew-member row mb-2">
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <input type="text" name="crew[${crewIndex}][callsign]" class="form-control form-control-sm" placeholder="Позивний" required>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <input type="text" name="crew[${crewIndex}][role]" class="form-control form-control-sm" placeholder="Посада" required>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="crew[${crewIndex}][shift_type]" class="form-control form-control-sm" required>
+                                <option value="day">Денна</option>
+                                <option value="night">Нічна</option>
+                                <option value="both" selected>Обидві</option>
+                            </select>
                         </div>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-danger btn-sm remove-crew-member">
@@ -256,12 +274,23 @@
                                     </div>
                                     <div class="col-md-5">
                                         <input type="hidden" name="existing_recon_drones[${drone.id}][id]" value="${drone.id}">
-                                        <select name="existing_recon_drones[${drone.id}][status]" class="form-control form-control-sm">
-                                            <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
-                                            <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
-                                            <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
-                                            <option value="lost" ${drone.status === 'lost' ? 'selected' : ''}>Втрачений</option>
-                                        </select>
+                                        <div class="form-group mb-1">
+                                            <label class="small">Статус</label>
+                                            <select name="existing_recon_drones[${drone.id}][status]" class="form-control form-control-sm">
+                                                <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
+                                                <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
+                                                <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
+                                                <option value="lost" ${drone.status === 'lost' ? 'selected' : ''}>Втрачений</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group mb-0">
+                                            <label class="small">Тип зміни</label>
+                                            <select name="existing_recon_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
+                                                <option value="day" ${drone.shift_type === 'day' ? 'selected' : ''}>Денна</option>
+                                                <option value="night" ${drone.shift_type === 'night' ? 'selected' : ''}>Нічна</option>
+                                                <option value="both" ${drone.shift_type === 'both' || !drone.shift_type ? 'selected' : ''}>Обидві</option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

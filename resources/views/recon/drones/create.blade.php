@@ -56,6 +56,17 @@
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
+                        <div class="form-group">
+                            <label for="shift_type">Тип зміни</label>
+                            <select name="shift_type" id="shift_type" class="form-control @error('shift_type') is-invalid @enderror" required>
+                                <option value="day" {{ old('shift_type') === 'day' ? 'selected' : '' }}>Денна</option>
+                                <option value="night" {{ old('shift_type') === 'night' ? 'selected' : '' }}>Нічна</option>
+                                <option value="both" {{ old('shift_type') === 'both' || old('shift_type') === null ? 'selected' : '' }}>Обидві</option>
+                            </select>
+                            @error('shift_type')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">Зберегти</button>

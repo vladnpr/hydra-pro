@@ -25,6 +25,7 @@ class ReconDroneStoreRequest extends FormRequest
                     $query->where('type', PositionTypesEnum::RECON->value);
                 }),
             ],
+            'shift_type' => ['required', Rule::in(['day', 'night', 'both'])],
         ];
     }
 

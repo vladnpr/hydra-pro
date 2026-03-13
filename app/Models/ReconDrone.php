@@ -15,6 +15,7 @@ class ReconDrone extends Model
         'serial_number',
         'status',
         'position_id',
+        'shift_type',
     ];
 
     public function position(): BelongsTo

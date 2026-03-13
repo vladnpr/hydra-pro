@@ -109,13 +109,21 @@
                                             $member = (array)$member;
                                             $callsign = $member['callsign'] ?? '';
                                             $role = $member['role'] ?? '';
+                                            $shiftType = $member['shift_type'] ?? '';
                                         @endphp
                                         <div class="crew-member row mb-2">
-                                            <div class="col-md-5">
+                                            <div class="col-md-3">
                                                 <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ $callsign }}" required>
                                             </div>
-                                            <div class="col-md-5">
+                                            <div class="col-md-3">
                                                 <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ $role }}" required>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <select name="crew[{{ $index }}][shift_type]" class="form-control form-control-sm" required>
+                                                    <option value="day" {{ $shiftType == 'day' ? 'selected' : '' }}>Денна</option>
+                                                    <option value="night" {{ $shiftType == 'night' ? 'selected' : '' }}>Нічна</option>
+                                                    <option value="both" {{ $shiftType == 'both' || empty($shiftType) ? 'selected' : '' }}>Обидві</option>
+                                                </select>
                                             </div>
                                             <div class="col-md-2">
                                                 <button type="button" class="btn btn-danger btn-sm remove-crew-member">
@@ -415,11 +423,18 @@
             $('#add-crew-member').click(function() {
                 const html = `
                     <div class="crew-member row mb-2">
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <input type="text" name="crew[${crewIndex}][callsign]" class="form-control form-control-sm" placeholder="Позивний" required>
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-3">
                             <input type="text" name="crew[${crewIndex}][role]" class="form-control form-control-sm" placeholder="Посада" required>
+                        </div>
+                        <div class="col-md-4">
+                            <select name="crew[${crewIndex}][shift_type]" class="form-control form-control-sm" required>
+                                <option value="day">Денна</option>
+                                <option value="night">Нічна</option>
+                                <option value="both" selected>Обидві</option>
+                            </select>
                         </div>
                         <div class="col-md-2">
                             <button type="button" class="btn btn-danger btn-sm remove-crew-member">

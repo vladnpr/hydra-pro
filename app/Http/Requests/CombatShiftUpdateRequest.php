@@ -27,6 +27,7 @@ class CombatShiftUpdateRequest extends FormRequest
             'crew' => 'nullable|array',
             'crew.*.callsign' => 'required_with:crew|string|max:255',
             'crew.*.role' => 'required_with:crew|string|max:255',
+            'crew.*.shift_type' => 'required_with:crew|in:day,night,both',
             'flights' => 'nullable|array',
             'flights.*.id' => 'nullable|integer|exists:combat_shift_flights,id',
             'flights.*.video_path' => 'nullable|string|max:255',

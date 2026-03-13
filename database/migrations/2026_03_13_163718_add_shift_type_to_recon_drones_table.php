@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::table('recon_drones', function (Blueprint $table) {
             $table->string('shift_type')
-                ->default(\App\Enums\ShiftTypeEnum::DAY->value);
+                ->default(\App\Enums\ShiftTypeEnum::DAY->value); // day, night or both
         });
     }
 
