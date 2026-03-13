@@ -75,21 +75,23 @@
                     <p class="text-muted">{{ $shift->ended_at ?? '-' }}</p>
                 </div>
                 <div class="card-footer">
-                    @if($shift->status === 'opened')
-                        <form action="{{ route('recon.combat_shifts.finish', $shift->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Завершити чергування?')">
-                                Завершити чергування
-                            </button>
-                        </form>
-                    @else
-                        <form action="{{ route('recon.combat_shifts.reopen', $shift->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Відновити чергування?')">
-                                Відновити чергування
-                            </button>
-                        </form>
-                    @endif
+                    @can('manage-recon')
+                        @if($shift->status === 'opened')
+                            <form action="{{ route('recon.combat_shifts.finish', $shift->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Завершити чергування?')">
+                                    Завершити чергування
+                                </button>
+                            </form>
+                        @else
+                            <form action="{{ route('recon.combat_shifts.reopen', $shift->id) }}" method="POST">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Відновити чергування?')">
+                                    Відновити чергування
+                                </button>
+                            </form>
+                        @endif
+                    @endcan
                 </div>
             </div>
 

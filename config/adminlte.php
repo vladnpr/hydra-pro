@@ -388,11 +388,13 @@ return [
                     'text' => 'Дрони',
                     'url' => 'admin/recon/drones',
                     'icon' => 'fas fa-helicopter',
+                    'can' => 'manage-recon-drones',
                 ],
                 [
                     'text' => 'Боєприпаси',
                     'url' => 'admin/recon/ammunition',
                     'icon' => 'fas fa-bomb',
+                    'can' => 'manage-recon-ammunition',
                 ],
             ]
         ],

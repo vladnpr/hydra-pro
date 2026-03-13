@@ -5,9 +5,17 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Звіт по залишку розвідки</h1>
-        <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
-            <i class="fas fa-arrow-left"></i> Назад до чергування
-        </a>
+        <div class="no-print">
+            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
+                <i class="fas fa-arrow-left"></i> Назад до чергування
+            </a>
+            <button type="button" class="btn btn-primary ml-2" onclick="printReport()">
+                <i class="fas fa-print"></i> Друкувати
+            </button>
+            <button id="copy-report" class="btn btn-info ml-2">
+                <i class="fas fa-copy"></i> Копіювати
+            </button>
+        </div>
     </div>
 @endsection
 
@@ -105,11 +113,6 @@
                         @endif
                     </div>
                 </div>
-                <div class="card-footer text-right no-print">
-                    <button type="button" class="btn btn-primary" onclick="printReport()">
-                        <i class="fas fa-print mr-1"></i> Друкувати / Копіювати
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -148,6 +151,45 @@
     <script>
         function printReport() {
             window.print();
+        }
+
+        function copyToClipboard(text) {
+            if (navigator.clipboard && window.isSecureContext) {
+                return navigator.clipboard.writeText(text);
+            } else {
+                let textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.position = "fixed";
+                textArea.style.left = "-9999px";
+                textArea.style.top = "0";
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                return new Promise((res, rej) => {
+                    document.execCommand('copy') ? res() : rej();
+                    textArea.remove();
+                });
+            }
+        }
+
+        document.getElementById('copy-report').addEventListener('click', function() {
+            copyReport(this);
+        });
+
+        function copyReport(btn) {
+            const content = document.getElementById('printableArea').innerText;
+            copyToClipboard(content).then(() => {
+                const originalHtml = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
+                btn.classList.replace('btn-info', 'btn-success');
+                setTimeout(() => {
+                    btn.innerHTML = originalHtml;
+                    btn.classList.replace('btn-success', 'btn-info');
+                }, 2000);
+            }).catch(err => {
+                console.error('Помилка копіювання: ', err);
+                alert('Не вдалося скопіювати текст');
+            });
         }
     </script>
 @endsection

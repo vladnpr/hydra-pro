@@ -52,6 +52,7 @@
                                     $roleBadge = match($user->role) {
                                         'admin' => 'danger',
                                         'manager' => 'success',
+                                        'recon' => 'warning',
                                         'user' => 'primary',
                                         'guest' => 'secondary',
                                         default => 'info'
@@ -59,12 +60,21 @@
                                     $shortRole = match($user->role) {
                                         'admin' => 'adm',
                                         'manager' => 'mng',
+                                        'recon' => 'rcn',
                                         'user' => 'usr',
                                         'guest' => 'gst',
                                         default => $user->role
                                     };
+                                    $roleLabel = match($user->role) {
+                                        'admin' => 'адмін',
+                                        'manager' => 'менеджер',
+                                        'recon' => 'розвідка',
+                                        'user' => 'користувач',
+                                        'guest' => 'гість',
+                                        default => $user->role
+                                    };
                                 @endphp
-                                <span class="badge badge-{{ $roleBadge }} d-none d-md-inline">{{ $user->role }}</span>
+                                <span class="badge badge-{{ $roleBadge }} d-none d-md-inline">{{ $roleLabel }}</span>
                                 <span class="badge badge-{{ $roleBadge }} d-inline d-md-none">{{ $shortRole }}</span>
                             </td>
                             <td class="d-none d-lg-table-cell">{{ $user->created_at->format('d.m.Y H:i') }}</td>

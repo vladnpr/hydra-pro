@@ -16,28 +16,31 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
     });
     Route::resource('positions', PositionsController::class);
 
-    Route::group(['middleware' => 'can:manage-recon', 'prefix' => 'recon', 'as' => 'recon.'], function () {
-        Route::get('drones/by-position/{positionId}', [\App\Http\Controllers\Recon\ReconDronesController::class, 'getByPosition'])->name('drones.by_position');
-        Route::resource('drones', \App\Http\Controllers\Recon\ReconDronesController::class);
-        Route::resource('ammunition', \App\Http\Controllers\Recon\ReconAmmunitionController::class);
-
-        Route::post('combat_shifts/{id}/join', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'join'])->name('combat_shifts.join');
-        Route::post('combat_shifts/{id}/leave', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
-        Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'finish'])->name('combat_shifts.finish');
-        Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'reopen'])->name('combat_shifts.reopen');
-        Route::resource('combat_shifts', \App\Http\Controllers\Recon\ReconCombatShiftsController::class);
-
-        Route::get('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'index'])->name('flights.index');
-        Route::post('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'store'])->name('flights.store');
-        Route::get('flights/{id}/edit', [\App\Http\Controllers\Recon\ReconFlightController::class, 'edit'])->name('flights.edit');
-        Route::put('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'update'])->name('flights.update');
-        Route::post('flights/set-shift-type', [\App\Http\Controllers\Recon\ReconFlightController::class, 'setShiftType'])->name('flights.set_shift_type');
-        Route::get('flights/{id}/download', [\App\Http\Controllers\Recon\ReconFlightController::class, 'downloadVideo'])->name('flights.download');
-        Route::delete('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'destroy'])->name('flights.destroy');
-
+    Route::group(['prefix' => 'recon', 'as' => 'recon.'], function () {
         Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'flightsReport'])->name('combat_shifts.flights_report');
         Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'report'])->name('combat_shifts.report');
+        Route::get('combat_shifts/{id}', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'show'])->name('combat_shifts.show');
         Route::get('active-shift/flights-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
+
+        Route::group(['middleware' => 'can:manage-recon'], function () {
+            Route::get('drones/by-position/{positionId}', [\App\Http\Controllers\Recon\ReconDronesController::class, 'getByPosition'])->name('drones.by_position');
+            Route::resource('drones', \App\Http\Controllers\Recon\ReconDronesController::class);
+            Route::resource('ammunition', \App\Http\Controllers\Recon\ReconAmmunitionController::class);
+
+            Route::post('combat_shifts/{id}/join', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'join'])->name('combat_shifts.join');
+            Route::post('combat_shifts/{id}/leave', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'leave'])->name('combat_shifts.leave');
+            Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'finish'])->name('combat_shifts.finish');
+            Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'reopen'])->name('combat_shifts.reopen');
+            Route::resource('combat_shifts', \App\Http\Controllers\Recon\ReconCombatShiftsController::class)->except(['show']);
+
+            Route::get('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'index'])->name('flights.index');
+            Route::post('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'store'])->name('flights.store');
+            Route::get('flights/{id}/edit', [\App\Http\Controllers\Recon\ReconFlightController::class, 'edit'])->name('flights.edit');
+            Route::put('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'update'])->name('flights.update');
+            Route::post('flights/set-shift-type', [\App\Http\Controllers\Recon\ReconFlightController::class, 'setShiftType'])->name('flights.set_shift_type');
+            Route::get('flights/{id}/download', [\App\Http\Controllers\Recon\ReconFlightController::class, 'downloadVideo'])->name('flights.download');
+            Route::delete('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'destroy'])->name('flights.destroy');
+        });
     });
 
     Route::group(['middleware' => 'can:view-reports'], function () {

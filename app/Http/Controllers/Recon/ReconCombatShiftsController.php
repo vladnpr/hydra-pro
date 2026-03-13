@@ -22,9 +22,19 @@ class ReconCombatShiftsController extends Controller
         private readonly AmmunitionRepositoryInterface $ammunitionRepository
     ) {
         $this->middleware(function ($request, $next) {
-            if (Gate::denies('manage-recon')) {
-                abort(403);
+            $reportMethods = ['report', 'flightsReport', 'activeFlightsReport', 'show'];
+            $currentMethod = $request->route()->getActionMethod();
+
+            if (in_array($currentMethod, $reportMethods)) {
+                if (Gate::denies('view-reports') && Gate::denies('manage-recon')) {
+                    abort(403);
+                }
+            } else {
+                if (Gate::denies('manage-recon')) {
+                    abort(403);
+                }
             }
+
             return $next($request);
         });
     }

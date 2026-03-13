@@ -38,7 +38,15 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         Gate::define('manage-recon', function (User $user) {
-            return $user->isAdmin();
+            return $user->isAdmin() || $user->isRecon();
+        });
+
+        Gate::define('manage-recon-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isRecon();
+        });
+
+        Gate::define('manage-recon-drones', function (User $user) {
+            return $user->isAdmin() || $user->isRecon();
         });
 
         Gate::define('manage-users', function (User $user) {
@@ -58,7 +66,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('view-reports', function (User $user) {
-            return $user->isAdmin() || $user->isManager() || $user->isUser();
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon();
         });
 
         Gate::define('access-combat', function (User $user) {
