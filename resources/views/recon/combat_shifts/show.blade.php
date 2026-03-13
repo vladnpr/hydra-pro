@@ -85,6 +85,7 @@
                     <ul class="nav nav-pills">
                         <li class="nav-item"><a class="nav-link active" href="#inventory" data-toggle="tab">Майно</a></li>
                         <li class="nav-item"><a class="nav-link" href="#crew" data-toggle="tab">Екіпаж</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#flights" data-toggle="tab">Останні вильоти</a></li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -158,6 +159,61 @@
                                     @endforeach
                                 </tbody>
                             </table>
+                        </div>
+                        <div class="tab-pane" id="flights">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Останні зафіксовані польоти RECON</h5>
+                                <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-file-alt"></i> Повний звіт по польотам
+                                </a>
+                            </div>
+                            <table class="table table-bordered table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Дата</th>
+                                        <th>Час</th>
+                                        <th>Зміна</th>
+                                        <th>Дрон</th>
+                                        <th>Місія</th>
+                                        <th>Результат</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $count = 0; @endphp
+                                    @forelse($shift->recon_flights as $day => $flights)
+                                        @foreach($flights as $flight)
+                                            @if($count < 10)
+                                                <tr>
+                                                    <td>{{ \Carbon\Carbon::parse($day)->format('d.m.Y') }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td>
+                                                        @if($flight['shift_type'] === 'day')
+                                                            <i class="fas fa-sun text-warning"></i> Денна
+                                                        @else
+                                                            <i class="fas fa-moon text-secondary"></i> Нічна
+                                                        @endif
+                                                    </td>
+                                                    <td>{{ $flight['drone_name'] }}</td>
+                                                    <td>{{ $flight['mission_type_label'] }}</td>
+                                                    <td>{{ $flight['result_label'] }}</td>
+                                                </tr>
+                                                @php $count++; @endphp
+                                            @endif
+                                        @endforeach
+                                    @empty
+                                        <tr>
+                                            <td colspan="6" class="text-center">Польотів ще не зафіксовано</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                            @if(count($shift->recon_flights) > 0)
+                                <div class="text-center mt-3">
+                                    <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-default">
+                                        Переглянути всі польоти
+                                    </a>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -119,6 +119,13 @@
                         </div>
 
                         <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" name="stream_status" class="custom-control-input" id="stream_status" value="1" {{ old('stream_status', $flight->stream_status) ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="stream_status">Стрім (наявність)</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
                             <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
                             @error('flight_time')

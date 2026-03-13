@@ -24,6 +24,7 @@ class CombatShiftDTO
         public readonly array $damaged_drones,
         public readonly array $damaged_coils,
         public readonly array $recon_drones = [],
+        public readonly array $recon_flights = [],
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -41,6 +42,30 @@ class CombatShiftDTO
                     'shift_type' => $d->shift_type?->value ?? 'day',
                 ])->toArray();
         }
+
+        $reconFlights = $shift->reconFlights->sortByDesc('flight_time')->groupBy(function($f) {
+            $time = $f->flight_time;
+            // Якщо це нічна зміна і час між 00:00 та 08:00, відносимо до попереднього дня
+            if ($f->shift_type?->value === 'night' && $time->hour < 8) {
+                return $time->copy()->subDay()->format('Y-m-d');
+            }
+            return $time->format('Y-m-d');
+        })->map(fn($dayFlights) => $dayFlights->map(fn($f) => [
+            'id' => $f->id,
+            'drone_id' => $f->recon_drone_id,
+            'drone_name' => $f->drone?->name,
+            'ammunition' => $f->ammunition->map(fn($a) => ['name' => $a->name, 'quantity' => $a->pivot->quantity])->toArray(),
+            'mission_type' => $f->mission_type->value,
+            'mission_type_label' => $f->mission_type->value === 'recon' ? 'розвідка' : ($f->mission_type->value === 'combat' ? 'бойова (скид)' : $f->mission_type->value),
+            'coordinates' => $f->coordinates,
+            'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
+            'result' => $f->result->value,
+            'result_label' => $f->result->value === 'success' ? 'відпрацювали' : ($f->result->value === 'board_loosed' ? 'втрата борту' : $f->result->value),
+            'shift_type' => $f->shift_type->value,
+            'stream_status' => $f->stream_status,
+            'description' => $f->description,
+            'video_path' => $f->video_path,
+        ]))->toArray();
 
         return new self(
             id: $shift->id,
@@ -95,6 +120,7 @@ class CombatShiftDTO
             damaged_drones: $shift->damaged_drones ?? [],
             damaged_coils: $shift->damaged_coils ?? [],
             recon_drones: $reconDrones,
+            recon_flights: $reconFlights,
         );
     }
 }

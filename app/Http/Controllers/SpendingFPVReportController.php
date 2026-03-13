@@ -32,10 +32,23 @@ class SpendingFPVReportController extends Controller
 
     public function activeSpendFPVReport()
     {
-        if (!$reportData = $this->spendingFPVReportService->getReportByUserId(Auth::id())) {
+        $activeShift = \App\Models\CombatShift::whereHas('users', function($q) {
+                $q->where('users.id', Auth::id());
+            })
+            ->where('status', 'opened')
+            ->first();
+
+        if (!$activeShift) {
             return redirect()->route('flight_operations.index')
                 ->with('error', 'У вас немає активної зміни.');
         }
+
+        if ($activeShift->type === \App\Enums\PositionTypesEnum::RECON->value) {
+            return redirect()->route('recon.combat_shifts.show', $activeShift->id)
+                ->with('info', 'Для RECON зміни використовуйте загальний звіт.');
+        }
+
+        $reportData = $this->spendingFPVReportService->getReportByUserId(Auth::id());
 
         $presenter = new FPVSpendingReportPresenter(
             $reportData->getShiftId(),

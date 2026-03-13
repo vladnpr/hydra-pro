@@ -1,0 +1,175 @@
+@extends('adminlte::page')
+
+@section('title', 'Звіт по польотам RECON')
+
+@section('content_header')
+    <div class="d-flex justify-content-between align-items-center">
+        <h1>Звіт по польотам RECON</h1>
+        <div>
+            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
+                <i class="fas fa-arrow-left"></i> Назад до деталей
+            </a>
+            <button onclick="window.print()" class="btn btn-success ml-2">
+                <i class="fas fa-print"></i> Друкувати
+            </button>
+            <button id="copy-report" class="btn btn-info ml-2">
+                <i class="fas fa-copy"></i> Копіювати
+            </button>
+        </div>
+    </div>
+@endsection
+
+@section('content')
+    <div class="row mb-3 no-print">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <form action="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
+                        <label for="date" class="mr-2">Оберіть дату:</label>
+                        <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
+                            @php
+                                $dates = array_keys($shift->recon_flights);
+                                if (!in_array($date, $dates)) {
+                                    $dates[] = $date;
+                                }
+                                sort($dates);
+                            @endphp
+                            @foreach($dates as $flightDate)
+                                <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
+                                    {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
+                                </option>
+                            @endforeach
+                        </select>
+
+                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
+                            <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
+                                <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
+                                <i class="fas fa-sun"></i> Денна
+                            </label>
+                            <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
+                                <input type="radio" name="shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }} onchange="this.form.submit()">
+                                <i class="fas fa-moon"></i> Нічна
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Переглянути</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body p-5" id="report-content">
+                    <h3 class="text-center mb-4">Звіт по польотам RECON ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
+                    @if($activeShiftType === 'night')
+                        <p class="text-center text-muted no-print" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+                            (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})
+                        </p>
+                    @endif
+
+                    @if($activeShiftType === 'day')
+                        <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
+                        @forelse($dayFlights as $flight)
+                            <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
+                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
+                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                                <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
+                                <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
+                                <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
+                                <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
+                                <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
+                            </div>
+                        @empty
+                            <p class="text-muted">Денних польотів не знайдено.</p>
+                        @endforelse
+                    @endif
+
+                    @if($activeShiftType === 'night')
+                        <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
+                        @forelse($nightFlights as $flight)
+                            <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
+                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
+                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                                <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
+                                <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
+                                <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
+                                <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
+                                <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
+                            </div>
+                        @empty
+                            <p class="text-muted">Нічних польотів не знайдено.</p>
+                        @endforelse
+                    @endif
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function () {
+            $('#copy-report').click(function() {
+                let content = '';
+                $('.flight-report-item').each(function() {
+                    let item = $(this);
+                    content += item.find('p:eq(0)').text() + '\n';
+                    content += item.find('p:eq(1)').text() + '\n';
+                    content += item.find('p:eq(2)').text() + '\n';
+                    content += item.find('p:eq(3)').text() + '\n';
+                    content += item.find('p:eq(4)').text() + '\n';
+                    content += item.find('p:eq(5)').text() + '\n';
+                    content += item.find('p:eq(6)').text() + '\n\n';
+                });
+
+                if (content === '') {
+                    alert('Немає даних для копіювання');
+                    return;
+                }
+
+                copyToClipboard(content).then(() => {
+                    alert('Звіт скопійовано в буфер обміну');
+                });
+            });
+
+            function copyToClipboard(text) {
+                if (navigator.clipboard && window.isSecureContext) {
+                    return navigator.clipboard.writeText(text);
+                } else {
+                    let textArea = document.createElement("textarea");
+                    textArea.value = text;
+                    textArea.style.position = "fixed";
+                    textArea.style.left = "-9999px";
+                    textArea.style.top = "0";
+                    document.body.appendChild(textArea);
+                    textArea.focus();
+                    textArea.select();
+                    return new Promise((res, rej) => {
+                        document.execCommand('copy') ? res() : rej();
+                        textArea.remove();
+                    });
+                }
+            }
+        });
+    </script>
+@endsection
+
+@section('css')
+<style>
+    @media print {
+        .no-print {
+            display: none !important;
+        }
+        .content-wrapper {
+            background: white !important;
+        }
+        .card {
+            border: none !important;
+            box-shadow: none !important;
+        }
+    }
+</style>
+@endsection

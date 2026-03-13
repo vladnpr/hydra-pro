@@ -152,6 +152,39 @@ class ReconCombatShiftsController extends Controller
             ->with('success', 'Чергування успішно завершено');
     }
 
+    public function flightsReport(int $id, \Illuminate\Http\Request $request)
+    {
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
+        if ($shift->type !== PositionTypesEnum::RECON->value) {
+            abort(404);
+        }
+        $date = $request->query('date', now()->format('Y-m-d'));
+        $activeShiftType = $request->query('shift_type', 'day');
+
+        // Отримуємо польоти за обрану дату
+        // Завдяки зміні в CombatShiftDTO, у recon_flights[date] вже лежать польоти,
+        // які відбулися з 08:00 обраного дня до 08:00 наступного дня (якщо вони night)
+        $allFlights = $shift->recon_flights[$date] ?? [];
+
+        // Фільтруємо за зміною
+        $dayFlights = array_filter($allFlights, fn($f) => $f['shift_type'] === 'day');
+        $nightFlights = array_filter($allFlights, fn($f) => $f['shift_type'] === 'night');
+
+        return view('recon.combat_shifts.flights_report', compact('shift', 'date', 'dayFlights', 'nightFlights', 'activeShiftType'));
+    }
+
+    public function activeFlightsReport(\Illuminate\Http\Request $request)
+    {
+        $activeShift = $this->combatShiftsAdminService->getActiveShiftByUserId(Auth::id());
+
+        if (!$activeShift || $activeShift->type !== PositionTypesEnum::RECON->value) {
+            return redirect()->route('recon.flights.index')
+                ->with('error', 'У вас немає активної зміни RECON.');
+        }
+
+        return $this->flightsReport($activeShift->id, $request);
+    }
+
     public function reopen(int $id)
     {
         $this->combatShiftsAdminService->reopenShift($id);

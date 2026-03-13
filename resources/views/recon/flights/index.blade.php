@@ -128,6 +128,13 @@
                         </div>
 
                         <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" name="stream_status" class="custom-control-input" id="stream_status" value="1" {{ old('stream_status', '1') == '1' ? 'checked' : '' }}>
+                                <label class="custom-control-label" for="stream_status">Стрім (наявність)</label>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
                             <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
                             @error('flight_time')
@@ -196,6 +203,7 @@
                                     <th>Час</th>
                                     <th>Зміна</th>
                                     <th>Дрон</th>
+                                    <th>Стрім</th>
                                     <th>Тип</th>
                                     <th>БК</th>
                                     <th>Координати</th>
@@ -221,6 +229,13 @@
                                             @endif
                                         </td>
                                         <td>{{ $flight->drone->name }}</td>
+                                        <td class="text-center">
+                                            @if($flight->stream_status)
+                                                <i class="fas fa-check-circle text-success" title="Є стрім"></i>
+                                            @else
+                                                <i class="fas fa-times-circle text-danger" title="Без стріму"></i>
+                                            @endif
+                                        </td>
                                         <td>
                                             <span class="badge badge-info">
                                                 {{ $flight->mission_type->value === 'recon' ? 'Розвідка' : 'Скид' }}

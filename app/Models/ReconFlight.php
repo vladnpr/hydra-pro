@@ -14,6 +14,7 @@ class ReconFlight extends Model
     use HasFactory;
 
     protected $fillable = [
+        'combat_shift_id',
         'recon_drone_id',
         'recon_ammunition_id',
         'mission_type',
@@ -21,6 +22,7 @@ class ReconFlight extends Model
         'flight_time',
         'result',
         'shift_type',
+        'stream_status',
         'video_path',
         'description',
     ];
@@ -30,6 +32,7 @@ class ReconFlight extends Model
         'mission_type' => ReconMissionTypesEnum::class,
         'result' => ReconMissionResultsEnum::class,
         'shift_type' => ShiftTypeEnum::class,
+        'stream_status' => 'boolean',
     ];
 
     public function ammunition(): \Illuminate\Database\Eloquent\Relations\BelongsToMany

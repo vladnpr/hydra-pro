@@ -71,9 +71,12 @@ class CombatShift extends Model
 
     public function flights(): HasMany
     {
-        return $this->hasMany(CombatShiftFlight::class)->whereHas('position', function($q) {
-            $q->where('type', \App\Enums\PositionTypesEnum::FPV->value);
-        });
+        return $this->hasMany(CombatShiftFlight::class);
+    }
+
+    public function reconFlights(): HasMany
+    {
+        return $this->hasMany(ReconFlight::class, 'combat_shift_id');
     }
 
     public function getStatusColorAttribute(): string

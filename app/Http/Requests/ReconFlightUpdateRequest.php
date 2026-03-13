@@ -42,6 +42,7 @@ class ReconFlightUpdateRequest extends FormRequest
             'flight_time' => 'required|date',
             'result' => ['required', new Enum(ReconMissionResultsEnum::class)],
             'shift_type' => ['required', new Enum(ShiftTypeEnum::class)],
+            'stream_status' => 'boolean',
             'video' => 'nullable|file|mimetypes:video/mp4,video/mpeg,video/quicktime,video/x-msvideo,video/x-flv,video/webm|max:76800',
             'description' => 'nullable|string|max:1000',
         ];

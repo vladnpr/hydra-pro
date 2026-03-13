@@ -107,6 +107,10 @@ class CombatShiftsController extends Controller
                 ->with('error', 'У вас немає активної зміни.');
         }
 
+        if ($activeShift->type === PositionTypesEnum::RECON->value) {
+            return redirect()->route('recon.combat_shifts.active_flights_report', $request->all());
+        }
+
         return $this->flightsReport($activeShift->id, $request);
     }
 
@@ -117,6 +121,10 @@ class CombatShiftsController extends Controller
         if (!$activeShift) {
             return redirect()->route('flight_operations.index')
                 ->with('error', 'У вас немає активної зміни.');
+        }
+
+        if ($activeShift->type === PositionTypesEnum::RECON->value) {
+            return redirect()->route('recon.combat_shifts.show', $activeShift->id);
         }
 
         return $this->report($activeShift->id);

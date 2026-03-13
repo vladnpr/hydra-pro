@@ -83,7 +83,9 @@ class ReconFlightController extends Controller
         }
 
         $data = $request->validated();
+        $data['stream_status'] = $request->boolean('stream_status');
         $data['shift_type'] = session('recon_active_shift_type', ShiftTypeEnum::DAY->value);
+        $data['combat_shift_id'] = $userActiveShift->id;
 
         if ($request->hasFile('video')) {
             $data['video_path'] = $request->file('video')->store('recon/flights/videos', 'public');
@@ -156,6 +158,7 @@ class ReconFlightController extends Controller
         }
 
         $data = $request->validated();
+        $data['stream_status'] = $request->boolean('stream_status');
 
         if ($request->hasFile('video')) {
             if ($flight->video_path) {
