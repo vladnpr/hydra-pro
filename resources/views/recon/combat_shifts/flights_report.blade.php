@@ -65,7 +65,7 @@
                 <div class="card-body p-5" id="report-content">
                     <h3 class="text-center mb-4">Звіт по польотам RECON ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
                     @if($activeShiftType === 'night')
-                        <p class="text-center text-muted no-print" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+                        <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
                             (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})
                         </p>
                     @endif
@@ -112,29 +112,6 @@
 @section('js')
     <script>
         $(document).ready(function () {
-            $('#copy-report').click(function() {
-                let content = '';
-                $('.flight-report-item').each(function() {
-                    let item = $(this);
-                    content += item.find('p:eq(0)').text() + '\n';
-                    content += item.find('p:eq(1)').text() + '\n';
-                    content += item.find('p:eq(2)').text() + '\n';
-                    content += item.find('p:eq(3)').text() + '\n';
-                    content += item.find('p:eq(4)').text() + '\n';
-                    content += item.find('p:eq(5)').text() + '\n';
-                    content += item.find('p:eq(6)').text() + '\n\n';
-                });
-
-                if (content === '') {
-                    alert('Немає даних для копіювання');
-                    return;
-                }
-
-                copyToClipboard(content).then(() => {
-                    alert('Звіт скопійовано в буфер обміну');
-                });
-            });
-
             function copyToClipboard(text) {
                 if (navigator.clipboard && window.isSecureContext) {
                     return navigator.clipboard.writeText(text);
@@ -153,14 +130,69 @@
                     });
                 }
             }
+
+            $('#copy-report').click(function() {
+                // Тимчасово приховуємо елементи з класом no-copy перед копіюванням
+                $('.no-copy').hide();
+
+                // Збираємо текст вручну для точного контролю пробілів
+                let reportText = '';
+                const title = $('#report-content h3').text().trim();
+                reportText += title + '\n\n';
+
+                const shiftTitle = $('#report-content h4').text().trim();
+                if (shiftTitle) {
+                    reportText += shiftTitle + '\n\n';
+                }
+
+                $('.flight-report-item').each(function(index) {
+                    $(this).find('p').each(function() {
+                        reportText += $(this).text().trim() + '\n';
+                    });
+                    reportText += '\n'; // Додаємо порожній рядок між польотами
+                });
+
+                $('.no-copy').show();
+
+                if (!reportText || reportText.trim() === '') {
+                    alert('Немає даних для копіювання');
+                    return;
+                }
+
+                copyToClipboard(reportText.trim()).then(() => {
+                    const btn = $(this);
+                    const originalHtml = btn.html();
+                    btn.html('<i class="fas fa-check"></i> Скопійовано!');
+                    btn.removeClass('btn-info').addClass('btn-success');
+                    setTimeout(() => {
+                        btn.html(originalHtml);
+                        btn.removeClass('btn-success').addClass('btn-info');
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Помилка копіювання: ', err);
+                    alert('Не вдалося скопіювати текст');
+                });
+            });
         });
     </script>
 @endsection
 
 @section('css')
 <style>
+    #report-content {
+        font-family: "Courier New", Courier, monospace;
+        font-size: 1.1rem;
+        line-height: 1.2;
+        color: #000;
+    }
+    .flight-report-item {
+        margin-bottom: 1.5rem !important;
+    }
+    .flight-report-item p {
+        margin-bottom: 0 !important;
+    }
     @media print {
-        .no-print {
+        .no-print, .no-copy {
             display: none !important;
         }
         .content-wrapper {
