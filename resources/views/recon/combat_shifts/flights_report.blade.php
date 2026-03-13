@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по польотам RECON')
+@section('title', 'Звіт по польотах розвідки')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по польотам RECON</h1>
+        <h1>Звіт по польотах розвідки</h1>
         <div>
             <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей
@@ -63,7 +63,7 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-body p-5" id="report-content">
-                    <h3 class="text-center mb-4">Звіт по польотам RECON ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
+                    <h3 class="text-center mb-4">Звіт по польотам розвідки ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
                     @if($activeShiftType === 'night')
                         <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
                             (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})

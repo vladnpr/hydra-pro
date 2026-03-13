@@ -3,7 +3,7 @@
 @section('title', 'Немає активного чергування')
 
 @section('content_header')
-    <h1>Польоти RECON</h1>
+    <h1>Польоти розвідки</h1>
 @endsection
 
 @section('content')
@@ -17,12 +17,12 @@
                     </h3>
                 </div>
                 <div class="card-body">
-                    <p>Для фіксації польотів RECON необхідно мати відкрите чергування типу <strong>RECON</strong>.</p>
+                    <p>Для фіксації польотів розвідки необхідно мати відкрите чергування типу <strong>розвідка</strong>.</p>
                     <p>Будь ласка, розпочніть нове чергування або приєднайтеся до існуючого.</p>
                 </div>
                 <div class="card-footer text-center">
                     <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-primary">
-                        <i class="fas fa-shield-alt"></i> Перейти до чергувань RECON
+                        <i class="fas fa-shield-alt"></i> Перейти до чергувань розвідки
                     </a>
                 </div>
             </div>

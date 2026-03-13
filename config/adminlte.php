@@ -366,11 +366,11 @@ return [
         // end FPV-----------------------------------------
         // RECON_______________________________________
         [
-            'header' => 'RECON-напрямок',
+            'header' => 'напрямок-Розвідка',
             'can' => 'manage-recon'
         ],
         [
-            'text' => 'RECON',
+            'text' => 'Розвідка',
             'icon' => 'fas fa-binoculars',
             'can' => 'manage-recon',
             'submenu' => [

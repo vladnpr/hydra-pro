@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'RECON Чергування')
+@section('title', 'Чергування розвідки')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>RECON Чергування</h1>
+        <h1>Чергування розвідки</h1>
         <div class="d-flex">
             @can('manage-recon')
                 @if(!$userActiveShift)
@@ -27,7 +27,7 @@
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-clock mr-1"></i>
-                            Ваша активна зміна (RECON)
+                            Ваша активна зміна (розвідка)
                         </h3>
                         <div class="card-tools">
                             <a href="{{ route('recon.combat_shifts.show', $userActiveShift->id) }}" class="btn btn-tool">
@@ -86,7 +86,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Список RECON чергувань</h3>
+                    <h3 class="card-title">Список чергувань розвідки</h3>
                 </div>
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover">

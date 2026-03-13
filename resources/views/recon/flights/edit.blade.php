@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Редагувати політ RECON')
+@section('title', 'Редагувати політ розвідки')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати політ RECON #{{ $flight->id }}</h1>
+        <h1>Редагувати політ розвідки #{{ $flight->id }}</h1>
         <a href="{{ route('recon.flights.index') }}" class="btn btn-default">
             <i class="fas fa-arrow-left"></i> Назад до списку
         </a>

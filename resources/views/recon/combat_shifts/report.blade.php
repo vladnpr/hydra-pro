@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по залишку RECON')
+@section('title', 'Звіт по залишку розвідки')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по залишку RECON</h1>
+        <h1>Звіт по залишку розвідки</h1>
         <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
             <i class="fas fa-arrow-left"></i> Назад до чергування
         </a>
@@ -38,7 +38,7 @@
             <div class="card shadow-sm">
                 <div class="card-body p-5" id="printableArea">
                     <div class="report-content">
-                        <h4 class="mb-4">Позиція "{{ $shift->position_name }}"</h4>
+                        <h4 class="mb-4">Позиція "{{ $shift->position_name }}" (розвідка)</h4>
 
                         @php
                             $now = now();

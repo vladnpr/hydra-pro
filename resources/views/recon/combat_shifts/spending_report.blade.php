@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по витратам RECON')
+@section('title', 'Звіт по витратам розвідки')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по витратам RECON</h1>
+        <h1>Звіт по витратам розвідки</h1>
         <a href="{{ url()->previous() }}" class="btn btn-default no-print">
             <i class="fas fa-arrow-left"></i> Назад
         </a>

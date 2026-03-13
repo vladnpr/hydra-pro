@@ -35,7 +35,7 @@ class CombatShiftsController extends Controller
 
     public function activeShiftsReports()
     {
-        $activeShifts = $this->combatShiftsAdminService->getActiveShifts(PositionTypesEnum::FPV->value);
+        $activeShifts = $this->combatShiftsAdminService->getActiveShifts();
         return view('admin.combat_shifts.active_reports', compact('activeShifts'));
     }
 

@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'RECON Чергування Деталі')
+@section('title', 'Деталі чергування розвідки')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>RECON Чергування #{{ $shift->id }}</h1>
+        <h1>Чергування розвідки #{{ $shift->id }}</h1>
         <div>
             <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
@@ -195,7 +195,7 @@
                         </div>
                         <div class="tab-pane" id="flights">
                             <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5>Останні зафіксовані польоти RECON</h5>
+                                <h5>Останні зафіксовані польоти розвідки</h5>
                                 <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-sm btn-info">
                                     <i class="fas fa-file-alt"></i> Повний звіт по польотам
                                 </a>

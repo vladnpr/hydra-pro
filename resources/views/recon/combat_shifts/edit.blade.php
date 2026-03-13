@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Редагувати RECON чергування')
+@section('title', 'Редагувати чергування #' . $shift->id . ' "' . $shift->position_name . '"')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати RECON чергування #{{ $shift->id }}</h1>
+        <h1>Редагувати чергування #{{ $shift->id }} "{{ $shift->position_name }}"</h1>
         <div>
             <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
@@ -44,7 +44,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="position_id">Позиція (RECON)</label>
+                                    <label for="position_id">Позиція (розвідка)</label>
                                     <select name="position_id" id="position_id" class="form-control @error('position_id') is-invalid @enderror" required>
                                         <option value="">Оберіть позицію</option>
                                         @foreach($positions as $position)
@@ -124,7 +124,7 @@
                                 <h3 class="card-title">Майно на зміну</h3>
                             </div>
                             <div class="card-body">
-                                <h5>Боєприпаси (RECON)</h5>
+                                <h5>Боєприпаси (розвідка)</h5>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
