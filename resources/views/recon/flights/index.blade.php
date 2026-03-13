@@ -67,38 +67,40 @@
                             @enderror
                         </div>
 
-                        <div id="ammunition-container">
-                            <div class="form-group ammunition-row">
-                                <label>Боєприпаси (до 4-х одиниць)</label>
-                                @error('ammunition')
-                                    <div class="text-danger small mb-2">{{ $message }}</div>
-                                @enderror
-                                <div class="row mb-2">
-                                    <div class="col-8">
-                                        <select name="ammunition[0][id]" class="form-control select2 @error('ammunition.0.id') is-invalid @enderror">
-                                            <option value="">Без боєприпасу</option>
-                                            @foreach($ammunition as $item)
-                                                <option value="{{ $item['id'] }}" {{ old('ammunition.0.id') == $item['id'] ? 'selected' : '' }}>
-                                                    {{ $item['name'] }} (Залишок: {{ $item['quantity'] }})
-                                                </option>
-                                            @endforeach
-                                        </select>
-                                        @error('ammunition.0.id')
-                                            <span class="error invalid-feedback">{{ $message }}</span>
-                                        @enderror
-                                    </div>
-                                    <div class="col-4">
-                                        <input type="number" name="ammunition[0][quantity]" class="form-control @error('ammunition.0.quantity') is-invalid @enderror" value="{{ old('ammunition.0.quantity', 1) }}" min="1" placeholder="К-ть">
-                                        @error('ammunition.0.quantity')
-                                            <span class="error invalid-feedback">{{ $message }}</span>
-                                        @enderror
+                        <div id="ammunition-section" style="{{ old('mission_type') === 'combat' ? '' : 'display: none;' }}">
+                            <div id="ammunition-container">
+                                <div class="form-group ammunition-row">
+                                    <label>Боєприпаси (до 4-х одиниць)</label>
+                                    @error('ammunition')
+                                        <div class="text-danger small mb-2">{{ $message }}</div>
+                                    @enderror
+                                    <div class="row mb-2">
+                                        <div class="col-8">
+                                            <select name="ammunition[0][id]" class="form-control select2 @error('ammunition.0.id') is-invalid @enderror">
+                                                <option value="">Без боєприпасу</option>
+                                                @foreach($ammunition as $item)
+                                                    <option value="{{ $item['id'] }}" {{ old('ammunition.0.id') == $item['id'] ? 'selected' : '' }}>
+                                                        {{ $item['name'] }} (Залишок: {{ $item['quantity'] }})
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                            @error('ammunition.0.id')
+                                                <span class="error invalid-feedback">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="number" name="ammunition[0][quantity]" class="form-control @error('ammunition.0.quantity') is-invalid @enderror" value="{{ old('ammunition.0.quantity', 1) }}" min="1" placeholder="К-ть">
+                                            @error('ammunition.0.quantity')
+                                                <span class="error invalid-feedback">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <button type="button" class="btn btn-xs btn-outline-info mb-3" id="add-ammunition">
+                                <i class="fas fa-plus"></i> Додати боєприпас
+                            </button>
                         </div>
-                        <button type="button" class="btn btn-xs btn-outline-info mb-3" id="add-ammunition">
-                            <i class="fas fa-plus"></i> Додати боєприпас
-                        </button>
 
                         <div class="form-group">
                             <label for="mission_type">Тип місії</label>
@@ -387,6 +389,15 @@
                     @endif
                 @endforeach
             @endif
+
+            $('#mission_type').on('change', function() {
+                if ($(this).val() === 'combat') {
+                    $('#ammunition-section').slideDown();
+                } else {
+                    $('#ammunition-section').slideUp();
+                    // Optional: clear ammunition if hidden, but maybe user wants to keep it if they accidentally switched
+                }
+            });
 
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();
