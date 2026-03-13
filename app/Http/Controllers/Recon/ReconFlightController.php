@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Recon;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReconFlightStoreRequest;
+use App\Http\Requests\ReconFlightUpdateRequest;
 use App\Models\ReconFlight;
 use App\Models\ReconDrone;
 use App\Models\Ammunition;
@@ -122,6 +123,98 @@ class ReconFlightController extends Controller
 
         return redirect()->route('recon.flights.index')
             ->with('success', 'Виліт RECON успішно додано');
+    }
+
+    public function edit(int $id)
+    {
+        $flight = ReconFlight::with('ammunition')->findOrFail($id);
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
+
+        if (!$userActiveShift || !collect($userActiveShift->recon_drones)->pluck('id')->contains($flight->recon_drone_id)) {
+            return redirect()->route('recon.flights.index')
+                ->with('error', 'Ви можете редагувати вильоти лише своєї активної зміни');
+        }
+
+        $activeShiftType = $flight->shift_type->value;
+        $drones = collect($userActiveShift->recon_drones)
+            ->filter(function ($drone) use ($activeShiftType) {
+                return ($drone['shift_type'] ?? 'day') === 'both' || ($drone['shift_type'] ?? 'day') === $activeShiftType;
+            });
+        $ammunition = collect($userActiveShift->ammunition)->where('quantity', '>', 0);
+
+        return view('recon.flights.edit', compact('flight', 'userActiveShift', 'drones', 'ammunition', 'activeShiftType'));
+    }
+
+    public function update(ReconFlightUpdateRequest $request, int $id): RedirectResponse
+    {
+        $flight = ReconFlight::with('ammunition')->findOrFail($id);
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
+
+        if (!$userActiveShift || !collect($userActiveShift->recon_drones)->pluck('id')->contains($flight->recon_drone_id)) {
+            return redirect()->route('recon.flights.index')
+                ->with('error', 'Ви можете редагувати вильоти лише своєї активної зміни');
+        }
+
+        $data = $request->validated();
+
+        if ($request->hasFile('video')) {
+            if ($flight->video_path) {
+                Storage::disk('public')->delete($flight->video_path);
+            }
+            $data['video_path'] = $request->file('video')->store('recon/flights/videos', 'public');
+        }
+
+        DB::transaction(function () use ($data, $flight, $userActiveShift) {
+            // 1. Обробка зміни статусу дрона (якщо результат змінився)
+            if ($flight->result !== $data['result']) {
+                // Якщо раніше була втрата, а тепер ні - активуємо дрон
+                if ($flight->result === ReconMissionResultsEnum::BOARD_LOOSED && $data['result'] !== ReconMissionResultsEnum::BOARD_LOOSED) {
+                    ReconDrone::where('id', $flight->recon_drone_id)->update(['status' => 'active']);
+                }
+                // Якщо раніше не була втрата, а тепер втрата - списуємо дрон
+                elseif ($flight->result !== ReconMissionResultsEnum::BOARD_LOOSED && $data['result'] === ReconMissionResultsEnum::BOARD_LOOSED) {
+                    ReconDrone::where('id', $data['recon_drone_id'])->update(['status' => 'lost']);
+                }
+            }
+
+            // 2. Повернення старого БК до бойової зміни
+            foreach ($flight->ammunition as $ammo) {
+                DB::table('combat_shift_ammunition')
+                    ->where('combat_shift_id', $userActiveShift->id)
+                    ->where('ammunition_id', $ammo->id)
+                    ->increment('quantity', $ammo->pivot->quantity);
+            }
+            $flight->ammunition()->detach();
+
+            // 3. Оновлення польоту
+            $flight->update($data);
+
+            // 4. Списання нового БК
+            if (!empty($data['ammunition'])) {
+                foreach ($data['ammunition'] as $ammunitionItem) {
+                    if (empty($ammunitionItem['id'])) continue;
+
+                    $flight->ammunition()->attach($ammunitionItem['id'], [
+                        'quantity' => $ammunitionItem['quantity'] ?? 1
+                    ]);
+
+                    $ammunitionPivot = DB::table('combat_shift_ammunition')
+                        ->where('combat_shift_id', $userActiveShift->id)
+                        ->where('ammunition_id', $ammunitionItem['id'])
+                        ->where('quantity', '>', 0)
+                        ->first();
+
+                    if ($ammunitionPivot) {
+                        DB::table('combat_shift_ammunition')
+                            ->where('id', $ammunitionPivot->id)
+                            ->decrement('quantity', $ammunitionItem['quantity'] ?? 1);
+                    }
+                }
+            }
+        });
+
+        return redirect()->route('recon.flights.index')
+            ->with('success', 'Виліт RECON успішно оновлено');
     }
 
     public function destroy(int $id): RedirectResponse

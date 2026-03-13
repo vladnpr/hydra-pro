@@ -295,13 +295,18 @@
                                             @endif
                                         </td>
                                         <td>
-                                            <form action="{{ route('recon.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <div class="btn-group">
+                                                <a href="{{ route('recon.flights.edit', $flight->id) }}" class="btn btn-xs btn-info">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('recon.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
