@@ -10,6 +10,30 @@
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
             @can('manage-recon')
+                @if($shift->status === 'opened')
+                    @php
+                        $userIds = collect($shift->users)->pluck('id')->toArray();
+                        $isUserInShift = in_array(auth()->id(), $userIds);
+                    @endphp
+
+                    @if(!$isUserInShift && !$userActiveShift)
+                        <form action="{{ route('recon.combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-success">
+                                <i class="fas fa-sign-in-alt"></i> Приєднатися
+                            </button>
+                        </form>
+                    @endif
+
+                    @if($isUserInShift)
+                        <form action="{{ route('recon.combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                            @csrf
+                            <button type="submit" class="btn btn-warning" onclick="return confirm('Ви впевнені, що хочете покинути чергування?')">
+                                <i class="fas fa-sign-out-alt"></i> Відключитися
+                            </button>
+                        </form>
+                    @endif
+                @endif
                 <a href="{{ route('recon.flights.index') }}" class="btn btn-success ml-2">
                     <i class="fas fa-paper-plane"></i> Польоти
                 </a>

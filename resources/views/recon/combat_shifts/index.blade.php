@@ -44,6 +44,14 @@
                                 <strong>Початок:</strong> {{ $userActiveShift->started_at }}
                             </div>
                             <div class="col-md-4 text-right">
+                                @if($userActiveShift->status === 'opened')
+                                    <form action="{{ route('recon.combat_shifts.leave', $userActiveShift->id) }}" method="POST" style="display:inline-block;">
+                                        @csrf
+                                        <button type="submit" class="btn btn-warning btn-sm" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
+                                            <i class="fas fa-sign-out-alt mr-1"></i> Відключитися
+                                        </button>
+                                    </form>
+                                @endif
                                 <form action="{{ route('recon.combat_shifts.finish', $userActiveShift->id) }}" method="POST" style="display:inline-block;">
                                     @csrf
                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Завершити чергування?')">
@@ -119,30 +127,46 @@
                                     <td class="d-none d-lg-table-cell">{{ $shift->ended_at ?? '-' }}</td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm">
+                                            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm" title="Перегляд">
                                                 <i class="fas fa-eye"></i>
                                             </a>
                                             @can('manage-recon')
-                                                <a href="{{ route('recon.combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm">
+                                                @if($shift->status === 'opened' && !$isUserInShift && !$userActiveShift)
+                                                    <form action="{{ route('recon.combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-success btn-sm" title="Приєднатися">
+                                                            <i class="fas fa-sign-in-alt"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                @if($shift->status === 'opened' && $isUserInShift)
+                                                    <form action="{{ route('recon.combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-warning btn-sm" title="Відключитися" onclick="return confirm('Ви впевнені, що хочете покинути це чергування?')">
+                                                            <i class="fas fa-sign-out-alt"></i>
+                                                        </button>
+                                                    </form>
+
+                                                    <form action="{{ route('recon.combat_shifts.finish', $shift->id) }}" method="POST" style="display:inline-block;">
+                                                        @csrf
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Завершити" onclick="return confirm('Ви впевнені, що хочете завершити це чергування?')">
+                                                            <i class="fas fa-stop-circle"></i>
+                                                        </button>
+                                                    </form>
+                                                @endif
+
+                                                <a href="{{ route('recon.combat_shifts.edit', $shift->id) }}" class="btn btn-info btn-sm" title="Редагувати">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
                                                 <form action="{{ route('recon.combat_shifts.destroy', $shift->id) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
+                                                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')" title="Видалити">
                                                         <i class="fas fa-trash"></i>
                                                     </button>
                                                 </form>
                                             @endcan
-
-                                            @if($shift->status === 'opened' && !$isUserInShift && !$userActiveShift)
-                                                <form action="{{ route('recon.combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;">
-                                                    @csrf
-                                                    <button type="submit" class="btn btn-success btn-sm">
-                                                        Приєднатися
-                                                    </button>
-                                                </form>
-                                            @endif
                                         </div>
                                     </td>
                                 </tr>
