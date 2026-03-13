@@ -380,6 +380,11 @@ return [
                     'icon' => 'fas fa-shield-alt',
                 ],
                 [
+                    'text' => 'Польоти',
+                    'url' => 'admin/recon/flights',
+                    'icon' => 'fas fa-paper-plane',
+                ],
+                [
                     'text' => 'Дрони',
                     'url' => 'admin/recon/drones',
                     'icon' => 'fas fa-helicopter',

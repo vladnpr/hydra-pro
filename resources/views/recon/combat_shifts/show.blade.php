@@ -10,6 +10,9 @@
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
             @can('manage-recon')
+                <a href="{{ route('recon.flights.index') }}" class="btn btn-success ml-2">
+                    <i class="fas fa-paper-plane"></i> Польоти
+                </a>
                 <a href="{{ route('recon.combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
                     <i class="fas fa-edit"></i> Редагувати
                 </a>

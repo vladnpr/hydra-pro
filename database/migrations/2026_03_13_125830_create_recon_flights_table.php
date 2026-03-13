@@ -19,7 +19,7 @@ return new class extends Migration
                 ->constrained('recon_drones');
             $table->foreignId('recon_ammunition_id')
                 ->nullable()
-                ->constrained('recon_ammunition')
+                ->constrained('ammunition')
                 ->nullOnDelete();
             $table->string('mission_type')
                 ->default(
@@ -29,6 +29,7 @@ return new class extends Migration
             $table->timestamp('flight_time');
             $table->string('result')
                 ->default(ReconMissionResultsEnum::SUCCESS->value); // втрата борту, відпрацювали, інше
+            $table->string('video_path')->nullable();
             $table->timestamps();
         });
     }

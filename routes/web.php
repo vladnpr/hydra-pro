@@ -26,6 +26,11 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
         Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'finish'])->name('combat_shifts.finish');
         Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'reopen'])->name('combat_shifts.reopen');
         Route::resource('combat_shifts', \App\Http\Controllers\Recon\ReconCombatShiftsController::class);
+
+        Route::get('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'index'])->name('flights.index');
+        Route::post('flights', [\App\Http\Controllers\Recon\ReconFlightController::class, 'store'])->name('flights.store');
+        Route::get('flights/{id}/download', [\App\Http\Controllers\Recon\ReconFlightController::class, 'downloadVideo'])->name('flights.download');
+        Route::delete('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'destroy'])->name('flights.destroy');
     });
 
     Route::group(['middleware' => 'can:view-reports'], function () {
