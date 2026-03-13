@@ -4,6 +4,8 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
+use Illuminate\Validation\Rule;
+
 class ReconCombatShiftUpdateRequest extends FormRequest
 {
     public function authorize(): bool
@@ -43,13 +45,33 @@ class ReconCombatShiftUpdateRequest extends FormRequest
             'damaged_coils.*.quantity' => 'required_with:damaged_coils|integer|min:1',
             'new_recon_drones' => 'nullable|array',
             'new_recon_drones.*.name' => 'required_with:new_recon_drones|string|max:255',
-            'new_recon_drones.*.serial_number' => 'nullable|string|max:255',
+            'new_recon_drones.*.serial_number' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('recon_drones', 'serial_number')->whereNull('deleted_at'),
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) return;
+                    $serialNumbers = collect($this->input('new_recon_drones'))->pluck('serial_number')->filter()->toArray();
+                    $counts = array_count_values($serialNumbers);
+                    if (($counts[$value] ?? 0) > 1) {
+                        $fail("Серійний номер {$value} повторюється у вашому запиті.");
+                    }
+                }
+            ],
             'new_recon_drones.*.status' => 'required_with:new_recon_drones|in:active,lost,repair,non_operational',
             'new_recon_drones.*.shift_type' => 'required_with:new_recon_drones|in:day,night,both',
             'existing_recon_drones' => 'nullable|array',
             'existing_recon_drones.*.id' => 'required_with:existing_recon_drones|exists:recon_drones,id',
             'existing_recon_drones.*.status' => 'required_with:existing_recon_drones|in:active,lost,repair,non_operational',
             'existing_recon_drones.*.shift_type' => 'required_with:existing_recon_drones|in:day,night,both',
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'new_recon_drones.*.serial_number.unique' => 'Дрон з серійним номером :input вже існує в базі.',
         ];
     }
 }

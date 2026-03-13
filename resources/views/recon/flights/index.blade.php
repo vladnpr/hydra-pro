@@ -27,6 +27,18 @@
 @endsection
 
 @section('content')
+    @if($errors->any())
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-ban"></i> Виправте помилки!</h5>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     @if(session('success'))
         <div class="alert alert-success alert-dismissible">
             <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
@@ -106,7 +118,7 @@
                             <label for="mission_type">Тип місії</label>
                             <select name="mission_type" id="mission_type" class="form-control @error('mission_type') is-invalid @enderror" required>
                                 @foreach(\App\Enums\ReconMissionTypesEnum::cases() as $case)
-                                    <option value="{{ $case->value }}" {{ old('mission_type') == $case->value ? 'selected' : '' }}>
+                                    <option value="{{ $case->value }}" {{ old('mission_type', 'recon') == $case->value ? 'selected' : '' }}>
                                         @if($case->value === 'recon') Розвідка
                                         @elseif($case->value === 'combat') Бойова (скид)
                                         @elseif($case->value === 'delivery') Доставка
@@ -416,7 +428,12 @@
                     $('#ammunition-section').slideDown();
                 } else {
                     $('#ammunition-section').slideUp();
-                    // Optional: clear ammunition if hidden, but maybe user wants to keep it if they accidentally switched
+                    // Clear ammunition values if not combat mission
+                    $('#ammunition-container').find('select').val('').trigger('change');
+                    $('#ammunition-container').find('input[type="number"]').val('1');
+                    // Remove extra ammunition rows except the first one
+                    $('#ammunition-container .row.mb-2').not(':first').remove();
+                    ammoCount = 1;
                 }
             });
 
@@ -426,6 +443,11 @@
             });
 
             $('#recon-flight-form').on('submit', function(e) {
+                // If mission type is not combat, remove ammunition fields from submission
+                if ($('#mission_type').val() !== 'combat') {
+                    $('#ammunition-container').find('select, input').attr('disabled', true);
+                }
+
                 let totalAmmo = 0;
                 $('input[name$="[quantity]"]').each(function() {
                     let val = parseInt($(this).val());

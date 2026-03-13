@@ -19,7 +19,12 @@ class ReconDroneStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'serial_number' => 'nullable|string|max:255|unique:recon_drones,serial_number',
+            'serial_number' => [
+                'nullable',
+                'string',
+                'max:255',
+                Rule::unique('recon_drones', 'serial_number')->whereNull('deleted_at')
+            ],
             'status' => ['required', Rule::in(['active', 'lost', 'repair', 'non_operational'])],
             'shift_type' => ['required', new Enum(ShiftTypeEnum::class)],
             'position_id' => [
@@ -35,6 +40,7 @@ class ReconDroneStoreRequest extends FormRequest
     {
         return [
             'position_id.exists' => 'Обрана позиція повинна мати тип Recon.',
+            'serial_number.unique' => 'Дрон з таким серійним номером вже існує.',
         ];
     }
 }
