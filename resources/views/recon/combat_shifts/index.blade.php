@@ -130,6 +130,9 @@
                                             <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-primary btn-sm" title="Перегляд">
                                                 <i class="fas fa-eye"></i>
                                             </a>
+                                            <a href="{{ route('combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-default btn-sm" title="Витрати">
+                                                <i class="fas fa-bomb"></i>
+                                            </a>
                                             <a href="{{ route('recon.combat_shifts.report', $shift->id) }}" class="btn btn-secondary btn-sm" title="Звіт по залишку">
                                                 <i class="fas fa-file-alt"></i>
                                             </a>
