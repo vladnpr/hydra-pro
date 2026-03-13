@@ -207,23 +207,133 @@ readonly class CombatShiftsAdminService
         }
     }
 
-    public function getDashboardStats(?int $shiftId): array
+    public function getDashboardStats(): array
     {
-        if ($shiftId) {
-            $flights = $this->flightRepository->getFlightsByShift($shiftId);
-        } else {
-            $flights = $this->flightRepository->getAllFlights();
-        }
+        $fpvAllFlights = \App\Models\CombatShiftFlight::all();
+        $reconAllFlights = \App\Models\ReconFlight::all();
+
+        $activeShiftIds = \App\Models\CombatShift::where('status', 'opened')->pluck('id');
+        $fpvActiveFlights = \App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
+        $reconActiveFlights = \App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
 
         return [
-            'total_flights' => $flights->count(),
-            'total_combat_flights' => $flights->where('detonation', '!=', 'інше')->count(),
-            'total_hits' => $flights->where('result', 'влучання')->count(),
-            'total_area_hits' => $flights->where('result', 'удар в районі цілі')->count(),
-            'total_misses' => $flights->where('result', 'втрата борту')->count(),
-            'total_detonations' => $flights->where('detonation', 'так')->count(),
-            'total_non_detonations' => $flights->where('detonation', 'ні')->count(),
+            'total' => [
+                'fpv' => $this->calculateFpvStats($fpvAllFlights),
+                'recon' => $this->calculateReconStats($reconAllFlights),
+            ],
+            'active' => [
+                'fpv' => $this->calculateFpvStats($fpvActiveFlights),
+                'recon' => $this->calculateReconStats($reconActiveFlights),
+            ],
+            'positions' => $this->getStatsByPositions(),
+            'active_shifts' => $this->getStatsByActiveShifts(),
         ];
+    }
+
+    private function getStatsByActiveShifts(): array
+    {
+        $activeShifts = \App\Models\CombatShift::where('status', 'opened')->with(['position', 'crew'])->get();
+        $stats = [];
+
+        foreach ($activeShifts as $shift) {
+            $fpvFlights = $shift->flights;
+            $reconFlights = $shift->reconFlights;
+
+            $stats[] = [
+                'id' => $shift->id,
+                'position_name' => $shift->position?->name ?? 'Невідома позиція',
+                'crew' => $shift->crew->pluck('callsign')->toArray(),
+                'type' => $shift->type?->value,
+                'fpv' => $this->calculateFpvStats($fpvFlights),
+                'recon' => $this->calculateReconStats($reconFlights),
+            ];
+        }
+
+        return $stats;
+    }
+
+    private function calculateFpvStats(\Illuminate\Support\Collection $flights): array
+    {
+        $totalFlights = $flights->count();
+        $hits = $flights->where('result', 'влучання')->count();
+        $areaHits = $flights->where('result', 'удар в районі цілі')->count();
+        $misses = $flights->where('result', 'втрата борту')->count();
+
+        $detonations = $flights->where('detonation', 'так')->count();
+        // При підрахунку тих, що не розірвалися, не враховуємо ті, де була втрата борту
+        $nonDetonations = $flights->where('detonation', 'ні')->where('result', '!=', 'втрата борту')->count();
+
+        // Ефективність влучань: (Влучання + 0.5 * В районі цілі) / (Влучання + В районі цілі + Втрати)
+        // Втрати бортів негативно впливають, оскільки вони в знаменнику.
+        $divisorHit = $hits + $areaHits + $misses;
+        $positivePoints = $hits + ($areaHits * 0.5);
+        $hitRate = $divisorHit > 0 ? round(($positivePoints / $divisorHit) * 100, 1) : 0;
+        $hitRate = min(100, max(0, $hitRate));
+
+        // Надійність БК: (Детонації) / (Детонації + Не розірвався)
+        // Враховуємо тільки ті вильоти, де точно відомо (так/ні), ігноруючи 'інше'
+        $divisorDetonation = $detonations + $nonDetonations;
+        $detonationRate = $divisorDetonation > 0 ? round(($detonations / $divisorDetonation) * 100, 1) : 0;
+        $detonationRate = min(100, max(0, $detonationRate));
+
+        return [
+            'total_flights' => $totalFlights,
+            'total_hits' => $hits,
+            'total_area_hits' => $areaHits,
+            'total_misses' => $misses,
+            'total_detonations' => $detonations,
+            'total_non_detonations' => $nonDetonations,
+            'hit_rate' => $hitRate,
+            'detonation_rate' => $detonationRate,
+            'combat_flights_for_hit' => $divisorHit,
+            'combat_flights_for_detonation' => $divisorDetonation,
+        ];
+    }
+
+    private function calculateReconStats(\Illuminate\Support\Collection $flights): array
+    {
+        $totalFlights = $flights->count();
+        $success = $flights->where('result', \App\Enums\ReconMissionResultsEnum::SUCCESS)->count();
+        $loosed = $flights->where('result', \App\Enums\ReconMissionResultsEnum::BOARD_LOOSED)->count();
+        $other = $flights->where('result', \App\Enums\ReconMissionResultsEnum::OTHER)->count();
+
+        // Ефективність розвідки: (Успішні) / (Успішні + Втрати)
+        // Втрати бортів негативно впливають, оскільки вони в знаменнику.
+        // Ми можемо також включити 'інше' в знаменник, якщо це вважається "не успіхом"
+        $divisorRecon = $success + $loosed;
+        $successRate = $divisorRecon > 0 ? round(($success / $divisorRecon) * 100, 1) : 0;
+        $successRate = min(100, max(0, $successRate));
+
+        return [
+            'total_flights' => $totalFlights,
+            'total_success' => $success,
+            'total_loosed' => $loosed,
+            'total_other' => $other,
+            'success_rate' => $successRate,
+            'combat_flights_for_success' => $divisorRecon,
+        ];
+    }
+
+    private function getStatsByPositions(): array
+    {
+        $positions = \App\Models\Position::all();
+        $stats = [];
+
+        foreach ($positions as $position) {
+            $shiftIds = \App\Models\CombatShift::where('position_id', $position->id)->pluck('id');
+
+            $fpvFlights = \App\Models\CombatShiftFlight::whereIn('combat_shift_id', $shiftIds)->get();
+            $reconFlights = \App\Models\ReconFlight::whereIn('combat_shift_id', $shiftIds)->get();
+
+            $stats[$position->id] = [
+                'name' => $position->name,
+                'type' => $position->type,
+                'fpv' => $this->calculateFpvStats($fpvFlights),
+                'recon' => $this->calculateReconStats($reconFlights),
+            ];
+        }
+
+        return $stats;
     }
 
     public function updateAmmunitionQuantity(int $shiftId, int $ammunitionId, int $change): void
