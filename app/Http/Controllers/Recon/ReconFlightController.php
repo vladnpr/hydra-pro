@@ -83,6 +83,12 @@ class ReconFlightController extends Controller
         }
 
         $data = $request->validated();
+
+        // Не зберігаємо БК, якщо тип місії не 'combat'
+        if (($data['mission_type'] ?? null) !== \App\Enums\ReconMissionTypesEnum::COMBAT->value) {
+            unset($data['ammunition']);
+        }
+
         $data['stream_status'] = $request->boolean('stream_status');
         $data['shift_type'] = session('recon_active_shift_type', ShiftTypeEnum::DAY->value);
         $data['combat_shift_id'] = $userActiveShift->id;
@@ -91,37 +97,53 @@ class ReconFlightController extends Controller
             $data['video_path'] = $request->file('video')->store('recon/flights/videos', 'public');
         }
 
-        DB::transaction(function () use ($data, $userActiveShift) {
-            $flight = ReconFlight::create($data);
+        // Логування перед збереженням
+        \Log::info('Спроба збереження польоту RECON', [
+            'userId' => Auth::id(),
+            'shiftId' => $userActiveShift->id,
+            'data' => collect($data)->except(['video'])->toArray()
+        ]);
 
-            // 1. Списання дрона лише при втраті
-            if ($flight->result === ReconMissionResultsEnum::BOARD_LOOSED) {
-                ReconDrone::where('id', $flight->recon_drone_id)->update(['status' => 'lost']);
-            }
+        try {
+            DB::transaction(function () use ($data, $userActiveShift) {
+                $flight = ReconFlight::create($data);
 
-            // 2. Списання БК (завжди, якщо вибрано)
-            if (!empty($data['ammunition'])) {
-                foreach ($data['ammunition'] as $ammunitionItem) {
-                    if (empty($ammunitionItem['id'])) continue;
+                // 1. Списання дрона лише при втраті
+                if ($flight->result === ReconMissionResultsEnum::BOARD_LOOSED) {
+                    ReconDrone::where('id', $flight->recon_drone_id)->update(['status' => 'lost']);
+                }
 
-                    $flight->ammunition()->attach($ammunitionItem['id'], [
-                        'quantity' => $ammunitionItem['quantity'] ?? 1
-                    ]);
+                // 2. Списання БК (завжди, якщо вибрано)
+                if (!empty($data['ammunition'])) {
+                    foreach ($data['ammunition'] as $ammunitionItem) {
+                        if (empty($ammunitionItem['id'])) continue;
 
-                    $ammunitionPivot = DB::table('combat_shift_ammunition')
-                        ->where('combat_shift_id', $userActiveShift->id)
-                        ->where('ammunition_id', $ammunitionItem['id'])
-                        ->where('quantity', '>', 0)
-                        ->first();
+                        $flight->ammunition()->attach($ammunitionItem['id'], [
+                            'quantity' => $ammunitionItem['quantity'] ?? 1
+                        ]);
 
-                    if ($ammunitionPivot) {
-                        DB::table('combat_shift_ammunition')
-                            ->where('id', $ammunitionPivot->id)
-                            ->decrement('quantity', $ammunitionItem['quantity'] ?? 1);
+                        $ammunitionPivot = DB::table('combat_shift_ammunition')
+                            ->where('combat_shift_id', $userActiveShift->id)
+                            ->where('ammunition_id', $ammunitionItem['id'])
+                            ->where('quantity', '>', 0)
+                            ->first();
+
+                        if ($ammunitionPivot) {
+                            DB::table('combat_shift_ammunition')
+                                ->where('id', $ammunitionPivot->id)
+                                ->decrement('quantity', $ammunitionItem['quantity'] ?? 1);
+                        }
                     }
                 }
-            }
-        });
+            });
+        } catch (\Exception $e) {
+            \Log::error('Помилка при збереженні польоту RECON: ' . $e->getMessage(), [
+                'exception' => $e,
+                'data' => $data,
+                'userId' => Auth::id()
+            ]);
+            return redirect()->back()->with('error', 'Помилка при збереженні польоту: ' . $e->getMessage())->withInput();
+        }
 
         return redirect()->route('recon.flights.index')
             ->with('success', 'Виліт RECON успішно додано');
