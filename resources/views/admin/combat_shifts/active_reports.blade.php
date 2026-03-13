@@ -39,9 +39,20 @@
                             </thead>
                             <tbody>
                                 @foreach($activeShifts as $shift)
+                                    @php
+                                        $isRecon = $shift->type === \App\Enums\PositionTypesEnum::RECON->value;
+                                        $routePrefix = $isRecon ? 'recon.' : '';
+                                    @endphp
                                     <tr>
                                         <td>{{ $shift->id }}</td>
-                                        <td>{{ $shift->position_name }}</td>
+                                        <td>
+                                            {{ $shift->position_name }}
+                                            @if($isRecon)
+                                                <span class="badge badge-warning ml-1">розвідка</span>
+                                            @else
+                                                <span class="badge badge-info ml-1">FPV</span>
+                                            @endif
+                                        </td>
                                         <td>
                                             @foreach($shift->crew as $member)
                                                 <span class="badge badge-info">{{ $member['callsign'] }}</span>
@@ -50,16 +61,16 @@
                                         <td>{{ $shift->started_at }}</td>
                                         <td class="text-center">
                                             <div class="btn-group">
-                                                <a href="{{ route('combat_shifts.report', $shift->id) }}" class="btn btn-primary btn-sm" title="Звіт по залишку">
+                                                <a href="{{ route($routePrefix . 'combat_shifts.report', $shift->id) }}" class="btn btn-primary btn-sm" title="Звіт по залишку">
                                                     <i class="fas fa-file-alt mr-1"></i> Залишки
                                                 </a>
                                                 <a href="{{ route('combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-primary btn-sm ml-1" title="Звіт по витратам">
                                                     <i class="fas fa-bomb mr-1"></i> Витрати
                                                 </a>
-                                                <a href="{{ route('combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary btn-sm ml-1" title="Звіт по польотам">
+                                                <a href="{{ route($routePrefix . 'combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary btn-sm ml-1" title="Звіт по польотам">
                                                     <i class="fas fa-paper-plane mr-1"></i> Польоти
                                                 </a>
-                                                <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default btn-sm ml-1" title="Деталі">
+                                                <a href="{{ route($routePrefix . 'combat_shifts.show', $shift->id) }}" class="btn btn-default btn-sm ml-1" title="Деталі">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
                                             </div>

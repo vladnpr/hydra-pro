@@ -13,9 +13,15 @@ class EloquentPositionRepository implements PositionRepositoryInterface
         return Position::all();
     }
 
-    public function getActive(): Collection
+    public function getActive(?string $type = null): Collection
     {
-        return Position::where('status', true)->get();
+        $query = Position::where('status', true);
+
+        if ($type) {
+            $query->where('type', $type);
+        }
+
+        return $query->get();
     }
 
     public function create(array $data): Position

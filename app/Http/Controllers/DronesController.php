@@ -15,7 +15,7 @@ class DronesController extends Controller
     public function __construct(private readonly DronesAdminService $service)
     {
         $this->middleware(function ($request, $next) {
-            if (Gate::denies('manage-drones')) {
+            if (Gate::denies('manage-fpv-drones')) {
                 abort(403);
             }
             return $next($request);

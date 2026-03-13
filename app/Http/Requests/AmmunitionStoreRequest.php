@@ -15,6 +15,7 @@ class AmmunitionStoreRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'type' => 'nullable|string|max:50',
             'status' => 'required|boolean',
         ];
     }

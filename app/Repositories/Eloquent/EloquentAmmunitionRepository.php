@@ -8,14 +8,22 @@ use Illuminate\Support\Collection;
 
 class EloquentAmmunitionRepository implements AmmunitionRepositoryInterface
 {
-    public function all(): Collection
+    public function all(?string $type = null): Collection
     {
-        return Ammunition::all();
+        $query = Ammunition::query();
+        if ($type) {
+            $query->where('type', $type);
+        }
+        return $query->get();
     }
 
-    public function getActive(): Collection
+    public function getActive(?string $type = null): Collection
     {
-        return Ammunition::where('status', true)->get();
+        $query = Ammunition::where('status', true);
+        if ($type) {
+            $query->where('type', $type);
+        }
+        return $query->get();
     }
 
     public function create(array $data): Ammunition

@@ -14,6 +14,7 @@ class Ammunition extends Model
 
     protected $fillable = [
         'name',
+        'type',
         'status',
     ];
 
