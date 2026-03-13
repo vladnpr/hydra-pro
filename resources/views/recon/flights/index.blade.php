@@ -162,6 +162,14 @@
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="description">Опис / Нотатки</label>
+                            <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" rows="2" placeholder="Додайте опис або нотатки">{{ old('description') }}</textarea>
+                            @error('description')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div class="card-footer text-right">
                         <button type="submit" class="btn btn-primary">
@@ -189,6 +197,7 @@
                                     <th>БК</th>
                                     <th>Координати</th>
                                     <th>Результат</th>
+                                    <th>Опис</th>
                                     <th>Відео</th>
                                     <th>Дії</th>
                                 </tr>
@@ -244,6 +253,13 @@
                                             <span class="badge badge-{{ $badgeClass }}">{{ $resultLabel }}</span>
                                         </td>
                                         <td>
+                                            @if($flight->description)
+                                                <span title="{{ $flight->description }}">{{ Str::limit($flight->description, 30) }}</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td>
                                             @if($flight->video_path)
                                                 <div class="btn-group">
                                                     <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight->id }}" title="Переглянути">
@@ -288,7 +304,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center p-4">Польотів ще не зафіксовано</td>
+                                        <td colspan="10" class="text-center p-4">Польотів ще не зафіксовано</td>
                                     </tr>
                                 @endforelse
                             </tbody>

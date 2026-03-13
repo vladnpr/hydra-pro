@@ -43,6 +43,7 @@ class ReconFlightStoreRequest extends FormRequest
             'result' => ['required', new Enum(ReconMissionResultsEnum::class)],
             'shift_type' => ['nullable', new Enum(ShiftTypeEnum::class)],
             'video' => 'nullable|file|mimetypes:video/mp4,video/mpeg,video/quicktime,video/x-msvideo,video/x-flv,video/webm|max:76800',
+            'description' => 'nullable|string|max:1000',
         ];
     }
 
