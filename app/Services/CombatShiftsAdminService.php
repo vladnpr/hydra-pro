@@ -101,6 +101,15 @@ readonly class CombatShiftsAdminService
                 }
             }
 
+            if (!empty($dto->existing_recon_drones)) {
+                foreach ($dto->existing_recon_drones as $droneData) {
+                    $this->reconDroneService->updateDrone((int)$droneData['id'], [
+                        'status' => $droneData['status'],
+                        'shift_type' => $droneData['shift_type']
+                    ]);
+                }
+            }
+
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
     }
@@ -144,7 +153,10 @@ readonly class CombatShiftsAdminService
 
             if (!empty($dto->existing_recon_drones)) {
                 foreach ($dto->existing_recon_drones as $droneData) {
-                    $this->reconDroneService->updateDrone((int)$droneData['id'], ['status' => $droneData['status']]);
+                    $this->reconDroneService->updateDrone((int)$droneData['id'], [
+                        'status' => $droneData['status'],
+                        'shift_type' => $droneData['shift_type']
+                    ]);
                 }
             }
 

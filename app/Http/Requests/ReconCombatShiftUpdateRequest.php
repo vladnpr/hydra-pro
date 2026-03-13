@@ -44,9 +44,11 @@ class ReconCombatShiftUpdateRequest extends FormRequest
             'new_recon_drones.*.name' => 'required_with:new_recon_drones|string|max:255',
             'new_recon_drones.*.serial_number' => 'nullable|string|max:255',
             'new_recon_drones.*.status' => 'required_with:new_recon_drones|in:active,lost,repair,non_operational',
+            'new_recon_drones.*.shift_type' => 'required_with:new_recon_drones|in:day,night,both',
             'existing_recon_drones' => 'nullable|array',
             'existing_recon_drones.*.id' => 'required_with:existing_recon_drones|exists:recon_drones,id',
             'existing_recon_drones.*.status' => 'required_with:existing_recon_drones|in:active,lost,repair,non_operational',
+            'existing_recon_drones.*.shift_type' => 'required_with:existing_recon_drones|in:day,night,both',
         ];
     }
 }

@@ -204,13 +204,21 @@
                             <label class="small">Серійний номер</label>
                             <input type="text" name="new_recon_drones[${droneIndex}][serial_number]" class="form-control form-control-sm" placeholder="Серійний номер">
                         </div>
-                        <div class="form-group mb-2">
+                        <div class="form-group mb-1">
                             <label class="small">Статус</label>
                             <select name="new_recon_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
                                 <option value="active">Активний</option>
                                 <option value="repair">В ремонті</option>
                                 <option value="non_operational">Не боєготовий</option>
                                 <option value="lost">Втрачений</option>
+                            </select>
+                        </div>
+                        <div class="form-group mb-2">
+                            <label class="small">Тип зміни</label>
+                            <select name="new_recon_drones[${droneIndex}][shift_type]" class="form-control form-control-sm" required>
+                                <option value="day">Денна</option>
+                                <option value="night">Нічна</option>
+                                <option value="both">Обидві</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-danger btn-xs remove-new-drone">Видалити</button>
@@ -241,19 +249,31 @@
 
                     let html = '<div class="list-group list-group-sm">';
                     drones.forEach(function(drone) {
-                        let statusBadge = '';
-                        if (drone.status === 'active') statusBadge = '<span class="badge badge-success">Активний</span>';
-                        else if (drone.status === 'repair') statusBadge = '<span class="badge badge-warning">В ремонті</span>';
-                        else if (drone.status === 'lost') statusBadge = '<span class="badge badge-danger">Втрачений</span>';
-
                         html += `
                             <div class="list-group-item">
-                                <div class="d-flex w-100 justify-content-between align-items-center">
-                                    <div>
+                                <div class="row align-items-center">
+                                    <div class="col-md-7">
                                         <h6 class="mb-0">${drone.name}</h6>
                                         <small class="text-muted">${drone.serial_number || 'S/N відсутній'}</small>
                                     </div>
-                                    ${statusBadge}
+                                    <div class="col-md-5">
+                                        <input type="hidden" name="existing_recon_drones[${drone.id}][id]" value="${drone.id}">
+                                        <div class="form-group mb-1">
+                                            <select name="existing_recon_drones[${drone.id}][status]" class="form-control form-control-sm">
+                                                <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
+                                                <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
+                                                <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
+                                                <option value="lost" ${drone.status === 'lost' ? 'selected' : ''}>Втрачений</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group mb-0">
+                                            <select name="existing_recon_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
+                                                <option value="day" ${drone.shift_type === 'day' ? 'selected' : ''}>Денна</option>
+                                                <option value="night" ${drone.shift_type === 'night' ? 'selected' : ''}>Нічна</option>
+                                                <option value="both" ${drone.shift_type === 'both' ? 'selected' : ''}>Обидві</option>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         `;
