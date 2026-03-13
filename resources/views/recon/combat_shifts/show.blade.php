@@ -4,7 +4,7 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Чергування розвідки #{{ $shift->id }}</h1>
+        <h1>Чергування розвідки "{{ $shift->position_name }}"</h1>
         <div>
             <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку

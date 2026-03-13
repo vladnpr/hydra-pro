@@ -3,7 +3,7 @@
 @section('title', 'Редагувати виліт')
 
 @section('content_header')
-    <h1>Редагувати виліт (Зміна #{{ $userActiveShift->id }})</h1>
+    <h1>Редагувати виліт "{{ $userActiveShift->position_name }}"</h1>
 @endsection
 
 @section('content')

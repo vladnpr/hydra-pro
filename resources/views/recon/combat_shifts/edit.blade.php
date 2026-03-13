@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Редагувати чергування #' . $shift->id . ' "' . $shift->position_name . '"')
+@section('title', 'Редагувати чергування "' . $shift->position_name . '"')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати чергування #{{ $shift->id }} "{{ $shift->position_name }}"</h1>
+        <h1>Редагувати чергування "{{ $shift->position_name }}"</h1>
         <div>
             <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку

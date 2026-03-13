@@ -4,7 +4,7 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати чергування #{{ $shift->id }}</h1>
+        <h1>Редагувати чергування "{{ $shift->position_name }}"</h1>
         <div>
             <a href="{{ route('combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей

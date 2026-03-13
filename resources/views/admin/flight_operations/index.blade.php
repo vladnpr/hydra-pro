@@ -4,7 +4,7 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Бойові вильоти (Активна зміна #{{ $userActiveShift->id }})</h1>
+        <h1>Бойові вильоти "{{ $userActiveShift->position_name }}"</h1>
         <div>
             <span class="badge badge-success">Позиція: {{ $userActiveShift->position_name }}</span>
             <span class="badge badge-info ml-2">Початок: {{ $userActiveShift->started_at }}</span>

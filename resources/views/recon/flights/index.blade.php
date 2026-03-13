@@ -4,7 +4,7 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Польоти розвідки (Активна зміна #{{ $userActiveShift->id }})</h1>
+        <h1>Польоти "{{ $userActiveShift->position_name }}"</h1>
         <div class="d-flex align-items-center">
             <div class="mr-4">
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">
