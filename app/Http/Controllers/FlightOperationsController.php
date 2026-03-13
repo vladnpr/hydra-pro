@@ -112,7 +112,7 @@ class FlightOperationsController extends Controller
                 ->with('error', 'Ви можете видаляти вильоти лише своєї активної зміни');
         }
 
-        if ($flight->video_path) {
+        if ($flight->video_path && $flight->isForceDeleting()) {
             Storage::disk('public')->delete($flight->video_path);
         }
 

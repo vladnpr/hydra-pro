@@ -38,7 +38,13 @@ class ReconDronesController extends Controller
 
     public function store(ReconDroneStoreRequest $request)
     {
-        $this->service->createDrone($request->validated());
+        try {
+            $this->service->createDrone($request->validated());
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            return redirect()->back()
+                ->withErrors(['serial_number' => 'Дрон з таким серійним номером вже існує в базі.'])
+                ->withInput();
+        }
 
         return redirect()->route('recon.drones.index')
             ->with('success', 'Дрон успішно додано');
@@ -59,7 +65,13 @@ class ReconDronesController extends Controller
 
     public function update(ReconDroneUpdateRequest $request, int $id)
     {
-        $this->service->updateDrone($id, $request->validated());
+        try {
+            $this->service->updateDrone($id, $request->validated());
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+            return redirect()->back()
+                ->withErrors(['serial_number' => 'Дрон з таким серійним номером вже існує в базі.'])
+                ->withInput();
+        }
 
         return redirect()->route('recon.drones.index')
             ->with('success', 'Дрон успішно оновлено');

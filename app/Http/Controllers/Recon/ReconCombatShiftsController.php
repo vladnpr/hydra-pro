@@ -73,8 +73,14 @@ class ReconCombatShiftsController extends Controller
                 ->with('error', 'У вас вже є відкрите чергування.');
         }
 
-        $dto = CreateCombatShiftDTO::fromRequest($request);
-        $this->combatShiftsAdminService->createShift($dto);
+        try {
+            $dto = CreateCombatShiftDTO::fromRequest($request);
+            $this->combatShiftsAdminService->createShift($dto);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+             return redirect()->back()
+                ->withErrors(['new_recon_drones' => 'Дрон з таким серійним номером вже існує в базі. Будь ласка, перевірте введені дані.'])
+                ->withInput();
+        }
 
         return redirect()->route('recon.combat_shifts.index')
             ->with('success', 'Чергування успішно розпочато');
@@ -111,8 +117,14 @@ class ReconCombatShiftsController extends Controller
 
     public function update(ReconCombatShiftUpdateRequest $request, int $id)
     {
-        $dto = UpdateCombatShiftDTO::fromRequest($request);
-        $this->combatShiftsAdminService->updateShift($id, $dto);
+        try {
+            $dto = UpdateCombatShiftDTO::fromRequest($request);
+            $this->combatShiftsAdminService->updateShift($id, $dto);
+        } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
+             return redirect()->back()
+                ->withErrors(['new_recon_drones' => 'Дрон з таким серійним номером вже існує в базі. Будь ласка, перевірте введені дані.'])
+                ->withInput();
+        }
 
         return redirect()->route('recon.combat_shifts.index')
             ->with('success', 'Чергування успішно оновлено');

@@ -21,7 +21,7 @@ class ReconDroneUpdateRequest extends FormRequest
 
         return [
             'name' => 'required|string|max:255',
-            'serial_number' => ['nullable', 'string', 'max:255', Rule::unique('recon_drones', 'serial_number')->ignore($id)],
+            'serial_number' => ['nullable', 'string', 'max:255', Rule::unique('recon_drones', 'serial_number')->ignore($id)->whereNull('deleted_at')],
             'status' => ['required', Rule::in(['active', 'lost', 'repair', 'non_operational'])],
             'shift_type' => ['required', new Enum(ShiftTypeEnum::class)],
             'position_id' => [
@@ -37,6 +37,7 @@ class ReconDroneUpdateRequest extends FormRequest
     {
         return [
             'position_id.exists' => 'Обрана позиція повинна мати тип Recon.',
+            'serial_number.unique' => 'Дрон з таким серійним номером вже існує.',
         ];
     }
 }

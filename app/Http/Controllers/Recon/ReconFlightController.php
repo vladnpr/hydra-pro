@@ -268,14 +268,11 @@ class ReconFlightController extends Controller
             }
 
             // 3. Видалення відео
-            if ($flight->video_path) {
+            if ($flight->video_path && $flight->isForceDeleting()) {
                 Storage::disk('public')->delete($flight->video_path);
             }
 
-            // 4. Видалення запису про політ (зв'язки в recon_flight_ammunition видаляться каскадно або вручну)
-            // Оскільки ми використовуємо detach() або просто видаляємо політ,
-            // якщо в міграції було onDelete('cascade'), то зв'язки видаляться самі.
-            $flight->ammunition()->detach();
+            // 4. Видалення запису про політ
             $flight->delete();
         });
 
