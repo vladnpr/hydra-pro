@@ -117,7 +117,6 @@
                         <div class="form-group">
                             <label for="mission_type">Тип місії</label>
                             <select name="mission_type" id="mission_type" class="form-control @error('mission_type') is-invalid @enderror" required>
-                                <option value="">Оберіть тип місії</option>
                                 @foreach(\App\Enums\ReconMissionTypesEnum::cases() as $case)
                                     <option value="{{ $case->value }}" {{ old('mission_type', 'recon') == $case->value ? 'selected' : '' }}>
                                         @if($case->value === 'recon') Розвідка

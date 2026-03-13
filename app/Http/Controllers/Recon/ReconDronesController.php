@@ -79,6 +79,10 @@ class ReconDronesController extends Controller
 
     public function destroy(int $id)
     {
+        if (!auth()->user()->isAdmin()) {
+            abort(403, 'Тільки адміністратор може видаляти дрони.');
+        }
+
         $this->service->deleteDrone($id);
 
         return redirect()->route('recon.drones.index')
