@@ -148,6 +148,14 @@
                                 <span class="text-danger small">{{ $message }}</span>
                             @enderror
                         </div>
+
+                        <div class="form-group">
+                            <label for="description">Опис (примітки)</label>
+                            <textarea name="description" id="description" class="form-control @error('description') is-invalid @enderror" rows="2" placeholder="Додаткова інформація...">{{ old('description') }}</textarea>
+                            @error('description')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div class="card-footer text-right">
                         <button type="submit" class="btn btn-primary">
@@ -174,6 +182,7 @@
                                     <th>БК</th>
                                     <th>Координати</th>
                                     <th>Результат</th>
+                                    <th>Опис</th>
                                     <th>Відео</th>
                                     <th>Дії</th>
                                 </tr>
@@ -216,6 +225,13 @@
                                                 };
                                             @endphp
                                             <span class="badge badge-{{ $badgeClass }}">{{ $resultLabel }}</span>
+                                        </td>
+                                        <td>
+                                            @if($flight->description)
+                                                <span title="{{ $flight->description }}">{{ Str::limit($flight->description, 20) }}</span>
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td>
                                             @if($flight->video_path)

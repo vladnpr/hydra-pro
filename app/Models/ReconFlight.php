@@ -20,6 +20,7 @@ class ReconFlight extends Model
         'flight_time',
         'result',
         'video_path',
+        'description',
     ];
 
     protected $casts = [
