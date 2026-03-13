@@ -57,6 +57,7 @@
                                     <option value="{{ $case->value }}" {{ old('mission_type', $flight->mission_type->value) == $case->value ? 'selected' : '' }}>
                                         @if($case->value === 'recon') Розвідка
                                         @elseif($case->value === 'combat') Бойова (скид)
+                                        @elseif($case->value === 'delivery') Доставка
                                         @else {{ $case->value }} @endif
                                     </option>
                                 @endforeach
