@@ -4,14 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Presenters\FPVSpendingReportPresenter;
 use App\Services\SpendingFPVReportService;
-use App\Services\SpendingReconReportService;
 use Illuminate\Support\Facades\Auth;
 
 class SpendingFPVReportController extends Controller
 {
     public function __construct(
         private readonly SpendingFPVReportService $spendingFPVReportService,
-        private readonly SpendingReconReportService $spendingReconReportService,
     )
     {
     }
@@ -21,8 +19,7 @@ class SpendingFPVReportController extends Controller
         $shift = \App\Models\CombatShift::findOrFail($shiftId);
 
         if ($shift->type === \App\Enums\PositionTypesEnum::RECON->value) {
-            $reportData = $this->spendingReconReportService->getSpendingReport($shiftId);
-            return view('recon.combat_shifts.spending_report', $reportData);
+            abort(404);
         }
 
         $reportData = $this->spendingFPVReportService->getSpendingFPVReport($shiftId);
@@ -53,8 +50,7 @@ class SpendingFPVReportController extends Controller
         }
 
         if ($activeShift->type === \App\Enums\PositionTypesEnum::RECON->value) {
-            $reportData = $this->spendingReconReportService->getSpendingReport($activeShift->id);
-            return view('recon.combat_shifts.spending_report', $reportData);
+            abort(404);
         }
 
         $reportData = $this->spendingFPVReportService->getReportByUserId(Auth::id());
