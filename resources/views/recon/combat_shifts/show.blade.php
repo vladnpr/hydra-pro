@@ -9,6 +9,12 @@
             <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
+            <a href="{{ route('recon.combat_shifts.report', $shift->id) }}" class="btn btn-primary ml-2">
+                <i class="fas fa-file-alt"></i> Звіт по залишку
+            </a>
+            <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
+                <i class="fas fa-paper-plane"></i> Звіт по польотам
+            </a>
             @can('manage-recon')
                 @if($shift->status === 'opened')
                     @php

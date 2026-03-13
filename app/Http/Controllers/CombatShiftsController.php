@@ -124,7 +124,7 @@ class CombatShiftsController extends Controller
         }
 
         if ($activeShift->type === PositionTypesEnum::RECON->value) {
-            return redirect()->route('recon.combat_shifts.show', $activeShift->id);
+            return redirect()->route('recon.combat_shifts.report', $activeShift->id);
         }
 
         return $this->report($activeShift->id);

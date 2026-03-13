@@ -36,6 +36,7 @@ Route::group(['middleware' => ['auth', 'can:access-combat'], 'prefix' => 'admin'
         Route::delete('flights/{id}', [\App\Http\Controllers\Recon\ReconFlightController::class, 'destroy'])->name('flights.destroy');
 
         Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'flightsReport'])->name('combat_shifts.flights_report');
+        Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'report'])->name('combat_shifts.report');
         Route::get('active-shift/flights-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
     });
 
