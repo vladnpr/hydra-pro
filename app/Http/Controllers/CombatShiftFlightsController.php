@@ -6,6 +6,7 @@ use App\Models\CombatShiftFlight;
 use App\Http\Requests\CombatShiftFlightUpdateRequest;
 use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
+use App\Enums\PositionTypesEnum;
 use Illuminate\Http\RedirectResponse;
 
 class CombatShiftFlightsController extends Controller
@@ -19,7 +20,7 @@ class CombatShiftFlightsController extends Controller
     {
         $flight = CombatShiftFlight::with('combatShift')->findOrFail($id);
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
 
         return view('admin.combat_shifts.flights.edit', compact('flight', 'drones', 'ammunition'));
     }

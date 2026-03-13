@@ -39,6 +39,7 @@ class PositionsAdminService
         $position = $this->repository->create([
             'name' => $dto->name,
             'description' => $dto->description,
+            'type' => $dto->type,
             'status' => $dto->status,
         ]);
 
@@ -50,6 +51,7 @@ class PositionsAdminService
         $this->repository->update($id, [
             'name' => $dto->name,
             'description' => $dto->description,
+            'type' => $dto->type,
             'status' => $dto->status,
         ]);
 

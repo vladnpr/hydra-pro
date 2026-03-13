@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\DTOs\CreatePositionDTO;
 use App\DTOs\UpdatePositionDTO;
+use App\Enums\PositionTypesEnum;
 use App\Http\Requests\PositionStoreRequest;
 use App\Http\Requests\PositionUpdateRequest;
 use App\Services\PositionsAdminService;
@@ -35,7 +36,8 @@ class PositionsController extends Controller
      */
     public function create()
     {
-        return view('admin.positions.create');
+        $types = PositionTypesEnum::cases();
+        return view('admin.positions.create', compact('types'));
     }
 
     /**
@@ -65,7 +67,8 @@ class PositionsController extends Controller
     public function edit(int $id)
     {
         $position = $this->service->getPositionById($id);
-        return view('admin.positions.edit', compact('position'));
+        $types = PositionTypesEnum::cases();
+        return view('admin.positions.edit', compact('position', 'types'));
     }
 
     /**

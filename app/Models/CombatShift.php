@@ -29,6 +29,14 @@ class CombatShift extends Model
         'damaged_coils' => 'array',
     ];
 
+    /**
+     * Get the type from the related position.
+     */
+    public function getTypeAttribute(): ?\App\Enums\PositionTypesEnum
+    {
+        return $this->position?->type ? \App\Enums\PositionTypesEnum::tryFrom($this->position->type) : null;
+    }
+
     public function users(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'combat_shift_user');
@@ -47,6 +55,7 @@ class CombatShift extends Model
             ->withTimestamps();
     }
 
+
     public function ammunition(): BelongsToMany
     {
         return $this->belongsToMany(Ammunition::class, 'combat_shift_ammunition')
@@ -63,6 +72,11 @@ class CombatShift extends Model
     public function flights(): HasMany
     {
         return $this->hasMany(CombatShiftFlight::class);
+    }
+
+    public function reconFlights(): HasMany
+    {
+        return $this->hasMany(ReconFlight::class, 'combat_shift_id');
     }
 
     public function getStatusColorAttribute(): string

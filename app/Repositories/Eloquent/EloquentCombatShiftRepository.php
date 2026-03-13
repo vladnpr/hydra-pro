@@ -8,9 +8,15 @@ use Illuminate\Support\Collection;
 
 class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 {
-    public function all(): Collection
+    public function all(?string $type = null): Collection
     {
-        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])->latest()->get();
+        $query = CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition']);
+        if ($type) {
+            $query->whereHas('position', function($q) use ($type) {
+                $q->where('type', $type);
+            });
+        }
+        return $query->latest()->get();
     }
 
     public function create(array $data): CombatShift
@@ -33,12 +39,16 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
             ->first();
     }
 
-    public function getActiveShifts(): Collection
+    public function getActiveShifts(?string $type = null): Collection
     {
-        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
-            ->where('status', 'opened')
-            ->latest()
-            ->get();
+        $query = CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
+            ->where('status', 'opened');
+        if ($type) {
+            $query->whereHas('position', function($q) use ($type) {
+                $q->where('type', $type);
+            });
+        }
+        return $query->latest()->get();
     }
 
     public function update(int $id, array $data): bool
@@ -75,6 +85,7 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
         // $drones format expected: [id => ['quantity' => Q], ...]
         $shift->drones()->sync($drones);
     }
+
 
     public function syncAmmunition(CombatShift $shift, array $ammunition): void
     {

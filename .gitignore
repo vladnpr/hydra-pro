@@ -24,3 +24,6 @@ Homestead.yaml
 Thumbs.db
 .idea
 docker-compose.override.yml
+.htpasswd
+deploy-staging.sh
+docker/nginx/default.conf

@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Eloquent\EloquentDroneRepository;
+use App\Repositories\Contracts\ReconDroneRepositoryInterface;
+use App\Repositories\Eloquent\EloquentReconDroneRepository;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentAmmunitionRepository;
 use App\Repositories\Contracts\PositionRepositoryInterface;
@@ -24,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(DroneRepositoryInterface::class, EloquentDroneRepository::class);
+        $this->app->bind(ReconDroneRepositoryInterface::class, EloquentReconDroneRepository::class);
         $this->app->bind(AmmunitionRepositoryInterface::class, EloquentAmmunitionRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, EloquentPositionRepository::class);
         $this->app->bind(CombatShiftRepositoryInterface::class, EloquentCombatShiftRepository::class);
@@ -34,6 +37,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-recon', function (User $user) {
+            return $user->isAdmin() || $user->isRecon();
+        });
+
+        Gate::define('manage-recon-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isRecon();
+        });
+
+        Gate::define('manage-recon-drones', function (User $user) {
+            return $user->isAdmin() || $user->isRecon();
+        });
+
         Gate::define('manage-users', function (User $user) {
             return $user->isAdmin();
         });
@@ -42,16 +57,16 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin();
         });
 
-        Gate::define('manage-ammunition', function (User $user) {
+        Gate::define('manage-fpv-ammunition', function (User $user) {
             return $user->isAdmin() || $user->isUser();
         });
 
-        Gate::define('manage-drones', function (User $user) {
+        Gate::define('manage-fpv-drones', function (User $user) {
             return $user->isAdmin() || $user->isUser();
         });
 
         Gate::define('view-reports', function (User $user) {
-            return $user->isAdmin() || $user->isManager() || $user->isUser();
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon();
         });
 
         Gate::define('access-combat', function (User $user) {

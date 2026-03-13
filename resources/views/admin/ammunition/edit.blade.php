@@ -16,6 +16,7 @@
                 <form action="{{ route('ammunition.update', $item->id) }}" method="POST">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="type" value="{{ $item->type }}">
                     <div class="card-body">
                         <div class="form-group">
                             <label for="name">Назва</label>

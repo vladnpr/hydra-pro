@@ -27,6 +27,19 @@
                             @enderror
                         </div>
                         <div class="form-group">
+                            <label for="type">Тип</label>
+                            <select name="type" id="type" class="form-control @error('type') is-invalid @enderror" required>
+                                @foreach($types as $type)
+                                    <option value="{{ $type->value }}" {{ old('type', $position->type) === $type->value ? 'selected' : '' }}>
+                                        {{ $type->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('type')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="form-group">
                             <label for="description">Опис</label>
                             <textarea name="description" class="form-control @error('description') is-invalid @enderror" id="description" rows="3" placeholder="Введіть опис">{{ old('description', $position->description) }}</textarea>
                             @error('description')

@@ -10,6 +10,7 @@ use App\Services\CombatShiftsAdminService;
 use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
+use App\Enums\PositionTypesEnum;
 
 class CombatShiftsController extends Controller
 {
@@ -22,9 +23,13 @@ class CombatShiftsController extends Controller
 
     public function index()
     {
-        $shifts = $this->combatShiftsAdminService->getAllShifts();
-        $activeShifts = $this->combatShiftsAdminService->getActiveShifts();
+        $shifts = $this->combatShiftsAdminService->getAllShifts(PositionTypesEnum::FPV->value);
         $userActiveShift = $this->combatShiftsAdminService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        if ($userActiveShift && $userActiveShift->type !== PositionTypesEnum::FPV->value) {
+            $userActiveShift = null;
+        }
+
         return view('admin.combat_shifts.index', compact('shifts', 'userActiveShift'));
     }
 
@@ -42,9 +47,9 @@ class CombatShiftsController extends Controller
         }
 
         $users = \App\Models\User::all();
-        $positions = $this->positionRepository->getActive();
+        $positions = $this->positionRepository->getActive(PositionTypesEnum::FPV->value);
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
         return view('admin.combat_shifts.create', compact('positions', 'drones', 'ammunition', 'users'));
     }
 
@@ -102,6 +107,10 @@ class CombatShiftsController extends Controller
                 ->with('error', 'У вас немає активної зміни.');
         }
 
+        if ($activeShift->type === PositionTypesEnum::RECON->value) {
+            return redirect()->route('recon.combat_shifts.active_flights_report', $request->all());
+        }
+
         return $this->flightsReport($activeShift->id, $request);
     }
 
@@ -114,16 +123,23 @@ class CombatShiftsController extends Controller
                 ->with('error', 'У вас немає активної зміни.');
         }
 
+        if ($activeShift->type === PositionTypesEnum::RECON->value) {
+            return redirect()->route('recon.combat_shifts.report', $activeShift->id);
+        }
+
         return $this->report($activeShift->id);
     }
 
     public function edit(int $id)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
+        if ($shift->type !== PositionTypesEnum::FPV->value) {
+            abort(404);
+        }
         $users = \App\Models\User::all();
-        $positions = $this->positionRepository->getActive();
+        $positions = $this->positionRepository->getActive(PositionTypesEnum::FPV->value);
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
 
         // Prepare quantities for the form
         $currentDrones = [];

@@ -14,7 +14,7 @@ class AdminController extends Controller
      */
     public function __construct(private readonly CombatShiftsAdminService $combatShiftsService)
     {
-        $this->middleware('auth');
+        $this->middleware(['auth', 'verified']);
     }
 
     /**
@@ -25,7 +25,7 @@ class AdminController extends Controller
     public function index()
     {
         $activeShift = $this->combatShiftsService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
-        $stats = $this->combatShiftsService->getDashboardStats($activeShift->id ?? null);
+        $stats = $this->combatShiftsService->getDashboardStats();
 
         return view('admin.dashboard', compact('stats', 'activeShift'));
     }

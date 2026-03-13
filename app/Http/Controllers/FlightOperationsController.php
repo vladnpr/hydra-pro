@@ -8,6 +8,7 @@ use App\Models\CombatShiftFlight;
 use App\Services\CombatShiftsAdminService;
 use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
+use App\Enums\PositionTypesEnum;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -41,7 +42,7 @@ class FlightOperationsController extends Controller
         }
 
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
 
         return view('admin.flight_operations.index', compact('userActiveShift', 'drones', 'ammunition'));
     }
@@ -71,7 +72,7 @@ class FlightOperationsController extends Controller
         }
 
         $drones = $this->droneRepository->getActive();
-        $ammunition = $this->ammunitionRepository->getActive();
+        $ammunition = $this->ammunitionRepository->getActive(PositionTypesEnum::FPV->value);
 
         return view('admin.flight_operations.edit', compact('flight', 'userActiveShift', 'drones', 'ammunition'));
     }
@@ -111,7 +112,7 @@ class FlightOperationsController extends Controller
                 ->with('error', 'Ви можете видаляти вильоти лише своєї активної зміни');
         }
 
-        if ($flight->video_path) {
+        if ($flight->video_path && $flight->isForceDeleting()) {
             Storage::disk('public')->delete($flight->video_path);
         }
 

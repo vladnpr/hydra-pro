@@ -310,46 +310,98 @@ return [
             'can' => 'manage-blog',
         ],
         [
-            'text' => 'Ресурси та логістика',
-            'icon' => 'fas fa-fw fa-boxes',
-            'can' => 'manage-drones',
-            'submenu' => [
-                [
-                    'text' => 'Дрони',
-                    'url' => 'admin/storage/drones',
-                    'icon' => 'fas fa-fw fa-helicopter',
-                    'can' => 'manage-drones',
-                ],
-                [
-                    'text' => 'Боєприпаси',
-                    'url' => 'admin/storage/ammunition',
-                    'icon' => 'fas fa-fw fa-bomb',
-                    'can' => 'manage-ammunition',
-                ],
-                [
-                    'text' => 'Позиції',
-                    'icon' => 'fas fa-fw fa-map-marker-alt',
-                    'url' => 'admin/positions',
-                    'can' => 'manage-positions',
-                ],
-            ],
+            'text' => 'Позиції',
+            'url' => 'admin/positions',
+            'icon' => 'fas fa-map-marker-alt',
+            'can' => 'manage-positions',
+        ],
+        // FPV___________________________________________________
+        [
+            'header' => 'FPV-напрямок',
+            'can' => 'manage-fpv-drones'
         ],
         [
-            'text' => 'Бойова робота',
-            'icon' => 'fas fa-fw fa-crosshairs',
-            'can' => 'manage-drones',
+            'text' => 'FPV',
+            'icon' => 'fas fa-crosshairs',
+            'can' => 'manage-fpv-drones',
+            'submenu' => [
+
+                [
+                    'text' => 'Ресурси та логістика',
+                    'icon' => 'fas fa-warehouse',
+                    'submenu' => [
+                        [
+                            'text' => 'Дрони',
+                            'url' => 'admin/storage/drones',
+                            'icon' => 'fas fa-helicopter',
+                        ],
+                        [
+                            'text' => 'Боєприпаси',
+                            'url' => 'admin/storage/ammunition',
+                            'icon' => 'fas fa-bomb',
+                            'can' => 'manage-fpv-ammunition',
+                        ],
+                    ],
+                ],
+
+                [
+                    'text' => 'Бойова робота',
+                    'icon' => 'fas fa-bullseye',
+                    'submenu' => [
+                        [
+                            'text' => 'Чергування',
+                            'icon' => 'fas fa-shield-alt',
+                            'url' => 'admin/combat_shifts',
+                        ],
+                        [
+                            'text' => 'Вильоти',
+                            'icon' => 'fas fa-paper-plane',
+                            'url' => 'admin/flight-operations',
+                        ],
+                    ],
+                ],
+
+            ],
+        ],
+        // end FPV-----------------------------------------
+        // RECON_______________________________________
+        [
+            'header' => 'RECON-напрямок',
+            'can' => 'manage-recon'
+        ],
+        [
+            'text' => 'Розвідка',
+            'icon' => 'fas fa-binoculars',
+            'can' => 'manage-recon',
             'submenu' => [
                 [
                     'text' => 'Чергування',
-                    'icon' => 'fas fa-fw fa-shield-alt',
-                    'url' => 'admin/combat_shifts',
+                    'url' => 'admin/recon/combat_shifts',
+                    'icon' => 'fas fa-shield-alt',
                 ],
                 [
-                    'text' => 'Вильоти',
-                    'icon' => 'fas fa-fw fa-paper-plane',
-                    'url' => 'admin/flight-operations',
+                    'text' => 'Польоти',
+                    'url' => 'admin/recon/flights',
+                    'icon' => 'fas fa-paper-plane',
                 ],
-            ],
+                [
+                    'text' => 'Дрони',
+                    'url' => 'admin/recon/drones',
+                    'icon' => 'fas fa-helicopter',
+                    'can' => 'manage-recon-drones',
+                ],
+                [
+                    'text' => 'Боєприпаси',
+                    'url' => 'admin/recon/ammunition',
+                    'icon' => 'fas fa-bomb',
+                    'can' => 'manage-recon-ammunition',
+                ],
+            ]
+        ],
+        // END RECON__________________________________
+        [
+            'header' => 'Звітність',
+            'can' => 'view-reports'
         ],
         [
             'text' => 'Звіти',
@@ -380,6 +432,10 @@ return [
                     'can' => 'manage-combat',
                 ],
             ],
+        ],
+        [
+            'header' => 'Менеджмент корисутвачів',
+            'can' => 'manage-users'
         ],
         [
             'text' => 'Користувачі',

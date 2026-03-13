@@ -16,6 +16,11 @@ class CombatShiftCrew extends Model
         'combat_shift_id',
         'callsign',
         'role',
+        'shift_type',
+    ];
+
+    protected $casts = [
+        'shift_type' => \App\Enums\ShiftTypeEnum::class,
     ];
 
     public function combatShift(): BelongsTo
