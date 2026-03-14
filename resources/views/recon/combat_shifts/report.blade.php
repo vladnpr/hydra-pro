@@ -49,9 +49,9 @@
                         <h4 class="mb-4">Позиція "{{ $shift->position_name }}" (розвідка)</h4>
 
                         @php
-                            $now = now();
+                            $now = \Carbon\Carbon::now();
                             $startedAt = \Carbon\Carbon::parse($shift->started_at);
-                            $dayOfShift = (int) $now->diffInDays($startedAt->startOfDay()) + 1;
+                            $dayOfShift = (int) $startedAt->diffInDays($now) + 1;;
 
                             $shiftLabel = $activeShiftType === 'day' ? 'День' : 'Ніч';
 
