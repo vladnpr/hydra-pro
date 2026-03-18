@@ -86,6 +86,7 @@ class VampireFlightController extends Controller
         if ($request->vampire_flight_plan_id) {
             $plan = VampireFlightPlan::find($request->vampire_flight_plan_id);
             if ($plan) {
+                // План вважається виконаним, якщо виліт був успішним (worked)
                 $plan->update(['status' => $request->result === 'worked' ? 'completed' : 'planned']);
             }
         }
@@ -96,6 +97,15 @@ class VampireFlightController extends Controller
     public function destroy(int $id)
     {
         $flight = VampireFlight::findOrFail($id);
+
+        // Якщо виліт був прив'язаний до плану, повертаємо плану статус 'planned'
+        if ($flight->vampire_flight_plan_id) {
+            $plan = VampireFlightPlan::find($flight->vampire_flight_plan_id);
+            if ($plan) {
+                $plan->update(['status' => 'planned']);
+            }
+        }
+
         $flight->delete();
         return redirect()->back()->with('success', 'Виліт видалено');
     }

@@ -14,6 +14,29 @@
 @section('content')
     <div class="row">
         <div class="col-md-4">
+            <div class="card card-info">
+                <div class="card-header">
+                    <h3 class="card-title">Додати ціль до плану</h3>
+                </div>
+                <form action="{{ route('vampire.flight_plans.store') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="combat_shift_id" value="{{ $userActiveShift->id }}">
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="position_name">Назва позиції / Цілі</label>
+                            <input type="text" name="position_name" id="position_name" class="form-control" placeholder="напр. ПНГ 1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="coordinates">Координати</label>
+                            <input type="text" name="coordinates" id="coordinates" class="form-control" placeholder="47.123, 37.456">
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="submit" class="btn btn-info btn-block">Додати в план</button>
+                    </div>
+                </form>
+            </div>
+
             <div class="card card-primary">
                 <div class="card-header">
                     <h3 class="card-title">Зафіксувати новий виліт</h3>
@@ -76,6 +99,46 @@
         </div>
 
         <div class="col-md-8">
+            <div class="card card-outline card-info">
+                <div class="card-header">
+                    <h3 class="card-title">План польотів</h3>
+                </div>
+                <div class="card-body p-0">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Ціль</th>
+                                <th>Координати</th>
+                                <th>Дії</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($plans as $plan)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td>{{ $plan['position_name'] }}</td>
+                                    <td>{{ $plan['coordinates'] }}</td>
+                                    <td>
+                                        <form action="{{ route('vampire.flight_plans.destroy', $plan['id']) }}" method="POST" style="display:inline-block;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити з плану?')">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4" class="text-center">План порожній</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Журнал вильотів</h3>
