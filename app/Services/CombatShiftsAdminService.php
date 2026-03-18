@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\CombatShiftDTO;
 use App\DTOs\CreateCombatShiftDTO;
 use App\DTOs\UpdateCombatShiftDTO;
+use App\Enums\PositionTypesEnum;
 use App\Repositories\CombatShiftFlightsRepository;
 use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use Illuminate\Support\Collection;
@@ -18,6 +19,7 @@ readonly class CombatShiftsAdminService
         readonly private CombatShiftRepositoryInterface $combatShiftRepository,
         readonly private CombatShiftFlightsRepository   $flightRepository,
         readonly private ReconDroneAdminService         $reconDroneService,
+        readonly private VampireDroneAdminService       $vampireDroneService,
     )
     {
     }
@@ -94,19 +96,25 @@ readonly class CombatShiftsAdminService
                 $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
             }
 
-            if (!empty($dto->new_recon_drones)) {
-                foreach ($dto->new_recon_drones as $droneData) {
-                    $droneData['position_id'] = $dto->position_id;
-                    $this->reconDroneService->createDrone($droneData);
+            if (!empty($dto->new_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->new_drones as $droneData) {
+                        $droneData['position_id'] = $dto->position_id;
+                        $droneService->createDrone($droneData);
+                    }
                 }
             }
 
-            if (!empty($dto->existing_recon_drones)) {
-                foreach ($dto->existing_recon_drones as $droneData) {
-                    $this->reconDroneService->updateDrone((int)$droneData['id'], [
-                        'status' => $droneData['status'],
-                        'shift_type' => $droneData['shift_type']
-                    ]);
+            if (!empty($dto->existing_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->existing_drones as $droneData) {
+                        $droneService->updateDrone((int)$droneData['id'], [
+                            'status' => $droneData['status'],
+                            'shift_type' => $droneData['shift_type']
+                        ]);
+                    }
                 }
             }
 
@@ -144,24 +152,39 @@ readonly class CombatShiftsAdminService
 
             $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
 
-            if (!empty($dto->new_recon_drones)) {
-                foreach ($dto->new_recon_drones as $droneData) {
-                    $droneData['position_id'] = $dto->position_id;
-                    $this->reconDroneService->createDrone($droneData);
+            if (!empty($dto->new_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->new_drones as $droneData) {
+                        $droneData['position_id'] = $dto->position_id;
+                        $droneService->createDrone($droneData);
+                    }
                 }
             }
 
-            if (!empty($dto->existing_recon_drones)) {
-                foreach ($dto->existing_recon_drones as $droneData) {
-                    $this->reconDroneService->updateDrone((int)$droneData['id'], [
-                        'status' => $droneData['status'],
-                        'shift_type' => $droneData['shift_type']
-                    ]);
+            if (!empty($dto->existing_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->existing_drones as $droneData) {
+                        $droneService->updateDrone((int)$droneData['id'], [
+                            'status' => $droneData['status'],
+                            'shift_type' => $droneData['shift_type']
+                        ]);
+                    }
                 }
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
+    }
+
+    private function getDroneService(?string $type)
+    {
+        return match ($type) {
+            PositionTypesEnum::RECON->value => $this->reconDroneService,
+            PositionTypesEnum::VAMPIRE->value => $this->vampireDroneService,
+            default => null,
+        };
     }
 
     public function deleteShift(int $id): bool

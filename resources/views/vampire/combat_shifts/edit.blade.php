@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Редагувати чергування "' . $shift->position_name . '"')
+@section('title', 'Редагувати чергування Vampire "' . $shift->position_name . '"')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати чергування "{{ $shift->position_name }}"</h1>
+        <h1>Редагувати чергування Vampire "{{ $shift->position_name }}"</h1>
         <div>
-            <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
+            <a href="{{ route('vampire.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
             <button type="submit" form="edit-shift-form" class="btn btn-primary ml-2">
@@ -47,7 +47,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ route('recon.combat_shifts.update', $shift->id) }}" method="POST" id="edit-shift-form">
+            <form action="{{ route('vampire.combat_shifts.update', $shift->id) }}" method="POST" id="edit-shift-form">
                 @csrf
                 @method('PUT')
                 <div class="row">
@@ -72,7 +72,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="position_id">Позиція (розвідка)</label>
+                                    <label for="position_id">Позиція (Vampire)</label>
                                     <select name="position_id" id="position_id" class="form-control @error('position_id') is-invalid @enderror" required>
                                         <option value="">Оберіть позицію</option>
                                         @foreach($positions as $position)
@@ -152,7 +152,7 @@
                                 <h3 class="card-title">Майно на зміну</h3>
                             </div>
                             <div class="card-body">
-                                <h5>Боєприпаси (розвідка)</h5>
+                                <h5>Боєприпаси (Vampire)</h5>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
@@ -234,21 +234,21 @@
                 $(this).closest('.crew-member').remove();
             });
 
-            let droneIndex = {{ old('new_recon_drones') ? count(old('new_recon_drones')) : 0 }};
+            let droneIndex = {{ old('new_drones') ? count(old('new_drones')) : 0 }};
             $('#add-new-drone').click(function() {
                 let html = `
                     <div class="new-drone-item border p-2 mb-2">
                         <div class="form-group mb-1">
                             <label class="small">Назва дрона</label>
-                            <input type="text" name="new_recon_drones[${droneIndex}][name]" class="form-control form-control-sm" placeholder="Наприклад: Mavic 3" required>
+                            <input type="text" name="new_drones[${droneIndex}][name]" class="form-control form-control-sm" placeholder="Наприклад: Vampire 1" required>
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Серійний номер</label>
-                            <input type="text" name="new_recon_drones[${droneIndex}][serial_number]" class="form-control form-control-sm" placeholder="Серійний номер">
+                            <input type="text" name="new_drones[${droneIndex}][serial_number]" class="form-control form-control-sm" placeholder="Серійний номер">
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Статус</label>
-                            <select name="new_recon_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
+                            <select name="new_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
                                 <option value="active">Активний</option>
                                 <option value="repair">В ремонті</option>
                                 <option value="non_operational">Не боєготовий</option>
@@ -257,7 +257,7 @@
                         </div>
                         <div class="form-group mb-2">
                             <label class="small">Тип зміни</label>
-                            <select name="new_recon_drones[${droneIndex}][shift_type]" class="form-control form-control-sm" required>
+                            <select name="new_drones[${droneIndex}][shift_type]" class="form-control form-control-sm" required>
                                 <option value="day">Денна</option>
                                 <option value="night">Нічна</option>
                                 <option value="both">Обидві</option>
@@ -283,7 +283,7 @@
 
                 $('#existing-drones-container').html('<p class="text-muted small"><i class="fas fa-spinner fa-spin"></i> Завантаження...</p>');
 
-                $.get(`/admin/recon/drones/by-position/${positionId}`, function(drones) {
+                $.get(`/admin/vampire/drones/by-position/${positionId}`, function(drones) {
                     if (drones.length === 0) {
                         $('#existing-drones-container').html('<p class="text-muted small">На цій позиції немає зареєстрованих дронів</p>');
                         return;
@@ -310,9 +310,9 @@
                                         <small class="text-muted">${drone.serial_number || 'S/N відсутній'}</small>
                                     </div>
                                     <div class="col-md-5">
-                                        <input type="hidden" name="existing_recon_drones[${drone.id}][id]" value="${drone.id}">
+                                        <input type="hidden" name="existing_drones[${drone.id}][id]" value="${drone.id}">
                                         <div class="form-group mb-1">
-                                            <select name="existing_recon_drones[${drone.id}][status]" class="form-control form-control-sm">
+                                            <select name="existing_drones[${drone.id}][status]" class="form-control form-control-sm">
                                                 <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
                                                 <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
                                                 <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
@@ -320,7 +320,7 @@
                                             </select>
                                         </div>
                                         <div class="form-group mb-0">
-                                            <select name="existing_recon_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
+                                            <select name="existing_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
                                                 <option value="day" ${drone.shift_type === 'day' ? 'selected' : ''}>Денна</option>
                                                 <option value="night" ${drone.shift_type === 'night' ? 'selected' : ''}>Нічна</option>
                                                 <option value="both" ${drone.shift_type === 'both' ? 'selected' : ''}>Обидві</option>

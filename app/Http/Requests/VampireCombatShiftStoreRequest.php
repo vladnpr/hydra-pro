@@ -3,10 +3,9 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-
 use Illuminate\Validation\Rule;
 
-class ReconCombatShiftStoreRequest extends FormRequest
+class VampireCombatShiftStoreRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -48,7 +47,7 @@ class ReconCombatShiftStoreRequest extends FormRequest
                 'nullable',
                 'string',
                 'max:255',
-                Rule::unique('recon_drones', 'serial_number')->whereNull('deleted_at'),
+                Rule::unique('vampire_drones', 'serial_number')->whereNull('deleted_at'),
                 function ($attribute, $value, $fail) {
                     if (empty($value)) return;
                     $serialNumbers = collect($this->input('new_drones'))->pluck('serial_number')->filter()->toArray();
@@ -61,7 +60,7 @@ class ReconCombatShiftStoreRequest extends FormRequest
             'new_drones.*.status' => 'required_with:new_drones|in:active,lost,repair,non_operational',
             'new_drones.*.shift_type' => 'required_with:new_drones|in:day,night,both',
             'existing_drones' => 'nullable|array',
-            'existing_drones.*.id' => 'required_with:existing_drones|exists:recon_drones,id',
+            'existing_drones.*.id' => 'required_with:existing_drones|exists:vampire_drones,id',
             'existing_drones.*.status' => 'required_with:existing_drones|in:active,lost,repair,non_operational',
             'existing_drones.*.shift_type' => 'required_with:existing_drones|in:day,night,both',
         ];

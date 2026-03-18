@@ -12,6 +12,8 @@ use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentPositionRepository;
 use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCombatShiftRepository;
+use App\Repositories\Contracts\VampireDroneRepositoryInterface;
+use App\Repositories\Eloquent\EloquentVampireDroneRepository;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Services\CombatShiftsAdminService;
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AmmunitionRepositoryInterface::class, EloquentAmmunitionRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, EloquentPositionRepository::class);
         $this->app->bind(CombatShiftRepositoryInterface::class, EloquentCombatShiftRepository::class);
+        $this->app->bind(VampireDroneRepositoryInterface::class, EloquentVampireDroneRepository::class);
     }
 
     /**
