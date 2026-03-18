@@ -68,14 +68,14 @@
                                     </td>
                                     <td>
                                         <div class="btn-group">
-                                            <a href="{{ route('vampire.drones.show', $drone->id) }}" class="btn btn-primary btn-sm">
+                                            <a href="{{ route('vampire.drones.show', ['drone' => $drone->id]) }}" class="btn btn-primary btn-sm">
                                                 <i class="fas fa-eye"></i>
                                             </a>
-                                            <a href="{{ route('vampire.drones.edit', $drone->id) }}" class="btn btn-info btn-sm">
+                                            <a href="{{ route('vampire.drones.edit', ['drone' => $drone->id]) }}" class="btn btn-info btn-sm">
                                                 <i class="fas fa-edit"></i>
                                             </a>
                                             @if(auth()->user()->isAdmin())
-                                                <form action="{{ route('vampire.drones.destroy', $drone->id) }}" method="POST" style="display:inline-block;">
+                                                <form action="{{ route('vampire.drones.destroy', ['drone' => $drone->id]) }}" method="POST" style="display:inline-block;">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Ви впевнені?')">
@@ -88,7 +88,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="text-center">Дронів не знайдено.</td>
+                                    <td colspan="7" class="text-center">Дронів не знайдено.</td>
                                 </tr>
                             @endforelse
                         </tbody>

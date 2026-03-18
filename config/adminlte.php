@@ -411,7 +411,7 @@ return [
             'submenu' => [
                 [
                     'text' => 'Чергування',
-                    'url' => 'admin/vampire/combat_shifts',
+                    'route' => 'vampire.combat_shifts.index',
                     'icon' => 'fas fa-shield-alt',
                 ],
                 [
@@ -421,15 +421,15 @@ return [
                 ],
                 [
                     'text' => 'Дрони',
-                    'url' => 'admin/vampire/drones',
+                    'route' => 'vampire.drones.index',
                     'icon' => 'fas fa-helicopter',
-                    'can' => 'manage-vampire-drones',
+                    'can' => 'manage-vampire',
                 ],
                 [
                     'text' => 'Боєприпаси',
-                    'url' => 'admin/vampire/ammunition',
+                    'route' => 'vampire.ammunition.index',
                     'icon' => 'fas fa-bomb',
-                    'can' => 'manage-vampire-ammunition',
+                    'can' => 'manage-vampire',
                 ],
             ]
         ],

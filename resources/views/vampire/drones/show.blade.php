@@ -41,7 +41,7 @@
                     </p>
                 </div>
                 <div class="card-footer">
-                    <a href="{{ route('vampire.drones.edit', $drone->id) }}" class="btn btn-info">Редагувати</a>
+                    <a href="{{ route('vampire.drones.edit', ['drone' => $drone->id]) }}" class="btn btn-info">Редагувати</a>
                     <a href="{{ route('vampire.drones.index') }}" class="btn btn-default float-right">Назад до списку</a>
                 </div>
             </div>

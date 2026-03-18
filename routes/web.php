@@ -52,12 +52,19 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
         Route::group(['middleware' => 'can:manage-vampire'], function () {
             Route::get('drones/by-position/{positionId}', [\App\Http\Controllers\Vampire\VampireDronesController::class, 'getByPosition'])->name('drones.by_position');
             Route::resource('drones', \App\Http\Controllers\Vampire\VampireDronesController::class);
+            Route::resource('ammunition', \App\Http\Controllers\Vampire\VampireAmmunitionController::class);
 
             Route::post('combat_shifts/{id}/join', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'join'])->name('combat_shifts.join')->where('id', '[0-9]+');
             Route::post('combat_shifts/{id}/leave', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'leave'])->name('combat_shifts.leave')->where('id', '[0-9]+');
             Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'finish'])->name('combat_shifts.finish')->where('id', '[0-9]+');
             Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'reopen'])->name('combat_shifts.reopen')->where('id', '[0-9]+');
             Route::resource('combat_shifts', \App\Http\Controllers\Vampire\VampireCombatShiftController::class)->except(['show']);
+
+            Route::get('flights', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'index'])->name('flights.index');
+            Route::post('flights', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'store'])->name('flights.store');
+            Route::get('flights/{id}/edit', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'edit'])->name('flights.edit')->where('id', '[0-9]+');
+            Route::put('flights/{id}', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'update'])->name('flights.update')->where('id', '[0-9]+');
+            Route::delete('flights/{id}', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'destroy'])->name('flights.destroy')->where('id', '[0-9]+');
         });
     });
 

@@ -12,6 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('vampire_drones', function (Blueprint $table) {
+            $table->id();
             $table->string('name');
             $table->string('serial_number')
                 ->unique()
