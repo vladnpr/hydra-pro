@@ -406,7 +406,7 @@ return [
         ],
         [
             'text' => 'Вампіри',
-            'icon' => 'fas fa-binoculars',
+            'icon' => 'fas fa-ghost',
             'can' => 'manage-vampire',
             'submenu' => [
                 [
