@@ -40,16 +40,6 @@
                                 </option>
                             @endforeach
                         </select>
-                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
-                            <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-sun"></i> Денна
-                            </label>
-                            <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-moon"></i> Нічна
-                            </label>
-                        </div>
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>
@@ -61,46 +51,55 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-body p-5" id="report-content">
-                    <h3 class="text-center mb-4">Звіт по польотам Vampire ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
-                    @if($activeShiftType === 'night')
-                        <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
-                            (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})
-                        </p>
-                    @endif
+                    @php
+                        $dronesOnShift = collect($shift->vampire_flights)->flatten(1)->groupBy('drone_id');
+                    @endphp
 
-                    @if($activeShiftType === 'day')
-                        <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
-                        @forelse($dayFlights as $flight)
-                            <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
-                                <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
-                                <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
-                                <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
-                                <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
-                                <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
-                            </div>
-                        @empty
-                            <p class="text-muted">Денних польотів не знайдено.</p>
-                        @endforelse
-                    @endif
+                    @foreach($dronesOnShift as $droneId => $droneFlights)
+                        @php $firstFlight = $droneFlights->first(); @endphp
+                        <p class="m-0">{{ $firstFlight['drone_name'] }} (модель дрону)</p>
+                        <p class="m-0">Бopт {{ $firstFlight['drone_serial'] ?? 'N/A' }} - серійний номер</p>
+                        <p class="mb-3">Позиція {{ $shift->position_name }} - назва позиції</p>
+                    @endforeach
 
-                    @if($activeShiftType === 'night')
-                        <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
-                        @forelse($nightFlights as $flight)
-                            <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
-                                <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
-                                <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
-                                <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
-                                <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
-                                <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
-                            </div>
-                        @empty
-                            <p class="text-muted">Нічних польотів не знайдено.</p>
-                        @endforelse
-                    @endif
+                    <p class="mt-4">Роботу завершили:</p>
+                    <p class="mb-4">
+                        @if($shift->status === 'closed')
+                            Відпрацювали заплановані цілі.
+                        @else
+                            В процесі роботи.
+                        @endif
+                    </p>
+
+                    <p class="font-weight-bold">Відпрацювали:</p>
+                    @php $i = 1; @endphp
+                    @foreach($workedFlights as $flight)
+                        <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }}</p>
+                        <p class="m-0">{{ $flight['coordinates'] }}</p>
+                        <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
+                    @endforeach
+
+                    <p class="font-weight-bold mt-4">Не відпрацювали:</p>
+                    @php $j = 1; @endphp
+                    @foreach($notWorkedPlans as $plan)
+                        <p class="m-0">{{ $j++ }}) {{ $plan['position_name'] }}</p>
+                        <p class="m-0">{{ $plan['coordinates'] }}</p>
+                        @php
+                            $planFlights = collect($shift->vampire_flights)->flatten(1)->where('vampire_flight_plan_id', $plan['id'])->where('result', '!=', 'worked');
+                        @endphp
+                        @if($planFlights->count() > 0)
+                            <p class="m-0 text-muted small">({{ $planFlights->count() }} вильоти)</p>
+                            @foreach($planFlights as $pf)
+                                <p class="m-0 small">- {{ $pf['comment'] }}</p>
+                            @endforeach
+                        @endif
+                        <p class="mb-3"></p>
+                    @endforeach
+
+                    <p class="font-weight-bold mt-4">Екіпаж:</p>
+                    @foreach($shift->crew as $member)
+                        <p class="m-0">{{ $member['callsign'] }}</p>
+                    @endforeach
                 </div>
             </div>
         </div>
@@ -130,27 +129,15 @@
             }
 
             $('#copy-report').click(function() {
-                // Тимчасово приховуємо елементи з класом no-copy перед копіюванням
-                $('.no-copy').hide();
-
-                // Збираємо текст вручну для точного контролю пробілів
                 let reportText = '';
-                const title = $('#report-content h3').text().trim();
-                reportText += title + '\n\n';
 
-                const shiftTitle = $('#report-content h4').text().trim();
-                if (shiftTitle) {
-                    reportText += shiftTitle + '\n\n';
-                }
-
-                $('.flight-report-item').each(function(index) {
-                    $(this).find('p').each(function() {
-                        reportText += $(this).text().trim() + '\n';
-                    });
-                    reportText += '\n'; // Додаємо порожній рядок між польотами
+                // Збираємо текст з report-content
+                $('#report-content p').each(function() {
+                    reportText += $(this).text().trim() + '\n';
+                    if ($(this).hasClass('mb-3') || $(this).hasClass('mb-4')) {
+                        reportText += '\n';
+                    }
                 });
-
-                $('.no-copy').show();
 
                 if (!reportText || reportText.trim() === '') {
                     alert('Немає даних для копіювання');
@@ -183,14 +170,8 @@
         line-height: 1.2;
         color: #000;
     }
-    .flight-report-item {
-        margin-bottom: 1.5rem !important;
-    }
-    .flight-report-item p {
-        margin-bottom: 0 !important;
-    }
     @media print {
-        .no-print, .no-copy {
+        .no-print {
             display: none !important;
         }
         .content-wrapper {

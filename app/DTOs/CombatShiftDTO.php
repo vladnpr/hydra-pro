@@ -27,6 +27,7 @@ class CombatShiftDTO
         public readonly array $recon_flights = [],
         public readonly array $vampire_drones = [],
         public readonly array $vampire_flights = [],
+        public readonly array $vampire_flight_plans = [],
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -83,29 +84,37 @@ class CombatShiftDTO
             'video_path' => $f->video_path,
         ]))->toArray();
 
-        $vampireFlights = $shift->reconFlights->sortByDesc('flight_time')->groupBy(function($f) {
-            $time = $f->flight_time;
-            // Якщо це нічна зміна і час між 00:00 та 08:00, відносимо до попереднього дня
-            if ($f->shift_type?->value === 'night' && $time->hour < 8) {
-                return $time->copy()->subDay()->format('Y-m-d');
-            }
-            return $time->format('Y-m-d');
-        })->map(fn($dayFlights) => $dayFlights->map(fn($f) => [
-            'id' => $f->id,
-            'drone_id' => $f->recon_drone_id,
-            'drone_name' => $f->drone?->name,
-            'ammunition' => $f->ammunition->map(fn($a) => ['name' => $a->name, 'quantity' => $a->pivot->quantity])->toArray(),
-            'mission_type' => $f->mission_type->value,
-            'mission_type_label' => $f->mission_type->value === 'recon' ? 'розвідка' : ($f->mission_type->value === 'combat' ? 'бойова (скид)' : $f->mission_type->value),
-            'coordinates' => $f->coordinates,
-            'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
-            'result' => $f->result->value,
-            'result_label' => $f->result->value === 'success' ? 'відпрацювали' : ($f->result->value === 'board_loosed' ? 'втрата борту' : $f->result->value),
-            'shift_type' => $f->shift_type->value,
-            'stream_status' => $f->stream_status,
-            'description' => $f->description,
-            'video_path' => $f->video_path,
-        ]))->toArray();
+        $vampireFlights = \App\Models\VampireFlight::where('combat_shift_id', $shift->id)
+            ->with(['drone', 'flightPlan'])
+            ->orderByDesc('flight_time')
+            ->get()
+            ->groupBy(fn($f) => $f->flight_time->format('Y-m-d'))
+            ->map(fn($dayFlights) => $dayFlights->map(fn($f) => [
+                'id' => $f->id,
+                'drone_id' => $f->vampire_drone_id,
+                'drone_name' => $f->drone?->name,
+                'drone_serial' => $f->drone?->serial_number,
+                'mission_type' => $f->mission_type,
+                'mission_type_label' => $f->mission_type === 'combat' ? 'бойова (мінування, бімба)' : ($f->mission_type === 'logistics' ? 'логістика' : $f->mission_type),
+                'coordinates' => $f->flightPlan?->coordinates ?? '-',
+                'position_name' => $f->flightPlan?->position_name ?? '-',
+                'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
+                'result' => $f->result,
+                'result_label' => $f->result === 'worked' ? 'відпрацювали' : ($f->result === 'loss' ? 'втрата борту' : $f->result),
+                'stream_status' => $f->stream_status,
+                'comment' => $f->comment,
+            ]))->toArray();
+
+        $vampireFlightPlans = \App\Models\VampireFlightPlan::where('combat_shift_id', $shift->id)
+            ->orderBy('order')
+            ->get()
+            ->map(fn($p) => [
+                'id' => $p->id,
+                'position_name' => $p->position_name,
+                'coordinates' => $p->coordinates,
+                'status' => $p->status,
+                'order' => $p->order,
+            ])->toArray();
 
         return new self(
             id: $shift->id,
@@ -163,6 +172,7 @@ class CombatShiftDTO
             recon_flights: $reconFlights,
             vampire_drones: $vampireDrones,
             vampire_flights: $vampireFlights,
+            vampire_flight_plans: $vampireFlightPlans,
         );
     }
 }

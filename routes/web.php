@@ -62,9 +62,9 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
 
             Route::get('flights', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'index'])->name('flights.index');
             Route::post('flights', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'store'])->name('flights.store');
-            Route::get('flights/{id}/edit', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'edit'])->name('flights.edit')->where('id', '[0-9]+');
-            Route::put('flights/{id}', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'update'])->name('flights.update')->where('id', '[0-9]+');
             Route::delete('flights/{id}', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'destroy'])->name('flights.destroy')->where('id', '[0-9]+');
+            Route::post('flight-plans', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'storePlan'])->name('flight_plans.store');
+            Route::delete('flight-plans/{id}', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'deletePlan'])->name('flight_plans.destroy')->where('id', '[0-9]+');
         });
     });
 

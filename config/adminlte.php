@@ -416,7 +416,7 @@ return [
                 ],
                 [
                     'text' => 'Польоти',
-                    'url' => 'admin/vampire/flights',
+                    'route' => 'vampire.flights.index',
                     'icon' => 'fas fa-paper-plane',
                 ],
                 [
