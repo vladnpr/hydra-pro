@@ -43,6 +43,10 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
         });
     });
 
+    Route::group(['prefix' => 'vampire', 'as' => 'vampire.'], function () {
+        Route::resource('combat_shifts', \App\Http\Controllers\Vampire\VampireCombatShiftController::class)->except(['show']);
+    });
+
     Route::group(['middleware' => 'can:view-reports'], function () {
         Route::get('combat-shifts-active-reports', [CombatShiftsController::class, 'activeShiftsReports'])->name('combat_shifts.active_reports');
         Route::get('combat_shifts/{shiftId}/spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'spendFPVReport'])->name('combat_shifts.spending_fpv_report')->where('shiftId', '[0-9]+');
