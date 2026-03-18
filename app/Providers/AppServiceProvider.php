@@ -37,8 +37,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-vampire', function (User $user) {
+            return $user->isAdmin() || $user->isVampire();
+        });
+
         Gate::define('manage-recon', function (User $user) {
             return $user->isAdmin() || $user->isRecon();
+        });
+
+        Gate::define('manage-vampire-drones', function (User $user) {
+            return $user->isAdmin() || $user->isVampire();
+        });
+
+        Gate::define('manage-vampire-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isVampire();
         });
 
         Gate::define('manage-recon-ammunition', function (User $user) {
