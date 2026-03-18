@@ -1,21 +1,21 @@
 @extends('adminlte::page')
 
-@section('title', 'Деталі чергування розвідки')
+@section('title', 'Деталі чергування Vampire')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Чергування розвідки "{{ $shift->position_name }}"</h1>
+        <h1>Чергування Vampire "{{ $shift->position_name }}"</h1>
         <div>
-            <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
+            <a href="{{ route('vampire.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
-            <a href="{{ route('recon.combat_shifts.report', $shift->id) }}" class="btn btn-primary ml-2">
+            <a href="{{ route('vampire.combat_shifts.report', $shift->id) }}" class="btn btn-primary ml-2">
                 <i class="fas fa-file-alt"></i> Звіт по залишку
             </a>
-            <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
+            <a href="{{ route('vampire.combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
                 <i class="fas fa-paper-plane"></i> Звіт по польотам
             </a>
-            @can('manage-recon')
+            @can('manage-vampire')
                 @if($shift->status === 'opened')
                     @php
                         $userIds = collect($shift->users)->pluck('id')->toArray();
@@ -23,7 +23,7 @@
                     @endphp
 
                     @if(!$isUserInShift && !$userActiveShift)
-                        <form action="{{ route('recon.combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                        <form action="{{ route('vampire.combat_shifts.join', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
                             @csrf
                             <button type="submit" class="btn btn-success">
                                 <i class="fas fa-sign-in-alt"></i> Приєднатися
@@ -32,7 +32,7 @@
                     @endif
 
                     @if($isUserInShift)
-                        <form action="{{ route('recon.combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
+                        <form action="{{ route('vampire.combat_shifts.leave', $shift->id) }}" method="POST" style="display:inline-block;" class="ml-2">
                             @csrf
                             <button type="submit" class="btn btn-warning" onclick="return confirm('Ви впевнені, що хочете покинути чергування?')">
                                 <i class="fas fa-sign-out-alt"></i> Відключитися
@@ -40,10 +40,7 @@
                         </form>
                     @endif
                 @endif
-                <a href="{{ route('recon.flights.index') }}" class="btn btn-success ml-2">
-                    <i class="fas fa-paper-plane"></i> Польоти
-                </a>
-                <a href="{{ route('recon.combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
+                <a href="{{ route('vampire.combat_shifts.edit', $shift->id) }}" class="btn btn-info ml-2">
                     <i class="fas fa-edit"></i> Редагувати
                 </a>
             @endcan
@@ -72,16 +69,16 @@
                     <p class="text-muted">{{ $shift->ended_at ?? '-' }}</p>
                 </div>
                 <div class="card-footer">
-                    @can('manage-recon')
+                    @can('manage-vampire')
                         @if($shift->status === 'opened')
-                            <form action="{{ route('recon.combat_shifts.finish', $shift->id) }}" method="POST">
+                            <form action="{{ route('vampire.combat_shifts.finish', $shift->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Завершити чергування?')">
                                     Завершити чергування
                                 </button>
                             </form>
                         @else
-                            <form action="{{ route('recon.combat_shifts.reopen', $shift->id) }}" method="POST">
+                            <form action="{{ route('vampire.combat_shifts.reopen', $shift->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Відновити чергування?')">
                                     Відновити чергування
@@ -117,7 +114,6 @@
                     <ul class="nav nav-pills">
                         <li class="nav-item"><a class="nav-link active" href="#inventory" data-toggle="tab">Майно</a></li>
                         <li class="nav-item"><a class="nav-link" href="#crew" data-toggle="tab">Екіпаж</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#flights" data-toggle="tab">Останні вильоти</a></li>
                     </ul>
                 </div>
                 <div class="card-body">
@@ -133,7 +129,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    @forelse($shift->recon_drones as $drone)
+                                    @forelse($shift->vampire_drones as $drone)
                                         <tr>
                                             <td>{{ $drone['name'] }}</td>
                                             <td>{{ $drone['serial_number'] ?? '-' }}</td>
@@ -191,61 +187,6 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
-                        <div class="tab-pane" id="flights">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5>Останні зафіксовані польоти розвідки</h5>
-                                <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-file-alt"></i> Повний звіт по польотам
-                                </a>
-                            </div>
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>Час</th>
-                                        <th>Зміна</th>
-                                        <th>Дрон</th>
-                                        <th>Місія</th>
-                                        <th>Результат</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php $count = 0; @endphp
-                                    @forelse($shift->recon_flights as $day => $flights)
-                                        @foreach($flights as $flight)
-                                            @if($count < 10)
-                                                <tr>
-                                                    <td>{{ \Carbon\Carbon::parse($day)->format('d.m.Y') }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
-                                                    <td>
-                                                        @if($flight['shift_type'] === 'day')
-                                                            <i class="fas fa-sun text-warning"></i> Денна
-                                                        @else
-                                                            <i class="fas fa-moon text-secondary"></i> Нічна
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $flight['drone_name'] }}</td>
-                                                    <td>{{ $flight['mission_type_label'] }}</td>
-                                                    <td>{{ $flight['result_label'] }}</td>
-                                                </tr>
-                                                @php $count++; @endphp
-                                            @endif
-                                        @endforeach
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center">Польотів ще не зафіксовано</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            @if(count($shift->recon_flights) > 0)
-                                <div class="text-center mt-3">
-                                    <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-default">
-                                        Переглянути всі польоти
-                                    </a>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>

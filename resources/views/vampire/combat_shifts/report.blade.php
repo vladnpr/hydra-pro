@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по залишку розвідки')
+@section('title', 'Звіт по залишку Vampire')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по залишку розвідки</h1>
+        <h1>Звіт по залишку Vampire</h1>
         <div class="no-print">
-            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
+            <a href="{{ route('vampire.combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до чергування
             </a>
             <button type="button" class="btn btn-primary ml-2" onclick="printReport()">
@@ -24,7 +24,7 @@
         <div class="col-md-8 mx-auto">
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('recon.combat_shifts.report', $shift->id) }}" method="GET" class="form-inline">
+                    <form action="{{ route('vampire.combat_shifts.report', $shift->id) }}" method="GET" class="form-inline">
                         <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
                             <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
                                 <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
@@ -46,7 +46,7 @@
             <div class="card shadow-sm">
                 <div class="card-body p-5" id="printableArea">
                     <div class="report-content">
-                        <h4 class="mb-4">Позиція "{{ $shift->position_name }}" (розвідка)</h4>
+                        <h4 class="mb-4">Позиція "{{ $shift->position_name }}" (Vampire)</h4>
 
                         @php
                             $now = \Carbon\Carbon::now();
@@ -75,8 +75,8 @@
                         @endif
 
                         @php
-                            $bgDrones = array_filter($shift->recon_drones, fn($d) => $d['status'] === 'active');
-                            $nonBgDrones = array_filter($shift->recon_drones, fn($d) => $d['status'] !== 'active' && $d['status'] !== 'lost');
+                            $bgDrones = array_filter($shift->vampire_drones, fn($d) => $d['status'] === 'active');
+                            $nonBgDrones = array_filter($shift->vampire_drones, fn($d) => $d['status'] !== 'active' && $d['status'] !== 'lost');
 
                             if ($activeShiftType === 'day') {
                                 $bgDrones = array_filter($bgDrones, fn($d) => $d['shift_type'] === 'day');

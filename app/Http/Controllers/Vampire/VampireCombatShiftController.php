@@ -184,7 +184,7 @@ class VampireCombatShiftController extends Controller
         $activeShiftType = $request->query('shift_type', 'day');
 
         // Отримуємо польоти за обрану дату
-        $allFlights = $shift->recon_flights[$date] ?? [];
+        $allFlights = $shift->vampire_flights[$date] ?? [];
 
         // Фільтруємо за зміною
         $dayFlights = array_filter($allFlights, fn($f) => $f['shift_type'] === 'day');
@@ -212,7 +212,7 @@ class VampireCombatShiftController extends Controller
         $activeShift = $this->combatShiftsAdminService->getActiveShiftByUserId(Auth::id());
 
         if (!$activeShift || $activeShift->type !== PositionTypesEnum::VAMPIRE->value) {
-            return redirect()->route('vampire.flights.index')
+            return redirect()->route('vampire.combat_shifts.index')
                 ->with('error', 'У вас немає активної зміни VAMPIRE.');
         }
 

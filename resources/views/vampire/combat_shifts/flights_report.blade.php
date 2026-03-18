@@ -1,12 +1,12 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по польотах розвідки')
+@section('title', 'Звіт по польотах Vampire')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по польотах розвідки</h1>
+        <h1>Звіт по польотах Vampire</h1>
         <div>
-            <a href="{{ route('recon.combat_shifts.show', $shift->id) }}" class="btn btn-default">
+            <a href="{{ route('vampire.combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей
             </a>
             <button onclick="window.print()" class="btn btn-success ml-2">
@@ -24,11 +24,11 @@
         <div class="col-md-12">
             <div class="card">
                 <div class="card-body">
-                    <form action="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
+                    <form action="{{ route('vampire.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
                         <label for="date" class="mr-2">Оберіть дату:</label>
                         <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
                             @php
-                                $dates = array_keys($shift->recon_flights);
+                                $dates = array_keys($shift->vampire_flights);
                                 if (!in_array($date, $dates)) {
                                     $dates[] = $date;
                                 }
@@ -40,7 +40,6 @@
                                 </option>
                             @endforeach
                         </select>
-
                         <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
                             <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
                                 <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
@@ -51,7 +50,6 @@
                                 <i class="fas fa-moon"></i> Нічна
                             </label>
                         </div>
-
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>
@@ -63,7 +61,7 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-body p-5" id="report-content">
-                    <h3 class="text-center mb-4">Звіт по польотам розвідки ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
+                    <h3 class="text-center mb-4">Звіт по польотам Vampire ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
                     @if($activeShiftType === 'night')
                         <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
                             (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})

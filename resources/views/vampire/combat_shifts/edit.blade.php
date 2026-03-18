@@ -122,16 +122,16 @@
                                     @foreach($crewData as $index => $member)
                                         <div class="crew-member row mb-2">
                                             <div class="col-md-4">
-                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ is_array($member) ? $member['callsign'] : $member->callsign }}" required>
+                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ is_array($member) ? $member['callsign'] : $member['callsign'] }}" required>
                                             </div>
                                             <div class="col-md-4">
-                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ is_array($member) ? $member['role'] : $member->role }}" required>
+                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ is_array($member) ? $member['role'] : $member['role'] }}" required>
                                             </div>
                                             <div class="col-md-3">
                                                 <select name="crew[{{ $index }}][shift_type]" class="form-control form-control-sm" required>
-                                                    <option value="day" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member->shift_type?->value ?? 'day')) === 'day' ? 'selected' : '' }}>Денна</option>
-                                                    <option value="night" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member->shift_type?->value ?? 'day')) === 'night' ? 'selected' : '' }}>Нічна</option>
-                                                    <option value="both" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member->shift_type?->value ?? 'day')) === 'both' ? 'selected' : '' }}>Обидві</option>
+                                                    <option value="day" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member['shift_type'] ?? 'day')) === 'day' ? 'selected' : '' }}>Денна</option>
+                                                    <option value="night" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member['shift_type'] ?? 'day')) === 'night' ? 'selected' : '' }}>Нічна</option>
+                                                    <option value="both" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member['shift_type'] ?? 'day')) === 'both' ? 'selected' : '' }}>Обидві</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-1">
