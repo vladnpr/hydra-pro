@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Vampire;
 
 use App\Http\Controllers\Controller;
+use App\Enums\ShiftTypeEnum;
 use App\Models\VampireFlight;
 use App\Models\VampireFlightPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\JsonResponse;
 
 class VampireFlightController extends Controller
 {
@@ -20,6 +22,17 @@ class VampireFlightController extends Controller
         });
     }
 
+    public function setShiftType(Request $request): JsonResponse
+    {
+        $request->validate([
+            'shift_type' => 'required|string|in:day,night'
+        ]);
+
+        session(['vampire_active_shift_type' => $request->shift_type]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function index()
     {
         $userActiveShift = $this->shiftService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
@@ -28,15 +41,22 @@ class VampireFlightController extends Controller
             return view('vampire.flights.no_active_shift');
         }
 
+        $activeShiftType = session('vampire_active_shift_type', ShiftTypeEnum::NIGHT->value);
+
         $flights = VampireFlight::with(['drone', 'flightPlan'])
             ->where('combat_shift_id', $userActiveShift->id)
             ->orderBy('start_time', 'desc')
             ->get();
 
-        $drones = collect($userActiveShift->vampire_drones)->where('status', 'active');
+        $drones = collect($userActiveShift->vampire_drones)
+            ->where('status', 'active')
+            ->filter(function ($drone) use ($activeShiftType) {
+                return ($drone['shift_type'] ?? 'day') === 'both' || ($drone['shift_type'] ?? 'day') === $activeShiftType;
+            });
+
         $plans = collect($userActiveShift->vampire_flight_plans)->where('status', 'planned');
 
-        return view('vampire.flights.index', compact('userActiveShift', 'flights', 'drones', 'plans'));
+        return view('vampire.flights.index', compact('userActiveShift', 'flights', 'drones', 'plans', 'activeShiftType'));
     }
 
     public function storePlan(Request $request)
@@ -112,6 +132,7 @@ class VampireFlightController extends Controller
         ]);
 
         $data = $request->all();
+        $data['shift_type'] = session('vampire_active_shift_type', ShiftTypeEnum::NIGHT->value);
 
         // Не зберігаємо БК, якщо тип місії не 'combat'
         if ($request->mission_type !== 'combat') {

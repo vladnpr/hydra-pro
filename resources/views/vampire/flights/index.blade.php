@@ -5,9 +5,23 @@
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
         <h1>Вильоти Vampire ({{ $userActiveShift->position_name }})</h1>
-        <a href="{{ route('vampire.combat_shifts.show', $userActiveShift->id) }}" class="btn btn-default">
-            <i class="fas fa-eye"></i> Деталі чергування
-        </a>
+        <div class="d-flex align-items-center">
+            <div class="mr-4">
+                <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                    <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
+                        <input type="radio" name="global_shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }}>
+                        <i class="fas fa-sun"></i> Денна
+                    </label>
+                    <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
+                        <input type="radio" name="global_shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }}>
+                        <i class="fas fa-moon"></i> Нічна
+                    </label>
+                </div>
+            </div>
+            <a href="{{ route('vampire.combat_shifts.show', $userActiveShift->id) }}" class="btn btn-default">
+                <i class="fas fa-eye"></i> Деталі чергування
+            </a>
+        </div>
     </div>
 @endsection
 
@@ -195,6 +209,7 @@
                             <thead>
                                 <tr>
                                     <th>Час</th>
+                                    <th>Зміна</th>
                                     <th>Дрон</th>
                                     <th>Ціль</th>
                                     <th>Місія</th>
@@ -213,6 +228,15 @@
                                             <div class="text-nowrap text-muted small">{{ \Carbon\Carbon::parse($flight->end_time)->format('H:i') }}</div>
                                         @endif
                                     </td>
+                                        <td>
+                                            @if($flight->shift_type?->value === 'day')
+                                                <i class="fas fa-sun text-warning" title="Денна"></i>
+                                            @elseif($flight->shift_type?->value === 'night')
+                                                <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
                                         <td>{{ $flight->drone?->name }}</td>
                                         <td>{{ $flight->flightPlan?->position_name ?? '-' }}</td>
                                         <td>
@@ -285,6 +309,24 @@
 
             $('#mission_type').on('change', toggleAmmunition);
             toggleAmmunition();
+
+            $('input[name="global_shift_type"]').on('change', function() {
+                let shiftType = $(this).val();
+                $.ajax({
+                    url: '{{ route('vampire.flights.set_shift_type') }}',
+                    method: 'POST',
+                    data: {
+                        _token: '{{ csrf_token() }}',
+                        shift_type: shiftType
+                    },
+                    success: function() {
+                        location.reload();
+                    },
+                    error: function() {
+                        alert('Помилка при зміні типу зміни');
+                    }
+                });
+            });
 
             let ammoCount = 1;
             $('#add-ammunition').on('click', function() {

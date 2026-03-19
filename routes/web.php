@@ -61,6 +61,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
             Route::resource('combat_shifts', \App\Http\Controllers\Vampire\VampireCombatShiftController::class)->except(['show']);
 
             Route::get('flights', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'index'])->name('flights.index');
+            Route::post('flights/set-shift-type', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'setShiftType'])->name('flights.set_shift_type');
             Route::post('flights', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'store'])->name('flights.store');
             Route::get('flights/{id}/edit', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'edit'])->name('flights.edit')->where('id', '[0-9]+');
             Route::put('flights/{id}', [\App\Http\Controllers\Vampire\VampireFlightController::class, 'update'])->name('flights.update')->where('id', '[0-9]+');

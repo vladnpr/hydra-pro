@@ -20,12 +20,14 @@ class VampireFlight extends Model
         'mission_type',
         'result',
         'comment',
+        'shift_type',
     ];
 
     protected $casts = [
         'start_time' => 'datetime',
         'end_time' => 'datetime',
         'stream_status' => 'boolean',
+        'shift_type' => \App\Enums\ShiftTypeEnum::class,
     ];
 
     public function combatShift(): BelongsTo
