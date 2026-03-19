@@ -129,9 +129,9 @@
                                             </div>
                                             <div class="col-md-3">
                                                 <select name="crew[{{ $index }}][shift_type]" class="form-control form-control-sm" required>
-                                                    <option value="day" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member['shift_type'] ?? 'day')) === 'day' ? 'selected' : '' }}>Денна</option>
-                                                    <option value="night" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member['shift_type'] ?? 'day')) === 'night' ? 'selected' : '' }}>Нічна</option>
-                                                    <option value="both" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member['shift_type'] ?? 'day')) === 'both' ? 'selected' : '' }}>Обидві</option>
+                                                    <option value="day" {{ (is_array($member) ? ($member['shift_type'] ?? 'both') : ($member['shift_type'] ?? 'both')) === 'day' ? 'selected' : '' }}>Денна</option>
+                                                    <option value="night" {{ (is_array($member) ? ($member['shift_type'] ?? 'both') : ($member['shift_type'] ?? 'both')) === 'night' ? 'selected' : '' }}>Нічна</option>
+                                                    <option value="both" {{ (is_array($member) ? ($member['shift_type'] ?? 'both') : ($member['shift_type'] ?? 'both')) === 'both' ? 'selected' : '' }}>Обидві</option>
                                                 </select>
                                             </div>
                                             <div class="col-md-1">
@@ -216,7 +216,7 @@
                             <select name="crew[${crewIndex}][shift_type]" class="form-control form-control-sm" required>
                                 <option value="day">Денна</option>
                                 <option value="night">Нічна</option>
-                                <option value="both">Обидві</option>
+                                <option value="both" selected>Обидві</option>
                             </select>
                         </div>
                         <div class="col-md-1">
@@ -264,7 +264,7 @@
                             <select name="new_drones[${droneIndex}][shift_type]" class="form-control form-control-sm" required>
                                 <option value="day">Денна</option>
                                 <option value="night">Нічна</option>
-                                <option value="both">Обидві</option>
+                                <option value="both" selected>Обидві</option>
                             </select>
                         </div>
                         <button type="button" class="btn btn-danger btn-xs remove-new-drone">Видалити</button>
@@ -345,7 +345,7 @@
                                             <select name="existing_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
                                                 <option value="day" ${drone.shift_type === 'day' ? 'selected' : ''}>Денна</option>
                                                 <option value="night" ${drone.shift_type === 'night' ? 'selected' : ''}>Нічна</option>
-                                                <option value="both" ${drone.shift_type === 'both' ? 'selected' : ''}>Обидві</option>
+                                                <option value="both" ${!drone.shift_type || drone.shift_type === 'both' ? 'selected' : ''}>Обидві</option>
                                             </select>
                                         </div>
                                     </div>
