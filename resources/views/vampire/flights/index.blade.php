@@ -51,7 +51,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Зафіксувати новий виліт</h3>
                 </div>
-                <form action="{{ route('vampire.flights.store') }}" method="POST">
+                <form action="{{ route('vampire.flights.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="combat_shift_id" value="{{ $userActiveShift->id }}">
                     <div class="card-body">
@@ -167,6 +167,16 @@
                             <label for="comment">Коментар</label>
                             <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="450, збили, подавлення, інше">{{ old('comment') }}</textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="video">Відео вильоту (макс. 75мб)</label>
+                            <div class="custom-file">
+                                <input type="file" name="video" class="custom-file-input @error('video') is-invalid @enderror" id="video" accept="video/*">
+                                <label class="custom-file-label" for="video">Оберіть файл</label>
+                            </div>
+                            @error('video')
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary btn-block">Додати виліт</button>
@@ -239,6 +249,7 @@
                                         <th>Зміна</th>
                                         <th>Дрон</th>
                                         <th>Ціль</th>
+                                        <th>Відео</th>
                                         <th>Місія</th>
                                         <th>БК</th>
                                         <th>Результат</th>
@@ -267,15 +278,48 @@
                                             <td>{{ $flight->drone?->name }}</td>
                                             <td>{{ $flight->flightPlan?->position_name ?? '-' }} {{ $flight->coordinates ? "({$flight->coordinates})" : '' }}</td>
                                             <td>
-                                                @if($flight->mission_type === 'combat')
-                                                    <span class="badge badge-danger">бойова</span>
+                                                @if($flight->video_path)
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight->id }}" title="Переглянути">
+                                                            <i class="fas fa-video"></i>
+                                                        </button>
+                                                        <a href="{{ route('vampire.flights.download', $flight->id) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                            <i class="fas fa-download"></i>
+                                                        </a>
+                                                    </div>
+
+                                                    <div class="modal fade" id="videoModal{{ $flight->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Відео польоту #{{ $flight->id }}</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body text-center bg-black">
+                                                                    <video width="100%" controls>
+                                                                        <source src="{{ Storage::url($flight->video_path) }}" type="video/mp4">
+                                                                        Ваш браузер не підтримує відео.
+                                                                    </video>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 @else
-                                                    <span class="badge badge-info">логістика</span>
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($flight->mission_type === 'combat')
+                                                    <span class="badge badge-danger"><i class="fas fa-crosshairs"></i> бойова</span>
+                                                @else
+                                                    <span class="badge badge-info"><i class="fas fa-truck-loading"></i> логістика</span>
                                                 @endif
                                             </td>
                                             <td>
                                                 @foreach($flight->ammunition as $ammo)
-                                                    <div>{{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
+                                                    <div><i class="fas fa-bomb small"></i> {{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
                                                 @endforeach
                                                 @if($flight->ammunition->isEmpty()) - @endif
                                             </td>
@@ -283,7 +327,7 @@
                                                 @if($flight->result === 'worked')
                                                     <span class="badge badge-success">відпрацювали</span>
                                                 @else
-                                                    <span class="badge badge-dark">втрата</span>
+                                                    <span class="badge badge-danger">втрата</span>
                                                 @endif
                                             </td>
                                             <td>{{ $flight->comment }}</td>
@@ -387,6 +431,22 @@
             $(document).on('click', '.remove-ammo', function() {
                 $(this).closest('.row').remove();
             });
+
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
+            });
+
+            $('.modal').on('hidden.bs.modal', function () {
+                let video = $(this).find('video')[0];
+                if (video) video.pause();
+            });
         });
     </script>
+@endsection
+
+@section('css')
+    <style>
+        .bg-black { background-color: #000; }
+    </style>
 @endsection

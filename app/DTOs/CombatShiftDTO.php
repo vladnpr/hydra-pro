@@ -112,6 +112,7 @@ class CombatShiftDTO
                 'result_label' => $f->result === 'worked' ? 'відпрацювали' : ($f->result === 'loss' ? 'втрата борту' : $f->result),
                 'stream_status' => $f->stream_status,
                 'comment' => $f->comment,
+                'video_path' => $f->video_path,
             ]))->toArray();
 
         $vampireFlightPlans = \App\Models\VampireFlightPlan::where('combat_shift_id', $shift->id)

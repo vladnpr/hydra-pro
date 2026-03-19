@@ -89,18 +89,80 @@
                                     <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
                                     <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
                                     <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
+                                    @if(!empty($flight['video_path']))
+                                        <div class="mt-2 mb-2 no-print">
+                                            <div class="btn-group mb-2">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                    <i class="fas fa-video"></i> Переглянути відео
+                                                </button>
+                                                <a href="{{ route('vampire.flights.download', $flight['id']) }}" class="btn btn-sm btn-success" title="Скачати">
+                                                    <i class="fas fa-download"></i> Скачати
+                                                </a>
+                                            </div>
+
+                                            <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body text-center bg-black">
+                                                            <video width="100%" controls>
+                                                                <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                                Ваш браузер не підтримує відео.
+                                                            </video>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     @if($flight['coordinates'] && $flight['coordinates'] !== '-')
                                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                                     @endif
                                     <p class="mb-3 flight-end">{{ $flight['comment'] ?: '-' }}</p>
                                 @endforeach
 
-                                <p class="font-weight-bold mt-4">Не відпрацювали:</p>
+                                <p class="font-weight-bold">Не відпрацювали:</p>
                                 @php $j = 1; @endphp
                                 @foreach($notWorkedFlights as $flight)
                                     <p class="m-0">{{ $j++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
                                     <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
                                     <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
+                                    @if(!empty($flight['video_path']))
+                                        <div class="mt-2 mb-2 no-print">
+                                            <div class="btn-group mb-2">
+                                                <button type="button" class="btn btn-sm btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                    <i class="fas fa-video"></i> Переглянути відео
+                                                </button>
+                                                <a href="{{ route('vampire.flights.download', $flight['id']) }}" class="btn btn-sm btn-success" title="Скачати">
+                                                    <i class="fas fa-download"></i> Скачати
+                                                </a>
+                                            </div>
+
+                                            <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
+                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body text-center bg-black">
+                                                            <video width="100%" controls>
+                                                                <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                                Ваш браузер не підтримує відео.
+                                                            </video>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endif
                                     @if($flight['coordinates'] && $flight['coordinates'] !== '-')
                                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                                     @endif
@@ -124,6 +186,9 @@
                                     @endif
                                     <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
                                     <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
+                                    @if(!empty($flight['video_path']))
+                                        <p class="m-0">Відео: +</p>
+                                    @endif
                                     <p class="m-0">Дрон: {{ $flight['drone_name'] }} - {{ $flight['drone_serial'] ?? 'N/A' }}</p>
                                     <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
                                     <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
@@ -192,6 +257,11 @@
                     alert('Не вдалося скопіювати текст');
                 });
             });
+
+            $('.modal').on('hidden.bs.modal', function () {
+                let video = $(this).find('video')[0];
+                if (video) video.pause();
+            });
         });
     </script>
 @endsection
@@ -204,6 +274,7 @@
         line-height: 1.2;
         color: #000;
     }
+    .bg-black { background-color: #000; }
     @media print {
         .no-print {
             display: none !important;

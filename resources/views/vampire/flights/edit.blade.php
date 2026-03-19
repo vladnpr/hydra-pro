@@ -13,7 +13,7 @@
                 <div class="card-header">
                     <h3 class="card-title">Виліт від {{ $flight->start_time->format('H:i d.m.Y') }}</h3>
                 </div>
-                <form action="{{ route('vampire.flights.update', $flight->id) }}" method="POST">
+                <form action="{{ route('vampire.flights.update', $flight->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="card-body">
@@ -134,6 +134,25 @@
                             <label for="comment">Коментар</label>
                             <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="450, збили, подавлення, інше">{{ old('comment', $flight->comment) }}</textarea>
                         </div>
+                        <div class="form-group">
+                            <label for="video">Відео вильоту (макс. 75мб)</label>
+                            @if($flight->video_path)
+                                <div class="mb-2 p-2 bg-black text-center rounded">
+                                    <small class="text-muted d-block mb-2">Відео вже завантажено. Новий файл замінить старий.</small>
+                                    <video width="320" height="240" controls>
+                                        <source src="{{ Storage::url($flight->video_path) }}" type="video/mp4">
+                                        Ваш браузер не підтримує відео.
+                                    </video>
+                                </div>
+                            @endif
+                            <div class="custom-file">
+                                <input type="file" name="video" class="custom-file-input @error('video') is-invalid @enderror" id="video" accept="video/*">
+                                <label class="custom-file-label" for="video">Оберіть файл</label>
+                            </div>
+                            @error('video')
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">Зберегти зміни</button>
@@ -143,6 +162,12 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('css')
+    <style>
+        .bg-black { background-color: #000; }
+    </style>
 @endsection
 
 @section('js')
@@ -195,6 +220,11 @@
 
             $(document).on('click', '.remove-ammo', function() {
                 $(this).closest('.row').remove();
+            });
+
+            $('.custom-file-input').on('change', function() {
+                let fileName = $(this).val().split('\\').pop();
+                $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
         });
     </script>

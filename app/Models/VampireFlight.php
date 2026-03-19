@@ -22,6 +22,7 @@ class VampireFlight extends Model
         'result',
         'comment',
         'shift_type',
+        'video_path',
     ];
 
     protected $casts = [

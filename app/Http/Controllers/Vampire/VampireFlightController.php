@@ -9,6 +9,7 @@ use App\Models\VampireFlightPlan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Storage;
 
 class VampireFlightController extends Controller
 {
@@ -127,13 +128,19 @@ class VampireFlightController extends Controller
             'mission_type' => 'required|string',
             'result' => 'required|string',
             'comment' => 'nullable|string',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:76800',
             'ammunition' => 'nullable|array',
             'ammunition.*.id' => 'nullable|exists:ammunition,id',
             'ammunition.*.quantity' => 'nullable|integer|min:1',
         ]);
 
+        if ($request->hasFile('video')) {
+            $data = $request->all();
+            $data['video_path'] = $request->file('video')->store('vampire/flights/videos', 'public');
+        } else {
+            $data = $request->all();
+        }
 
-        $data = $request->all();
         $data['shift_type'] = session('vampire_active_shift_type', ShiftTypeEnum::NIGHT->value);
         $data['stream_status'] = $request->boolean('stream_status');
 
@@ -226,6 +233,10 @@ class VampireFlightController extends Controller
                 }
             }
 
+            if ($flight->video_path) {
+                Storage::disk('public')->delete($flight->video_path);
+            }
+
             $flight->delete();
         });
 
@@ -284,6 +295,7 @@ class VampireFlightController extends Controller
             'mission_type' => 'required|string',
             'result' => 'required|string',
             'comment' => 'nullable|string',
+            'video' => 'nullable|file|mimes:mp4,mov,avi,wmv|max:76800',
             'ammunition' => 'nullable|array',
             'ammunition.*.id' => 'nullable|exists:ammunition,id',
             'ammunition.*.quantity' => 'nullable|integer|min:1',
@@ -291,6 +303,13 @@ class VampireFlightController extends Controller
 
         $data = $request->all();
         $data['stream_status'] = $request->boolean('stream_status');
+
+        if ($request->hasFile('video')) {
+            if ($flight->video_path) {
+                Storage::disk('public')->delete($flight->video_path);
+            }
+            $data['video_path'] = $request->file('video')->store('vampire/flights/videos', 'public');
+        }
 
         if ($request->mission_type !== 'combat') {
             unset($data['ammunition']);
@@ -381,5 +400,16 @@ class VampireFlightController extends Controller
         }
 
         return redirect()->route('vampire.flights.index')->with('success', 'Виліт оновлено');
+    }
+
+    public function downloadVideo(int $id)
+    {
+        $flight = VampireFlight::findOrFail($id);
+
+        if (!$flight->video_path || !Storage::disk('public')->exists($flight->video_path)) {
+            return redirect()->back()->with('error', 'Відео не знайдено');
+        }
+
+        return Storage::disk('public')->download($flight->video_path);
     }
 }
