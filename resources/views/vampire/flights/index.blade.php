@@ -205,83 +205,91 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-striped table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Час</th>
-                                    <th>Зміна</th>
-                                    <th>Дрон</th>
-                                    <th>Ціль</th>
-                                    <th>Місія</th>
-                                    <th>БК</th>
-                                    <th>Результат</th>
-                                    <th>Коментар</th>
-                                    <th>Дії</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($flights as $flight)
+                        @forelse($flights as $date => $dayFlights)
+                            <div class="p-2 bg-light border-bottom">
+                                <h6 class="mb-0 font-weight-bold">
+                                    <i class="fas fa-calendar-day mr-1"></i>
+                                    {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}
+                                </h6>
+                            </div>
+                            <table class="table table-striped table-sm mb-0">
+                                <thead>
                                     <tr>
-                                    <td>
-                                        <div class="text-nowrap">{{ \Carbon\Carbon::parse($flight->start_time)->format('H:i') }}</div>
-                                        @if($flight->end_time)
-                                            <div class="text-nowrap text-muted small">{{ \Carbon\Carbon::parse($flight->end_time)->format('H:i') }}</div>
-                                        @endif
-                                    </td>
-                                        <td>
-                                            @if($flight->shift_type?->value === 'day')
-                                                <i class="fas fa-sun text-warning" title="Денна"></i>
-                                            @elseif($flight->shift_type?->value === 'night')
-                                                <i class="fas fa-moon text-secondary" title="Нічна"></i>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ $flight->drone?->name }}</td>
-                                        <td>{{ $flight->flightPlan?->position_name ?? '-' }}</td>
-                                        <td>
-                                            @if($flight->mission_type === 'combat')
-                                                <span class="badge badge-danger">бойова</span>
-                                            @else
-                                                <span class="badge badge-info">логістика</span>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @foreach($flight->ammunition as $ammo)
-                                                <div>{{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
-                                            @endforeach
-                                            @if($flight->ammunition->isEmpty()) - @endif
-                                        </td>
-                                        <td>
-                                            @if($flight->result === 'worked')
-                                                <span class="badge badge-success">відпрацювали</span>
-                                            @else
-                                                <span class="badge badge-dark">втрата</span>
-                                            @endif
-                                        </td>
-                                        <td>{{ $flight->comment }}</td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{{ route('vampire.flights.edit', $flight->id) }}" class="btn btn-xs btn-info">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('vampire.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити цей виліт?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
+                                        <th>Час</th>
+                                        <th>Зміна</th>
+                                        <th>Дрон</th>
+                                        <th>Ціль</th>
+                                        <th>Місія</th>
+                                        <th>БК</th>
+                                        <th>Результат</th>
+                                        <th>Коментар</th>
+                                        <th>Дії</th>
                                     </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="7" class="text-center">Вильотів ще не зафіксовано</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                </thead>
+                                <tbody>
+                                    @foreach($dayFlights as $flight)
+                                        <tr>
+                                            <td>
+                                                <div class="text-nowrap">{{ \Carbon\Carbon::parse($flight->start_time)->format('H:i') }}</div>
+                                                @if($flight->end_time)
+                                                    <div class="text-nowrap text-muted small">{{ \Carbon\Carbon::parse($flight->end_time)->format('H:i') }}</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($flight->shift_type?->value === 'day')
+                                                    <i class="fas fa-sun text-warning" title="Денна"></i>
+                                                @elseif($flight->shift_type?->value === 'night')
+                                                    <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>{{ $flight->drone?->name }}</td>
+                                            <td>{{ $flight->flightPlan?->position_name ?? '-' }}</td>
+                                            <td>
+                                                @if($flight->mission_type === 'combat')
+                                                    <span class="badge badge-danger">бойова</span>
+                                                @else
+                                                    <span class="badge badge-info">логістика</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @foreach($flight->ammunition as $ammo)
+                                                    <div>{{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
+                                                @endforeach
+                                                @if($flight->ammunition->isEmpty()) - @endif
+                                            </td>
+                                            <td>
+                                                @if($flight->result === 'worked')
+                                                    <span class="badge badge-success">відпрацювали</span>
+                                                @else
+                                                    <span class="badge badge-dark">втрата</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $flight->comment }}</td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ route('vampire.flights.edit', $flight->id) }}" class="btn btn-xs btn-info">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('vampire.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити цей виліт?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @empty
+                            <div class="p-4 text-center">
+                                <p class="text-muted">Вильотів ще не зафіксовано</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>

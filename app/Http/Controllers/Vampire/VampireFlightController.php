@@ -46,7 +46,10 @@ class VampireFlightController extends Controller
         $flights = VampireFlight::with(['drone', 'flightPlan'])
             ->where('combat_shift_id', $userActiveShift->id)
             ->orderBy('start_time', 'desc')
-            ->get();
+            ->get()
+            ->groupBy(function ($f) {
+                return $f->start_time->format('Y-m-d');
+            });
 
         $drones = collect($userActiveShift->vampire_drones)
             ->where('status', 'active')
