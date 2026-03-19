@@ -109,7 +109,12 @@ class CombatShiftDTO
                 'start_time' => $f->start_time->format('Y-m-d H:i:s'),
                 'end_time' => $f->end_time?->format('Y-m-d H:i:s'),
                 'result' => $f->result,
-                'result_label' => $f->result === 'worked' ? 'відпрацювали' : ($f->result === 'loss' ? 'втрата борту' : $f->result),
+                'result_label' => match($f->result) {
+                    'worked' => 'відпрацювали',
+                    'loss' => 'втрата борту',
+                    'not_worked' => 'не відпрацювали',
+                    default => $f->result,
+                },
                 'stream_status' => $f->stream_status,
                 'comment' => $f->comment,
                 'video_path' => $f->video_path,

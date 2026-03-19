@@ -194,11 +194,14 @@ class VampireCombatShiftController extends Controller
         // Отримуємо польоти за обрану дату
         $allFlights = $shift->vampire_flights[$date] ?? [];
 
-        // Групуємо для звіту
+        // Групуємо для звіту, зберігаючи зворотний хронологічний порядок (вже відсортовані в DTO)
         $workedFlights = array_filter($allFlights, fn($f) => $f['result'] === 'worked');
         $notWorkedFlights = array_filter($allFlights, fn($f) => $f['result'] !== 'worked');
 
-        return view('vampire.combat_shifts.flights_report', compact('shift', 'date', 'workedFlights', 'notWorkedFlights'));
+        // Для загального списку нам потрібні всі польоти, відсортовані за часом (вони вже такі в $allFlights)
+        $allFlightsSorted = $allFlights;
+
+        return view('vampire.combat_shifts.flights_report', compact('shift', 'date', 'workedFlights', 'notWorkedFlights', 'allFlightsSorted'));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)

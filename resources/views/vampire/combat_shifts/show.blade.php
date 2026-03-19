@@ -160,7 +160,12 @@
                                                             </td>
                                                             <td>
                                                                 @php
-                                                                    $badgeClass = $flight['result'] === 'worked' ? 'success' : 'danger';
+                                                                    $badgeClass = match($flight['result']) {
+                                                                        'worked' => 'success',
+                                                                        'loss' => 'danger',
+                                                                        'not_worked' => 'warning',
+                                                                        default => 'secondary'
+                                                                    };
                                                                 @endphp
                                                                 <span class="badge badge-{{ $badgeClass }}">{{ $flight['result_label'] }}</span>
                                                             </td>

@@ -121,6 +121,7 @@
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control" required>
                                 <option value="worked" {{ old('result', $flight->result) === 'worked' ? 'selected' : '' }}>відпрацювали</option>
+                                <option value="not_worked" {{ old('result', $flight->result) === 'not_worked' ? 'selected' : '' }}>не відпрацювали</option>
                                 <option value="loss" {{ old('result', $flight->result) === 'loss' ? 'selected' : '' }}>втрата борту</option>
                             </select>
                         </div>

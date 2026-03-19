@@ -115,7 +115,7 @@
                         </div>
                         <div class="tab-pane fade p-4" id="list-report" role="tabpanel" aria-labelledby="list-report-tab">
                             <div id="report-content-list">
-                                @foreach(array_merge($workedFlights, $notWorkedFlights) as $flight)
+                                @foreach($allFlightsSorted as $flight)
                                     @if($flight['position_name'] && $flight['position_name'] !== '-')
                                         <p class="m-0">Ціль: {{ $flight['position_name'] }}</p>
                                     @endif

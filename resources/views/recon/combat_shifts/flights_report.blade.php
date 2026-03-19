@@ -32,7 +32,7 @@
                                 if (!in_array($date, $dates)) {
                                     $dates[] = $date;
                                 }
-                                sort($dates);
+                                rsort($dates);
                             @endphp
                             @foreach($dates as $flightDate)
                                 <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
