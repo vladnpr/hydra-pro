@@ -74,6 +74,8 @@
                     @php $i = 1; @endphp
                     @foreach($workedFlights as $flight)
                         <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
+                        <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
+                        <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                         <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
                     @endforeach
@@ -82,6 +84,8 @@
                     @php $j = 1; @endphp
                     @foreach($notWorkedFlights as $flight)
                         <p class="m-0">{{ $j++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
+                        <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
+                        <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                         <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
                     @endforeach
