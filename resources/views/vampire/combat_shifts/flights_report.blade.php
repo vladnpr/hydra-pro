@@ -92,7 +92,7 @@
                                     @if($flight['coordinates'] && $flight['coordinates'] !== '-')
                                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                                     @endif
-                                    <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
+                                    <p class="mb-3 flight-end">{{ $flight['comment'] ?: '-' }}</p>
                                 @endforeach
 
                                 <p class="font-weight-bold mt-4">Не відпрацювали:</p>
@@ -104,7 +104,7 @@
                                     @if($flight['coordinates'] && $flight['coordinates'] !== '-')
                                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                                     @endif
-                                    <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
+                                    <p class="mb-3 flight-end">{{ $flight['comment'] ?: '-' }}</p>
                                 @endforeach
 
                                 <p class="font-weight-bold mt-4">Екіпаж:</p>
@@ -116,13 +116,18 @@
                         <div class="tab-pane fade p-4" id="list-report" role="tabpanel" aria-labelledby="list-report-tab">
                             <div id="report-content-list">
                                 @foreach(array_merge($workedFlights, $notWorkedFlights) as $flight)
-                                    <p class="m-0">{{ $flight['coordinates'] && $flight['coordinates'] !== '-' ? $flight['coordinates'] : '---' }}</p>
+                                    @if($flight['position_name'] && $flight['position_name'] !== '-')
+                                        <p class="m-0">Ціль: {{ $flight['position_name'] }}</p>
+                                    @endif
+                                    @if($flight['coordinates'] && $flight['coordinates'] !== '-')
+                                        <p class="m-0">{{ $flight['coordinates'] }}</p>
+                                    @endif
                                     <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
                                     <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
                                     <p class="m-0">Дрон: {{ $flight['drone_name'] }} - {{ $flight['drone_serial'] ?? 'N/A' }}</p>
                                     <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
                                     <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
-                                    <p class="mb-3">Коментар: {{ $flight['comment'] ?: '-' }}</p>
+                                    <p class="mb-3 flight-end">Коментар: {{ $flight['comment'] ?: '-' }}</p>
                                 @endforeach
                             </div>
                         </div>
@@ -163,7 +168,7 @@
                 // Збираємо текст з активного контейнера
                 $(contentId + ' p').each(function() {
                     reportText += $(this).text().trim() + '\n';
-                    if ($(this).hasClass('mb-3') || $(this).hasClass('mb-4')) {
+                    if ($(this).hasClass('flight-end')) {
                         reportText += '\n';
                     }
                 });
