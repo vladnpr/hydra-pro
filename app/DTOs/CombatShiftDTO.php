@@ -104,7 +104,7 @@ class CombatShiftDTO
                 'ammunition' => $f->ammunition->map(fn($a) => ['name' => $a->name, 'quantity' => $a->pivot->quantity])->toArray(),
                 'mission_type' => $f->mission_type,
                 'mission_type_label' => $f->mission_type === 'combat' ? 'бойова (мінування, бімба)' : ($f->mission_type === 'logistics' ? 'логістика' : $f->mission_type),
-                'coordinates' => $f->flightPlan?->coordinates ?? '-',
+                'coordinates' => $f->coordinates ?: ($f->flightPlan?->coordinates ?? '-'),
                 'position_name' => $f->flightPlan?->position_name ?? '-',
                 'start_time' => $f->start_time->format('Y-m-d H:i:s'),
                 'end_time' => $f->end_time?->format('Y-m-d H:i:s'),

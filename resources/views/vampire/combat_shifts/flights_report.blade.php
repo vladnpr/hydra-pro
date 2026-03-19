@@ -49,51 +49,84 @@
 
     <div class="row">
         <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-body p-5" id="report-content">
-                    @php
-                        $dronesOnShift = collect($shift->vampire_flights)->flatten(1)->groupBy('drone_id');
-                    @endphp
+            <div class="card card-primary card-outline card-tabs">
+                <div class="card-header p-0 pt-1 border-bottom-0 no-print">
+                    <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="standard-report-tab" data-toggle="pill" href="#standard-report" role="tab" aria-controls="standard-report" aria-selected="true">Звіт</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="list-report-tab" data-toggle="pill" href="#list-report" role="tab" aria-controls="list-report" aria-selected="false">Список</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="reportTabsContent">
+                        <div class="tab-pane fade show active p-4" id="standard-report" role="tabpanel" aria-labelledby="standard-report-tab">
+                            <div id="report-content-standard">
+                                @php
+                                    $dronesOnShift = collect($shift->vampire_flights)->flatten(1)->groupBy('drone_id');
+                                @endphp
 
-                    @foreach($dronesOnShift as $droneId => $droneFlights)
-                        @php $firstFlight = $droneFlights->first(); @endphp
-                        <p class="m-0">{{ $firstFlight['drone_name'] }}</p>
-                        <p class="m-0">Бopт {{ $firstFlight['drone_serial'] ?? 'N/A' }}</p>
-                        <p class="mb-3">Позиція {{ $shift->position_name }}</p>
-                    @endforeach
+                                @foreach($dronesOnShift as $droneId => $droneFlights)
+                                    @php $firstFlight = $droneFlights->first(); @endphp
+                                    <p class="m-0">{{ $firstFlight['drone_name'] }}</p>
+                                    <p class="m-0">Бopт {{ $firstFlight['drone_serial'] ?? 'N/A' }}</p>
+                                    <p class="mb-3">Позиція {{ $shift->position_name }}</p>
+                                @endforeach
 
-                    <p class="mb-4">
-                        @if($shift->status === 'closed')
-                            Відпрацювали заплановані цілі.
-                        @else
-                            В процесі роботи.
-                        @endif
-                    </p>
+                                <p class="mb-4">
+                                    @if($shift->status === 'closed')
+                                        Відпрацювали заплановані цілі.
+                                    @else
+                                        В процесі роботи.
+                                    @endif
+                                </p>
 
-                    <p class="font-weight-bold">Відпрацювали:</p>
-                    @php $i = 1; @endphp
-                    @foreach($workedFlights as $flight)
-                        <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
-                        <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
-                        <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
-                        <p class="m-0">{{ $flight['coordinates'] }}</p>
-                        <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
-                    @endforeach
+                                <p class="font-weight-bold">Відпрацювали:</p>
+                                @php $i = 1; @endphp
+                                @foreach($workedFlights as $flight)
+                                    <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
+                                    <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
+                                    <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
+                                    @if($flight['coordinates'] && $flight['coordinates'] !== '-')
+                                        <p class="m-0">{{ $flight['coordinates'] }}</p>
+                                    @endif
+                                    <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
+                                @endforeach
 
-                    <p class="font-weight-bold mt-4">Не відпрацювали:</p>
-                    @php $j = 1; @endphp
-                    @foreach($notWorkedFlights as $flight)
-                        <p class="m-0">{{ $j++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
-                        <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
-                        <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
-                        <p class="m-0">{{ $flight['coordinates'] }}</p>
-                        <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
-                    @endforeach
+                                <p class="font-weight-bold mt-4">Не відпрацювали:</p>
+                                @php $j = 1; @endphp
+                                @foreach($notWorkedFlights as $flight)
+                                    <p class="m-0">{{ $j++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
+                                    <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
+                                    <p class="m-0">Стрім: {{ $flight['stream_status'] ? 'Так' : 'Ні' }}</p>
+                                    @if($flight['coordinates'] && $flight['coordinates'] !== '-')
+                                        <p class="m-0">{{ $flight['coordinates'] }}</p>
+                                    @endif
+                                    <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
+                                @endforeach
 
-                    <p class="font-weight-bold mt-4">Екіпаж:</p>
-                    @foreach($shift->crew as $member)
-                        <p class="m-0">{{ $member['callsign'] }}</p>
-                    @endforeach
+                                <p class="font-weight-bold mt-4">Екіпаж:</p>
+                                @foreach($shift->crew as $member)
+                                    <p class="m-0">{{ $member['callsign'] }}</p>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="tab-pane fade p-4" id="list-report" role="tabpanel" aria-labelledby="list-report-tab">
+                            <div id="report-content-list">
+                                @foreach(array_merge($workedFlights, $notWorkedFlights) as $flight)
+                                    <p class="m-0">{{ $flight['coordinates'] && $flight['coordinates'] !== '-' ? $flight['coordinates'] : '---' }}</p>
+                                    <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
+                                    <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
+                                    <p class="m-0">Дрон: {{ $flight['drone_name'] }} - {{ $flight['drone_serial'] ?? 'N/A' }}</p>
+                                    <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
+                                    <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
+                                    <p class="mb-3">Коментар: {{ $flight['comment'] ?: '-' }}</p>
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -124,9 +157,11 @@
 
             $('#copy-report').click(function() {
                 let reportText = '';
+                let activeTab = $('.nav-tabs .nav-link.active').attr('href');
+                let contentId = activeTab === '#standard-report' ? '#report-content-standard' : '#report-content-list';
 
-                // Збираємо текст з report-content
-                $('#report-content p').each(function() {
+                // Збираємо текст з активного контейнера
+                $(contentId + ' p').each(function() {
                     reportText += $(this).text().trim() + '\n';
                     if ($(this).hasClass('mb-3') || $(this).hasClass('mb-4')) {
                         reportText += '\n';
@@ -158,7 +193,7 @@
 
 @section('css')
 <style>
-    #report-content {
+    #report-content-standard, #report-content-list {
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;
         line-height: 1.2;
