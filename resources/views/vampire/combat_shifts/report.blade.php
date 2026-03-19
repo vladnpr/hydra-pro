@@ -20,27 +20,6 @@
 @endsection
 
 @section('content')
-    <div class="row mb-3 no-print">
-        <div class="col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('vampire.combat_shifts.report', $shift->id) }}" method="GET" class="form-inline">
-                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
-                            <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-sun"></i> Денна
-                            </label>
-                            <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-moon"></i> Нічна
-                            </label>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="card shadow-sm">
@@ -51,45 +30,42 @@
                         @php
                             $now = \Carbon\Carbon::now();
                             $startedAt = \Carbon\Carbon::parse($shift->started_at);
-                            $dayOfShift = (int) $startedAt->diffInDays($now) + 1;;
-
-                            $shiftLabel = $activeShiftType === 'day' ? 'День' : 'Ніч';
+                            $dayOfShift = (int) $startedAt->diffInDays($now) + 1;
 
                             $dayCrew = array_filter($shift->crew, fn($member) => $member['shift_type'] === 'day');
                             $nightCrew = array_filter($shift->crew, fn($member) => $member['shift_type'] === 'night');
                         @endphp
 
-                        <p class="mb-1"><strong>{{ $shiftLabel }} ({{ $dayOfShift }})</strong></p>
-                        @if($activeShiftType === 'day')
-                            @forelse($dayCrew as $member)
+                        @if(count($dayCrew) > 0)
+                            <p class="mb-1"><strong>День ({{ $dayOfShift }})</strong></p>
+                            @foreach($dayCrew as $member)
                                 <p class="mb-0">{{ $member['callsign'] }}</p>
-                            @empty
-                                <p class="mb-0">Екіпаж не вказано</p>
-                            @endforelse
-                        @else
-                            @forelse($nightCrew as $member)
+                            @endforeach
+                        @endif
+
+                        @if(count($nightCrew) > 0)
+                            <p class="mt-3 mb-1"><strong>Ніч ({{ $dayOfShift }})</strong></p>
+                            @foreach($nightCrew as $member)
                                 <p class="mb-0">{{ $member['callsign'] }}</p>
-                            @empty
-                                <p class="mb-0">Екіпаж не вказано</p>
-                            @endforelse
+                            @endforeach
                         @endif
 
                         @php
                             $bgDrones = array_filter($shift->vampire_drones, fn($d) => $d['status'] === 'active');
-                            $nonBgDrones = array_filter($shift->vampire_drones, fn($d) => $d['status'] !== 'active' && $d['status'] !== 'lost');
-
-                            if ($activeShiftType === 'day') {
-                                $bgDrones = array_filter($bgDrones, fn($d) => $d['shift_type'] === 'day');
-                                $nonBgDrones = array_filter($nonBgDrones, fn($d) => $d['shift_type'] === 'day');
-                            } else {
-                                $bgDrones = array_filter($bgDrones, fn($d) => $d['shift_type'] === 'night');
-                                $nonBgDrones = array_filter($nonBgDrones, fn($d) => $d['shift_type'] === 'night');
-                            }
+                            $repairDrones = array_filter($shift->vampire_drones, fn($d) => $d['status'] === 'repair');
+                            $nonBgDrones = array_filter($shift->vampire_drones, fn($d) => $d['status'] === 'non_operational');
                         @endphp
 
                         @if(count($bgDrones) > 0)
                             <h5 class="mt-4"><strong>БГ Борти:</strong></h5>
                             @foreach($bgDrones as $drone)
+                                <p class="mb-0">{{ $drone['name'] }} {{ $drone['serial_number'] }}</p>
+                            @endforeach
+                        @endif
+
+                        @if(count($repairDrones) > 0)
+                            <h5 class="mt-4"><strong>В ремонті:</strong></h5>
+                            @foreach($repairDrones as $drone)
                                 <p class="mb-0">{{ $drone['name'] }} {{ $drone['serial_number'] }}</p>
                             @endforeach
                         @endif
