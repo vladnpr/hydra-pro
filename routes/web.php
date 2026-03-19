@@ -45,6 +45,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
 
     Route::group(['prefix' => 'vampire', 'as' => 'vampire.'], function () {
         Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'flightsReport'])->name('combat_shifts.flights_report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}/spending-report', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'spendingReport'])->name('combat_shifts.spending_report')->where('id', '[0-9]+');
         Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'report'])->name('combat_shifts.report')->where('id', '[0-9]+');
         Route::get('combat_shifts/{id}', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
         Route::get('active-shift/flights-report', [\App\Http\Controllers\Vampire\VampireCombatShiftController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');

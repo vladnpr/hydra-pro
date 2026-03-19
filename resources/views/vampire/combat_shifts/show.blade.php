@@ -12,6 +12,9 @@
             <a href="{{ route('vampire.combat_shifts.report', $shift->id) }}" class="btn btn-primary ml-2">
                 <i class="fas fa-file-alt"></i> Звіт по залишку
             </a>
+            <a href="{{ route('vampire.combat_shifts.spending_report', $shift->id) }}" class="btn btn-info ml-2">
+                <i class="fas fa-chart-line"></i> Звіт по витратах
+            </a>
             <a href="{{ route('vampire.combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary ml-2">
                 <i class="fas fa-paper-plane"></i> Звіт по польотам
             </a>

@@ -151,6 +151,7 @@ class VampireFlightController extends Controller
                     if ($drone) {
                         $drone->update([
                             'status' => 'lost',
+                            'lost_at' => now(),
                         ]);
                     }
                 }
@@ -205,6 +206,7 @@ class VampireFlightController extends Controller
                 if ($drone) {
                     $drone->update([
                         'status' => 'active',
+                        'lost_at' => null,
                     ]);
                 }
             }
@@ -302,14 +304,20 @@ class VampireFlightController extends Controller
                     if ($flight->result === 'loss') {
                         $oldDrone = \App\Models\VampireDrone::find($flight->vampire_drone_id);
                         if ($oldDrone) {
-                            $oldDrone->update(['status' => 'active']);
+                            $oldDrone->update([
+                                'status' => 'active',
+                                'lost_at' => null,
+                            ]);
                         }
                     }
                     // Списуємо новий дрон, якщо новий результат - втрата
                     if ($request->result === 'loss') {
                         $newDrone = \App\Models\VampireDrone::find($request->vampire_drone_id);
                         if ($newDrone) {
-                            $newDrone->update(['status' => 'lost']);
+                            $newDrone->update([
+                                'status' => 'lost',
+                                'lost_at' => now(),
+                            ]);
                         }
                     }
                 }

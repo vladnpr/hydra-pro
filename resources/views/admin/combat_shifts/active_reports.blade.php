@@ -76,6 +76,10 @@
                                                     <a href="{{ route('combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-primary btn-sm ml-1" title="Звіт по витратам">
                                                         <i class="fas fa-bomb mr-1"></i> Витрати
                                                     </a>
+                                                @elseif($isVampire)
+                                                    <a href="{{ route('vampire.combat_shifts.spending_report', $shift->id) }}" class="btn btn-info btn-sm ml-1" title="Звіт по витратам">
+                                                        <i class="fas fa-chart-line mr-1"></i> Витрати
+                                                    </a>
                                                 @endif
                                                 <a href="{{ route($routePrefix . 'combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary btn-sm ml-1" title="Звіт по польотам">
                                                     <i class="fas fa-paper-plane mr-1"></i> Польоти

@@ -18,10 +18,12 @@ class VampireDrone extends Model
         'status',
         'position_id',
         'shift_type',
+        'lost_at',
     ];
 
     protected $casts = [
         'shift_type' => ShiftTypeEnum::class,
+        'lost_at' => 'datetime',
     ];
 
     public function position(): BelongsTo
