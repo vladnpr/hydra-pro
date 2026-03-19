@@ -74,7 +74,7 @@
                             <p class="font-weight-bold mb-2">Втрачені дрони:</p>
                             <ul class="list-unstyled pl-0">
                                 @forelse($lostDrones as $drone)
-                                    <li class="mb-1">{{ $drone['name'] }} {{ $drone['serial'] ? '(' . $drone['serial'] . ')' : '' }} - {{ $drone['lost_at'] }}</li>
+                                    <li class="mb-1">{{ $drone['name'] }} {{ $drone['serial'] ? '(' . $drone['serial'] . ')' : '' }} - Час: {{ $drone['lost_at'] }}</li>
                                 @empty
                                     <li>Відсутні</li>
                                 @endforelse
@@ -148,27 +148,27 @@
 @endsection
 
 @section('css')
-<style>
-    #report-content {
-        font-family: "Courier New", Courier, monospace;
-        font-size: 1.1rem;
-        line-height: 1.4;
-        color: #000;
-    }
-    .report-header h4, .report-header h5 {
-        font-weight: bold;
-    }
-    @media print {
-        .no-print {
-            display: none !important;
+    <style>
+        #report-content {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            color: #000;
         }
-        .content-wrapper {
-            background: white !important;
+        .report-header h4, .report-header h5 {
+            font-weight: bold;
         }
-        .card {
-            border: none !important;
-            box-shadow: none !important;
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            .content-wrapper {
+                background: white !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
         }
-    }
-</style>
+    </style>
 @endsection

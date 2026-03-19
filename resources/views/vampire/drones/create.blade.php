@@ -69,6 +69,13 @@
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
+                        <div class="form-group" id="lost_at_group" style="display: none;">
+                            <label for="lost_at">Дата та час втрати</label>
+                            <input type="datetime-local" name="lost_at" class="form-control @error('lost_at') is-invalid @enderror" id="lost_at" value="{{ old('lost_at') }}">
+                            @error('lost_at')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">Зберегти</button>
@@ -78,4 +85,25 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function() {
+            function toggleLostAt() {
+                if ($('#status').val() === 'lost') {
+                    $('#lost_at_group').show();
+                } else {
+                    $('#lost_at_group').hide();
+                }
+            }
+
+            $('#status').change(function() {
+                toggleLostAt();
+            });
+
+            // Initial check
+            toggleLostAt();
+        });
+    </script>
 @endsection

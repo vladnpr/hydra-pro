@@ -250,13 +250,16 @@ class VampireCombatShiftController extends Controller
         }
 
         // Збираємо втрати дронів по таблиці vampire_drones
+        // Фільтруємо дрони, які були втрачені саме в цей день (або будь-які втрачені, якщо дата не важлива,
+        // але зазвичай звіт за день має показувати те, що сталося в цей день)
         $lostDrones = \App\Models\VampireDrone::where('position_id', $shift->position_id)
             ->where('status', 'lost')
+            ->whereDate('lost_at', $date)
             ->get()
             ->map(fn($d) => [
                 'name' => $d->name,
                 'serial' => $d->serial_number,
-                'lost_at' => $d->lost_at ? $d->lost_at->format('d.m.Y') : '-'
+                'lost_at' => $d->lost_at ? $d->lost_at->format('H:i') : '-'
             ])->toArray();
 
         return view('vampire.combat_shifts.spending_report', compact('shift', 'date', 'spendingAmmunition', 'lostDrones'));

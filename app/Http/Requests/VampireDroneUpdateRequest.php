@@ -27,6 +27,7 @@ class VampireDroneUpdateRequest extends FormRequest
             'status' => 'required|in:active,lost,repair,non_operational',
             'position_id' => 'required|exists:positions,id',
             'shift_type' => 'required|in:day,night,both',
+            'lost_at' => 'nullable|date',
         ];
     }
 }
