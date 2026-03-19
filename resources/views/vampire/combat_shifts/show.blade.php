@@ -209,7 +209,7 @@
                                         <tbody>
                                             @foreach($dayFlights as $flight)
                                                 <tr>
-                                                    <td>{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td>{{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }}</td>
                                                     <td>{{ $flight['drone_name'] }} ({{ $flight['drone_serial'] ?? '-' }})</td>
                                                     <td>
                                                         <strong>{{ $flight['position_name'] }}</strong><br>
