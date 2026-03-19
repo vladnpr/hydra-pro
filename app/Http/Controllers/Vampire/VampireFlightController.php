@@ -83,6 +83,15 @@ class VampireFlightController extends Controller
 
         $flight = VampireFlight::create($request->all());
 
+        if ($request->result === 'loss') {
+            $drone = \App\Models\VampireDrone::find($request->vampire_drone_id);
+            if ($drone) {
+                $drone->update([
+                    'status' => 'lost',
+                ]);
+            }
+        }
+
         if ($request->vampire_flight_plan_id) {
             $plan = VampireFlightPlan::find($request->vampire_flight_plan_id);
             if ($plan) {
@@ -97,6 +106,15 @@ class VampireFlightController extends Controller
     public function destroy(int $id)
     {
         $flight = VampireFlight::findOrFail($id);
+
+        if ($flight->result === 'loss') {
+            $drone = \App\Models\VampireDrone::find($flight->vampire_drone_id);
+            if ($drone) {
+                $drone->update([
+                    'status' => 'active',
+                ]);
+            }
+        }
 
         // Якщо виліт був прив'язаний до плану, повертаємо плану статус 'planned'
         if ($flight->vampire_flight_plan_id) {
