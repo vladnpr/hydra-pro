@@ -236,19 +236,23 @@ readonly class CombatShiftsAdminService
     {
         $fpvAllFlights = \App\Models\CombatShiftFlight::all();
         $reconAllFlights = \App\Models\ReconFlight::all();
+        $vampireAllFlights = \App\Models\VampireFlight::all();
 
         $activeShiftIds = \App\Models\CombatShift::where('status', 'opened')->pluck('id');
         $fpvActiveFlights = \App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
         $reconActiveFlights = \App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
+        $vampireActiveFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
 
         return [
             'total' => [
                 'fpv' => $this->calculateFpvStats($fpvAllFlights),
                 'recon' => $this->calculateReconStats($reconAllFlights),
+                'vampire' => $this->calculateVampireStats($vampireAllFlights),
             ],
             'active' => [
                 'fpv' => $this->calculateFpvStats($fpvActiveFlights),
                 'recon' => $this->calculateReconStats($reconActiveFlights),
+                'vampire' => $this->calculateVampireStats($vampireActiveFlights),
             ],
             'positions' => $this->getStatsByPositions(),
             'active_shifts' => $this->getStatsByActiveShifts(),
@@ -263,6 +267,7 @@ readonly class CombatShiftsAdminService
         foreach ($activeShifts as $shift) {
             $fpvFlights = $shift->flights;
             $reconFlights = $shift->reconFlights;
+            $vampireFlights = \App\Models\VampireFlight::where('combat_shift_id', $shift->id)->get();
 
             $stats[] = [
                 'id' => $shift->id,
@@ -271,6 +276,7 @@ readonly class CombatShiftsAdminService
                 'type' => $shift->type?->value,
                 'fpv' => $this->calculateFpvStats($fpvFlights),
                 'recon' => $this->calculateReconStats($reconFlights),
+                'vampire' => $this->calculateVampireStats($vampireFlights),
             ];
         }
 
@@ -336,6 +342,28 @@ readonly class CombatShiftsAdminService
             'total_other' => $other,
             'success_rate' => $successRate,
             'combat_flights_for_success' => $divisorRecon,
+        ];
+    }
+
+    private function calculateVampireStats(\Illuminate\Support\Collection $flights): array
+    {
+        $totalFlights = $flights->count();
+        $success = $flights->where('result', 'успішно')->count();
+        $failed = $flights->where('result', 'не успішно')->count();
+        $loosed = $flights->where('result', 'втрата борту')->count();
+
+        // Ефективність Вампіра: (Успішні) / (Успішні + Не успішні + Втрати)
+        $divisorVampire = $success + $failed + $loosed;
+        $successRate = $divisorVampire > 0 ? round(($success / $divisorVampire) * 100, 1) : 0;
+        $successRate = min(100, max(0, $successRate));
+
+        return [
+            'total_flights' => $totalFlights,
+            'total_success' => $success,
+            'total_failed' => $failed,
+            'total_loosed' => $loosed,
+            'success_rate' => $successRate,
+            'combat_flights_for_success' => $divisorVampire,
         ];
     }
 
