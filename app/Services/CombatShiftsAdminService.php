@@ -112,6 +112,7 @@ readonly class CombatShiftsAdminService
                     foreach ($dto->existing_drones as $droneData) {
                         $droneService->updateDrone((int)$droneData['id'], [
                             'status' => $droneData['status'],
+                            'lost_at' => $droneData['lost_at'] ?? null,
                             'shift_type' => $droneData['shift_type']
                         ]);
                     }
@@ -168,6 +169,7 @@ readonly class CombatShiftsAdminService
                     foreach ($dto->existing_drones as $droneData) {
                         $droneService->updateDrone((int)$droneData['id'], [
                             'status' => $droneData['status'],
+                            'lost_at' => $droneData['lost_at'] ?? null,
                             'shift_type' => $droneData['shift_type']
                         ]);
                     }

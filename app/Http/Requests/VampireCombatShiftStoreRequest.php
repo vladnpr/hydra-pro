@@ -58,10 +58,12 @@ class VampireCombatShiftStoreRequest extends FormRequest
                 }
             ],
             'new_drones.*.status' => 'required_with:new_drones|in:active,lost,repair,non_operational',
+            'new_drones.*.lost_at' => 'nullable|required_if:new_drones.*.status,lost|date',
             'new_drones.*.shift_type' => 'required_with:new_drones|in:day,night,both',
             'existing_drones' => 'nullable|array',
             'existing_drones.*.id' => 'required_with:existing_drones|exists:vampire_drones,id',
             'existing_drones.*.status' => 'required_with:existing_drones|in:active,lost,repair,non_operational',
+            'existing_drones.*.lost_at' => 'nullable|required_if:existing_drones.*.status,lost|date',
             'existing_drones.*.shift_type' => 'required_with:existing_drones|in:day,night,both',
         ];
     }

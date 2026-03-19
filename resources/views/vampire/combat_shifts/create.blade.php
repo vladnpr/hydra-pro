@@ -232,12 +232,16 @@
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Статус</label>
-                            <select name="new_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
+                            <select name="new_drones[${droneIndex}][status]" class="form-control form-control-sm drone-status-select" required>
                                 <option value="active">Активний</option>
                                 <option value="repair">В ремонті</option>
                                 <option value="non_operational">Не боєготовий</option>
                                 <option value="lost">Втрачений</option>
                             </select>
+                        </div>
+                        <div class="form-group mb-1 lost-at-container" style="display: none;">
+                            <label class="small">Час втрати</label>
+                            <input type="datetime-local" name="new_drones[${droneIndex}][lost_at]" class="form-control form-control-sm">
                         </div>
                         <div class="form-group mb-2">
                             <label class="small">Тип зміни</label>
@@ -256,6 +260,21 @@
 
             $(document).on('click', '.remove-new-drone', function() {
                 $(this).closest('.new-drone-item').remove();
+            });
+
+            $(document).on('change', '.drone-status-select', function() {
+                let status = $(this).val();
+                let container = $(this).closest('.form-group').next('.lost-at-container');
+                if (status === 'lost') {
+                    container.show();
+                    if (!container.find('input').val()) {
+                        let now = new Date();
+                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                        container.find('input').val(now.toISOString().slice(0, 16));
+                    }
+                } else {
+                    container.hide();
+                }
             });
 
             $('#position_id').change(function() {
@@ -285,12 +304,15 @@
                                     <div class="col-md-5">
                                         <input type="hidden" name="existing_drones[${drone.id}][id]" value="${drone.id}">
                                         <div class="form-group mb-1">
-                                            <select name="existing_drones[${drone.id}][status]" class="form-control form-control-sm">
+                                            <select name="existing_drones[${drone.id}][status]" class="form-control form-control-sm drone-status-select">
                                                 <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
                                                 <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
                                                 <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
                                                 <option value="lost" ${drone.status === 'lost' ? 'selected' : ''}>Втрачений</option>
                                             </select>
+                                        </div>
+                                        <div class="form-group mb-1 lost-at-container" style="${drone.status === 'lost' ? '' : 'display: none;'}">
+                                            <input type="datetime-local" name="existing_drones[${drone.id}][lost_at]" class="form-control form-control-sm" value="${drone.lost_at ? drone.lost_at.substring(0, 16) : ''}">
                                         </div>
                                         <div class="form-group mb-0">
                                             <select name="existing_drones[${drone.id}][shift_type]" class="form-control form-control-sm">

@@ -53,7 +53,7 @@
                 <div class="card-body p-5" id="report-content">
                     <div class="report-header mb-4">
                         <h4 class="mb-3">Позиція "{{ $shift->position_name }}"</h4>
-                        <p class="m-0">Дата: {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}</p>
+                        <p class="m-0">Дата: {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }} (08:00) - {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m.Y') }} (08:00)</p>
                         <br/>
                         <h5>Витрати</h5>
                     </div>
