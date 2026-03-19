@@ -88,7 +88,14 @@ class CombatShiftDTO
             ->with(['drone', 'flightPlan', 'ammunition'])
             ->orderByDesc('start_time')
             ->get()
-            ->groupBy(fn($f) => $f->start_time->format('Y-m-d'))
+            ->groupBy(function($f) {
+                $time = $f->start_time;
+                // Якщо час між 00:00 та 08:00, відносимо до попереднього дня
+                if ($time->hour < 8) {
+                    return $time->copy()->subDay()->format('Y-m-d');
+                }
+                return $time->format('Y-m-d');
+            })
             ->map(fn($dayFlights) => $dayFlights->map(fn($f) => [
                 'id' => $f->id,
                 'drone_id' => $f->vampire_drone_id,

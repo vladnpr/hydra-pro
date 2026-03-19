@@ -29,10 +29,10 @@
                         <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
                             @php
                                 $dates = array_keys($shift->vampire_flights);
-                                if (!in_array($date, $dates)) {
+                                if ($date && !in_array($date, $dates)) {
                                     $dates[] = $date;
                                 }
-                                sort($dates);
+                                rsort($dates);
                             @endphp
                             @foreach($dates as $flightDate)
                                 <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
@@ -57,12 +57,11 @@
 
                     @foreach($dronesOnShift as $droneId => $droneFlights)
                         @php $firstFlight = $droneFlights->first(); @endphp
-                        <p class="m-0">{{ $firstFlight['drone_name'] }} (модель дрону)</p>
-                        <p class="m-0">Бopт {{ $firstFlight['drone_serial'] ?? 'N/A' }} - серійний номер</p>
-                        <p class="mb-3">Позиція {{ $shift->position_name }} - назва позиції</p>
+                        <p class="m-0">{{ $firstFlight['drone_name'] }}</p>
+                        <p class="m-0">Бopт {{ $firstFlight['drone_serial'] ?? 'N/A' }}</p>
+                        <p class="mb-3">Позиція {{ $shift->position_name }}</p>
                     @endforeach
 
-                    <p class="mt-4">Роботу завершили:</p>
                     <p class="mb-4">
                         @if($shift->status === 'closed')
                             Відпрацювали заплановані цілі.
@@ -74,26 +73,17 @@
                     <p class="font-weight-bold">Відпрацювали:</p>
                     @php $i = 1; @endphp
                     @foreach($workedFlights as $flight)
-                        <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }}</p>
+                        <p class="m-0">{{ $i++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
                         <p class="m-0">{{ $flight['coordinates'] }}</p>
                         <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
                     @endforeach
 
                     <p class="font-weight-bold mt-4">Не відпрацювали:</p>
                     @php $j = 1; @endphp
-                    @foreach($notWorkedPlans as $plan)
-                        <p class="m-0">{{ $j++ }}) {{ $plan['position_name'] }}</p>
-                        <p class="m-0">{{ $plan['coordinates'] }}</p>
-                        @php
-                            $planFlights = collect($shift->vampire_flights)->flatten(1)->where('vampire_flight_plan_id', $plan['id'])->where('result', '!=', 'worked');
-                        @endphp
-                        @if($planFlights->count() > 0)
-                            <p class="m-0 text-muted small">({{ $planFlights->count() }} вильоти)</p>
-                            @foreach($planFlights as $pf)
-                                <p class="m-0 small">- {{ $pf['comment'] }}</p>
-                            @endforeach
-                        @endif
-                        <p class="mb-3"></p>
+                    @foreach($notWorkedFlights as $flight)
+                        <p class="m-0">{{ $j++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
+                        <p class="m-0">{{ $flight['coordinates'] }}</p>
+                        <p class="mb-3">{{ $flight['comment'] ?: '-' }}</p>
                     @endforeach
 
                     <p class="font-weight-bold mt-4">Екіпаж:</p>

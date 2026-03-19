@@ -180,21 +180,25 @@ class VampireCombatShiftController extends Controller
         if ($shift->type !== PositionTypesEnum::VAMPIRE->value) {
             abort(404);
         }
-        $date = $request->query('date', now()->format('Y-m-d'));
+        $date = $request->query('date');
+
+        if (!$date) {
+            $now = now();
+            if ($now->hour < 8) {
+                $date = $now->copy()->subDay()->format('Y-m-d');
+            } else {
+                $date = $now->format('Y-m-d');
+            }
+        }
 
         // Отримуємо польоти за обрану дату
         $allFlights = $shift->vampire_flights[$date] ?? [];
 
         // Групуємо для звіту
         $workedFlights = array_filter($allFlights, fn($f) => $f['result'] === 'worked');
+        $notWorkedFlights = array_filter($allFlights, fn($f) => $f['result'] !== 'worked');
 
-        // Знаходимо не відпрацьовані цілі з плану
-        $workedPlanIds = collect($workedFlights)->pluck('vampire_flight_plan_id')->filter()->toArray();
-        $notWorkedPlans = array_filter($shift->vampire_flight_plans, function($p) use ($workedPlanIds) {
-            return !in_array($p['id'], $workedPlanIds);
-        });
-
-        return view('vampire.combat_shifts.flights_report', compact('shift', 'date', 'workedFlights', 'notWorkedPlans'));
+        return view('vampire.combat_shifts.flights_report', compact('shift', 'date', 'workedFlights', 'notWorkedFlights'));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)
