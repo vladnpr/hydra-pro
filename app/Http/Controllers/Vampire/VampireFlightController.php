@@ -79,25 +79,66 @@ class VampireFlightController extends Controller
             'mission_type' => 'required|string',
             'result' => 'required|string',
             'comment' => 'nullable|string',
+            'ammunition' => 'nullable|array',
+            'ammunition.*.id' => 'nullable|exists:ammunition,id',
+            'ammunition.*.quantity' => 'nullable|integer|min:1',
         ]);
 
-        $flight = VampireFlight::create($request->all());
+        $data = $request->all();
 
-        if ($request->result === 'loss') {
-            $drone = \App\Models\VampireDrone::find($request->vampire_drone_id);
-            if ($drone) {
-                $drone->update([
-                    'status' => 'lost',
-                ]);
-            }
+        // Не зберігаємо БК, якщо тип місії не 'combat'
+        if ($request->mission_type !== 'combat') {
+            unset($data['ammunition']);
         }
 
-        if ($request->vampire_flight_plan_id) {
-            $plan = VampireFlightPlan::find($request->vampire_flight_plan_id);
-            if ($plan) {
-                // План вважається виконаним, якщо виліт був успішним (worked)
-                $plan->update(['status' => $request->result === 'worked' ? 'completed' : 'planned']);
-            }
+        try {
+            $flight = \Illuminate\Support\Facades\DB::transaction(function () use ($data, $request) {
+                $flight = VampireFlight::create($data);
+
+                if ($request->result === 'loss') {
+                    $drone = \App\Models\VampireDrone::find($request->vampire_drone_id);
+                    if ($drone) {
+                        $drone->update([
+                            'status' => 'lost',
+                        ]);
+                    }
+                }
+
+                if ($request->vampire_flight_plan_id) {
+                    $plan = \App\Models\VampireFlightPlan::find($request->vampire_flight_plan_id);
+                    if ($plan) {
+                        // План вважається виконаним, якщо виліт був успішним (worked)
+                        $plan->update(['status' => $request->result === 'worked' ? 'completed' : 'planned']);
+                    }
+                }
+
+                // Списання БК
+                if (!empty($data['ammunition'])) {
+                    foreach ($data['ammunition'] as $ammunitionItem) {
+                        if (empty($ammunitionItem['id'])) continue;
+
+                        $flight->ammunition()->attach($ammunitionItem['id'], [
+                            'quantity' => $ammunitionItem['quantity'] ?? 1
+                        ]);
+
+                        $ammunitionPivot = \Illuminate\Support\Facades\DB::table('combat_shift_ammunition')
+                            ->where('combat_shift_id', $request->combat_shift_id)
+                            ->where('ammunition_id', $ammunitionItem['id'])
+                            ->where('quantity', '>', 0)
+                            ->first();
+
+                        if ($ammunitionPivot) {
+                            \Illuminate\Support\Facades\DB::table('combat_shift_ammunition')
+                                ->where('id', $ammunitionPivot->id)
+                                ->decrement('quantity', $ammunitionItem['quantity'] ?? 1);
+                        }
+                    }
+                }
+
+                return $flight;
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Помилка при збереженні вильоту: ' . $e->getMessage())->withInput();
         }
 
         return redirect()->back()->with('success', 'Виліт зафіксовано');
@@ -105,26 +146,37 @@ class VampireFlightController extends Controller
 
     public function destroy(int $id)
     {
-        $flight = VampireFlight::findOrFail($id);
+        $flight = VampireFlight::with('ammunition')->findOrFail($id);
 
-        if ($flight->result === 'loss') {
-            $drone = \App\Models\VampireDrone::find($flight->vampire_drone_id);
-            if ($drone) {
-                $drone->update([
-                    'status' => 'active',
-                ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($flight) {
+            if ($flight->result === 'loss') {
+                $drone = \App\Models\VampireDrone::find($flight->vampire_drone_id);
+                if ($drone) {
+                    $drone->update([
+                        'status' => 'active',
+                    ]);
+                }
             }
-        }
 
-        // Якщо виліт був прив'язаний до плану, повертаємо плану статус 'planned'
-        if ($flight->vampire_flight_plan_id) {
-            $plan = VampireFlightPlan::find($flight->vampire_flight_plan_id);
-            if ($plan) {
-                $plan->update(['status' => 'planned']);
+            // Повернення БК до бойової зміни
+            foreach ($flight->ammunition as $ammo) {
+                \Illuminate\Support\Facades\DB::table('combat_shift_ammunition')
+                    ->where('combat_shift_id', $flight->combat_shift_id)
+                    ->where('ammunition_id', $ammo->id)
+                    ->increment('quantity', $ammo->pivot->quantity);
             }
-        }
 
-        $flight->delete();
+            // Якщо виліт був прив'язаний до плану, повертаємо плану статус 'planned'
+            if ($flight->vampire_flight_plan_id) {
+                $plan = \App\Models\VampireFlightPlan::find($flight->vampire_flight_plan_id);
+                if ($plan) {
+                    $plan->update(['status' => 'planned']);
+                }
+            }
+
+            $flight->delete();
+        });
+
         return redirect()->back()->with('success', 'Виліт видалено');
     }
 }

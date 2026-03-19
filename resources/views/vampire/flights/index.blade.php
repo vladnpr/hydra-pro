@@ -73,6 +73,29 @@
                                 <option value="logistics">логістика</option>
                             </select>
                         </div>
+                        <div id="ammunition-section" style="display: none;">
+                            <div id="ammunition-container">
+                                <div class="form-group ammunition-row">
+                                    <label>Боєприпаси</label>
+                                    <div class="row mb-2">
+                                        <div class="col-8">
+                                            <select name="ammunition[0][id]" class="form-control select2">
+                                                <option value="">-- Оберіть БК --</option>
+                                                @foreach($userActiveShift->ammunition as $ammo)
+                                                    <option value="{{ $ammo['id'] }}">{{ $ammo['name'] }} (Залишок: {{ $ammo['quantity'] }})</option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                        <div class="col-4">
+                                            <input type="number" name="ammunition[0][quantity]" class="form-control" value="1" min="1" placeholder="К-ть">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="btn btn-xs btn-outline-info mb-3" id="add-ammunition">
+                                <i class="fas fa-plus"></i> Додати боєприпас
+                            </button>
+                        </div>
                         <div class="form-group">
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control" required>
@@ -152,6 +175,7 @@
                                     <th>Дрон</th>
                                     <th>Ціль</th>
                                     <th>Місія</th>
+                                    <th>БК</th>
                                     <th>Результат</th>
                                     <th>Коментар</th>
                                     <th>Дії</th>
@@ -169,6 +193,12 @@
                                             @else
                                                 <span class="badge badge-info">логістика</span>
                                             @endif
+                                        </td>
+                                        <td>
+                                            @foreach($flight->ammunition as $ammo)
+                                                <div>{{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
+                                            @endforeach
+                                            @if($flight->ammunition->isEmpty()) - @endif
                                         </td>
                                         <td>
                                             @if($flight->result === 'worked')
@@ -200,4 +230,51 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+    <script>
+        $(document).ready(function() {
+            function toggleAmmunition() {
+                if ($('#mission_type').val() === 'combat') {
+                    $('#ammunition-section').show();
+                } else {
+                    $('#ammunition-section').hide();
+                }
+            }
+
+            $('#mission_type').on('change', toggleAmmunition);
+            toggleAmmunition();
+
+            let ammoCount = 1;
+            $('#add-ammunition').on('click', function() {
+                let newRow = `
+                    <div class="row mb-2">
+                        <div class="col-8">
+                            <select name="ammunition[${ammoCount}][id]" class="form-control">
+                                <option value="">-- Оберіть БК --</option>
+                                @foreach($userActiveShift->ammunition as $ammo)
+                                    <option value="{{ $ammo['id'] }}">{{ $ammo['name'] }} (Залишок: {{ $ammo['quantity'] }})</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <div class="input-group">
+                                <input type="number" name="ammunition[${ammoCount}][quantity]" class="form-control" value="1" min="1" placeholder="К-ть">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-danger remove-ammo"><i class="fas fa-times"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                $('#ammunition-container').append(newRow);
+                ammoCount++;
+            });
+
+            $(document).on('click', '.remove-ammo', function() {
+                $(this).closest('.row').remove();
+            });
+        });
+    </script>
 @endsection

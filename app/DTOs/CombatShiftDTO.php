@@ -85,7 +85,7 @@ class CombatShiftDTO
         ]))->toArray();
 
         $vampireFlights = \App\Models\VampireFlight::where('combat_shift_id', $shift->id)
-            ->with(['drone', 'flightPlan'])
+            ->with(['drone', 'flightPlan', 'ammunition'])
             ->orderByDesc('flight_time')
             ->get()
             ->groupBy(fn($f) => $f->flight_time->format('Y-m-d'))
@@ -94,6 +94,7 @@ class CombatShiftDTO
                 'drone_id' => $f->vampire_drone_id,
                 'drone_name' => $f->drone?->name,
                 'drone_serial' => $f->drone?->serial_number,
+                'ammunition' => $f->ammunition->map(fn($a) => ['name' => $a->name, 'quantity' => $a->pivot->quantity])->toArray(),
                 'mission_type' => $f->mission_type,
                 'mission_type_label' => $f->mission_type === 'combat' ? 'бойова (мінування, бімба)' : ($f->mission_type === 'logistics' ? 'логістика' : $f->mission_type),
                 'coordinates' => $f->flightPlan?->coordinates ?? '-',

@@ -40,4 +40,20 @@ class VampireFlight extends Model
     {
         return $this->belongsTo(VampireDrone::class, 'vampire_drone_id')->withTrashed();
     }
+
+    public function ammunition(): \Illuminate\Database\Eloquent\Relations\BelongsToMany
+    {
+        return $this->belongsToMany(Ammunition::class, 'vampire_flight_ammunition', 'vampire_flight_id', 'ammunition_id')
+            ->withTrashed()
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the total quantity of ammunition for this flight.
+     */
+    public function getTotalAmmunitionQuantityAttribute(): int
+    {
+        return $this->ammunition->sum('pivot.quantity');
+    }
 }
