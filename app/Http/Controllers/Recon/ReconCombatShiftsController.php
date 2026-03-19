@@ -78,7 +78,7 @@ class ReconCombatShiftsController extends Controller
             $this->combatShiftsAdminService->createShift($dto);
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
              return redirect()->back()
-                ->withErrors(['new_recon_drones' => 'Дрон з таким серійним номером вже існує в базі. Будь ласка, перевірте введені дані.'])
+                ->withErrors(['new_drones' => 'Дрон з таким серійним номером вже існує в базі. Будь ласка, перевірте введені дані.'])
                 ->withInput();
         }
 
@@ -122,7 +122,7 @@ class ReconCombatShiftsController extends Controller
             $this->combatShiftsAdminService->updateShift($id, $dto);
         } catch (\Illuminate\Database\UniqueConstraintViolationException $e) {
              return redirect()->back()
-                ->withErrors(['new_recon_drones' => 'Дрон з таким серійним номером вже існує в базі. Будь ласка, перевірте введені дані.'])
+                ->withErrors(['new_drones' => 'Дрон з таким серійним номером вже існує в базі. Будь ласка, перевірте введені дані.'])
                 ->withInput();
         }
 

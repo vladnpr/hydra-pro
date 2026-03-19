@@ -5,6 +5,7 @@ namespace App\Services;
 use App\DTOs\CombatShiftDTO;
 use App\DTOs\CreateCombatShiftDTO;
 use App\DTOs\UpdateCombatShiftDTO;
+use App\Enums\PositionTypesEnum;
 use App\Repositories\CombatShiftFlightsRepository;
 use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use Illuminate\Support\Collection;
@@ -18,6 +19,7 @@ readonly class CombatShiftsAdminService
         readonly private CombatShiftRepositoryInterface $combatShiftRepository,
         readonly private CombatShiftFlightsRepository   $flightRepository,
         readonly private ReconDroneAdminService         $reconDroneService,
+        readonly private VampireDroneAdminService       $vampireDroneService,
     )
     {
     }
@@ -94,19 +96,26 @@ readonly class CombatShiftsAdminService
                 $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
             }
 
-            if (!empty($dto->new_recon_drones)) {
-                foreach ($dto->new_recon_drones as $droneData) {
-                    $droneData['position_id'] = $dto->position_id;
-                    $this->reconDroneService->createDrone($droneData);
+            if (!empty($dto->new_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->new_drones as $droneData) {
+                        $droneData['position_id'] = $dto->position_id;
+                        $droneService->createDrone($droneData);
+                    }
                 }
             }
 
-            if (!empty($dto->existing_recon_drones)) {
-                foreach ($dto->existing_recon_drones as $droneData) {
-                    $this->reconDroneService->updateDrone((int)$droneData['id'], [
-                        'status' => $droneData['status'],
-                        'shift_type' => $droneData['shift_type']
-                    ]);
+            if (!empty($dto->existing_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->existing_drones as $droneData) {
+                        $droneService->updateDrone((int)$droneData['id'], [
+                            'status' => $droneData['status'],
+                            'lost_at' => $droneData['lost_at'] ?? null,
+                            'shift_type' => $droneData['shift_type']
+                        ]);
+                    }
                 }
             }
 
@@ -144,24 +153,40 @@ readonly class CombatShiftsAdminService
 
             $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
 
-            if (!empty($dto->new_recon_drones)) {
-                foreach ($dto->new_recon_drones as $droneData) {
-                    $droneData['position_id'] = $dto->position_id;
-                    $this->reconDroneService->createDrone($droneData);
+            if (!empty($dto->new_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->new_drones as $droneData) {
+                        $droneData['position_id'] = $dto->position_id;
+                        $droneService->createDrone($droneData);
+                    }
                 }
             }
 
-            if (!empty($dto->existing_recon_drones)) {
-                foreach ($dto->existing_recon_drones as $droneData) {
-                    $this->reconDroneService->updateDrone((int)$droneData['id'], [
-                        'status' => $droneData['status'],
-                        'shift_type' => $droneData['shift_type']
-                    ]);
+            if (!empty($dto->existing_drones)) {
+                $droneService = $this->getDroneService($shiftModel->type?->value);
+                if ($droneService) {
+                    foreach ($dto->existing_drones as $droneData) {
+                        $droneService->updateDrone((int)$droneData['id'], [
+                            'status' => $droneData['status'],
+                            'lost_at' => $droneData['lost_at'] ?? null,
+                            'shift_type' => $droneData['shift_type']
+                        ]);
+                    }
                 }
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
         });
+    }
+
+    private function getDroneService(?string $type)
+    {
+        return match ($type) {
+            PositionTypesEnum::RECON->value => $this->reconDroneService,
+            PositionTypesEnum::VAMPIRE->value => $this->vampireDroneService,
+            default => null,
+        };
     }
 
     public function deleteShift(int $id): bool
@@ -211,19 +236,23 @@ readonly class CombatShiftsAdminService
     {
         $fpvAllFlights = \App\Models\CombatShiftFlight::all();
         $reconAllFlights = \App\Models\ReconFlight::all();
+        $vampireAllFlights = \App\Models\VampireFlight::all();
 
         $activeShiftIds = \App\Models\CombatShift::where('status', 'opened')->pluck('id');
         $fpvActiveFlights = \App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
         $reconActiveFlights = \App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
+        $vampireActiveFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
 
         return [
             'total' => [
                 'fpv' => $this->calculateFpvStats($fpvAllFlights),
                 'recon' => $this->calculateReconStats($reconAllFlights),
+                'vampire' => $this->calculateVampireStats($vampireAllFlights),
             ],
             'active' => [
                 'fpv' => $this->calculateFpvStats($fpvActiveFlights),
                 'recon' => $this->calculateReconStats($reconActiveFlights),
+                'vampire' => $this->calculateVampireStats($vampireActiveFlights),
             ],
             'positions' => $this->getStatsByPositions(),
             'active_shifts' => $this->getStatsByActiveShifts(),
@@ -238,6 +267,7 @@ readonly class CombatShiftsAdminService
         foreach ($activeShifts as $shift) {
             $fpvFlights = $shift->flights;
             $reconFlights = $shift->reconFlights;
+            $vampireFlights = \App\Models\VampireFlight::where('combat_shift_id', $shift->id)->get();
 
             $stats[] = [
                 'id' => $shift->id,
@@ -246,6 +276,7 @@ readonly class CombatShiftsAdminService
                 'type' => $shift->type?->value,
                 'fpv' => $this->calculateFpvStats($fpvFlights),
                 'recon' => $this->calculateReconStats($reconFlights),
+                'vampire' => $this->calculateVampireStats($vampireFlights),
             ];
         }
 
@@ -311,6 +342,28 @@ readonly class CombatShiftsAdminService
             'total_other' => $other,
             'success_rate' => $successRate,
             'combat_flights_for_success' => $divisorRecon,
+        ];
+    }
+
+    private function calculateVampireStats(\Illuminate\Support\Collection $flights): array
+    {
+        $totalFlights = $flights->count();
+        $success = $flights->where('result', 'успішно')->count();
+        $failed = $flights->where('result', 'не успішно')->count();
+        $loosed = $flights->where('result', 'втрата борту')->count();
+
+        // Ефективність Вампіра: (Успішні) / (Успішні + Не успішні + Втрати)
+        $divisorVampire = $success + $failed + $loosed;
+        $successRate = $divisorVampire > 0 ? round(($success / $divisorVampire) * 100, 1) : 0;
+        $successRate = min(100, max(0, $successRate));
+
+        return [
+            'total_flights' => $totalFlights,
+            'total_success' => $success,
+            'total_failed' => $failed,
+            'total_loosed' => $loosed,
+            'success_rate' => $successRate,
+            'combat_flights_for_success' => $divisorVampire,
         ];
     }
 

@@ -364,7 +364,7 @@ return [
             ],
         ],
         // end FPV-----------------------------------------
-        // RECON_______________________________________
+        // RECON___________________________________________
         [
             'header' => 'RECON-напрямок',
             'can' => 'manage-recon'
@@ -399,6 +399,41 @@ return [
             ]
         ],
         // END RECON__________________________________
+        // VAMPIRE__________________________________
+        [
+            'header' => 'VAMPIRE-напрямок',
+            'can' => 'manage-vampire'
+        ],
+        [
+            'text' => 'Вампіри',
+            'icon' => 'fas fa-ghost',
+            'can' => 'manage-vampire',
+            'submenu' => [
+                [
+                    'text' => 'Чергування',
+                    'route' => 'vampire.combat_shifts.index',
+                    'icon' => 'fas fa-shield-alt',
+                ],
+                [
+                    'text' => 'Польоти',
+                    'route' => 'vampire.flights.index',
+                    'icon' => 'fas fa-paper-plane',
+                ],
+                [
+                    'text' => 'Дрони',
+                    'route' => 'vampire.drones.index',
+                    'icon' => 'fas fa-helicopter',
+                    'can' => 'manage-vampire',
+                ],
+                [
+                    'text' => 'Боєприпаси',
+                    'route' => 'vampire.ammunition.index',
+                    'icon' => 'fas fa-bomb',
+                    'can' => 'manage-vampire',
+                ],
+            ]
+        ],
+        // END_VAMPIRE______________________________
         [
             'header' => 'Звітність',
             'can' => 'view-reports'

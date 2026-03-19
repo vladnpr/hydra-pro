@@ -59,8 +59,10 @@
     @php
         $fpvStats = $stats['total']['fpv'];
         $reconStats = $stats['total']['recon'];
+        $vampireStats = $stats['total']['vampire'];
         $fpvActiveStats = $stats['active']['fpv'];
         $reconActiveStats = $stats['active']['recon'];
+        $vampireActiveStats = $stats['active']['vampire'];
         $positionsStats = $stats['positions'];
         $activeShiftsStats = $stats['active_shifts'];
     @endphp
@@ -78,6 +80,11 @@
                         <li class="nav-item">
                             <a class="nav-link" id="recon-tab" data-toggle="pill" href="#recon-content" role="tab" aria-controls="recon-content" aria-selected="false">
                                 <i class="fas fa-binoculars mr-1"></i> Розвідка
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="vampire-tab" data-toggle="pill" href="#vampire-content" role="tab" aria-controls="vampire-content" aria-selected="false">
+                                <i class="fas fa-ghost mr-1"></i> Вампіри
                             </a>
                         </li>
                     </ul>
@@ -408,6 +415,149 @@
                                                     @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'recon' || $s['recon']['total_flights'] > 0)) === 0)
                                                         <tr>
                                                             <td colspan="5" class="text-center">Немає активних змін розвідки</td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vampire Tab -->
+                        <div class="tab-pane fade" id="vampire-content" role="tabpanel" aria-labelledby="vampire-tab">
+                            <div class="row">
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-info">
+                                        <div class="inner">
+                                            <h3>{{ $vampireStats['total_flights'] }}</h3>
+                                            <p>Всього вильотів Вампіра</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-ghost"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-success">
+                                        <div class="inner">
+                                            <h3>{{ $vampireStats['total_success'] }}</h3>
+                                            <p>Успішні місії</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-warning">
+                                        <div class="inner">
+                                            <h3>{{ $vampireStats['total_failed'] }}</h3>
+                                            <p>Не успішні</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-danger">
+                                        <div class="inner">
+                                            <h3>{{ $vampireStats['total_loosed'] }}</h3>
+                                            <p>Втрата борту</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-times-circle"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card card-outline card-info">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Ефективність Вампіра</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            @php
+                                                $vampireSuccessRate = $vampireStats['success_rate'];
+                                                $activeVampireSuccessRate = $vampireActiveStats['success_rate'];
+                                            @endphp
+
+                                            <div class="progress-group">
+                                                Відсоток успішних вильотів (Загальний)
+                                                <span class="float-right"><b>{{ $vampireStats['total_success'] }}</b>/{{ $vampireStats['combat_flights_for_success'] }}</span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-success" style="width: {{ $vampireSuccessRate }}%"></div>
+                                                </div>
+                                                <small>{{ $vampireSuccessRate }}% від загальної кількості</small>
+                                            </div>
+
+                                            <div class="progress-group mt-3">
+                                                Відсоток успішних вильотів (Активні зміни)
+                                                <span class="float-right"><b>{{ $vampireActiveStats['total_success'] }}</b>/{{ $vampireActiveStats['combat_flights_for_success'] }}</span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-info" style="width: {{ $activeVampireSuccessRate }}%"></div>
+                                                </div>
+                                                <small>{{ $activeVampireSuccessRate }}% від активних змін</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Vampire Stats by Active Shifts -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Статистика Вампіра по активних змінах</h3>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Зміна / Екіпаж</th>
+                                                        <th>Всього вильотів</th>
+                                                        <th>Успішні</th>
+                                                        <th>Втрати</th>
+                                                        <th>Ефективність</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($activeShiftsStats as $shiftStat)
+                                                        @if($shiftStat['type'] === 'vampire' || $shiftStat['vampire']['total_flights'] > 0)
+                                                            <tr>
+                                                                <td>
+                                                                    <strong>{{ $shiftStat['position_name'] }}</strong><br>
+                                                                    @foreach($shiftStat['crew'] as $callsign)
+                                                                        <span class="badge badge-info">{{ $callsign }}</span>
+                                                                    @endforeach
+                                                                </td>
+                                                                <td>{{ $shiftStat['vampire']['total_flights'] }}</td>
+                                                                <td>{{ $shiftStat['vampire']['total_success'] }}</td>
+                                                                <td>{{ $shiftStat['vampire']['total_loosed'] }}</td>
+                                                                <td>
+                                                                    @php
+                                                                        $pVampireRate = $shiftStat['vampire']['success_rate'];
+                                                                    @endphp
+                                                                    <div class="progress progress-xs">
+                                                                        <div class="progress-bar bg-success" style="width: {{ $pVampireRate }}%"></div>
+                                                                    </div>
+                                                                    <small>{{ $pVampireRate }}%</small>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                    @endforeach
+                                                    @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'vampire' || $s['vampire']['total_flights'] > 0)) === 0)
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">Немає активних змін Вампіра</td>
                                                         </tr>
                                                     @endif
                                                 </tbody>

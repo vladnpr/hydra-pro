@@ -218,21 +218,21 @@
                 $(this).closest('.crew-member').remove();
             });
 
-            let droneIndex = {{ old('new_recon_drones') ? count(old('new_recon_drones')) : 0 }};
+            let droneIndex = {{ old('new_drones') ? count(old('new_drones')) : 0 }};
             $('#add-new-drone').click(function() {
                 let html = `
                     <div class="new-drone-item border p-2 mb-2">
                         <div class="form-group mb-1">
                             <label class="small">Назва дрона</label>
-                            <input type="text" name="new_recon_drones[${droneIndex}][name]" class="form-control form-control-sm" placeholder="Наприклад: Mavic 3" required>
+                            <input type="text" name="new_drones[${droneIndex}][name]" class="form-control form-control-sm" placeholder="Наприклад: Mavic 3" required>
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Серійний номер</label>
-                            <input type="text" name="new_recon_drones[${droneIndex}][serial_number]" class="form-control form-control-sm" placeholder="Серійний номер">
+                            <input type="text" name="new_drones[${droneIndex}][serial_number]" class="form-control form-control-sm" placeholder="Серійний номер">
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Статус</label>
-                            <select name="new_recon_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
+                            <select name="new_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
                                 <option value="active">Активний</option>
                                 <option value="repair">В ремонті</option>
                                 <option value="non_operational">Не боєготовий</option>
@@ -241,7 +241,7 @@
                         </div>
                         <div class="form-group mb-2">
                             <label class="small">Тип зміни</label>
-                            <select name="new_recon_drones[${droneIndex}][shift_type]" class="form-control form-control-sm" required>
+                            <select name="new_drones[${droneIndex}][shift_type]" class="form-control form-control-sm" required>
                                 <option value="day">Денна</option>
                                 <option value="night">Нічна</option>
                                 <option value="both">Обидві</option>
@@ -283,9 +283,9 @@
                                         <small class="text-muted">${drone.serial_number || 'S/N відсутній'}</small>
                                     </div>
                                     <div class="col-md-5">
-                                        <input type="hidden" name="existing_recon_drones[${drone.id}][id]" value="${drone.id}">
+                                        <input type="hidden" name="existing_drones[${drone.id}][id]" value="${drone.id}">
                                         <div class="form-group mb-1">
-                                            <select name="existing_recon_drones[${drone.id}][status]" class="form-control form-control-sm">
+                                            <select name="existing_drones[${drone.id}][status]" class="form-control form-control-sm">
                                                 <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
                                                 <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
                                                 <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
@@ -293,7 +293,7 @@
                                             </select>
                                         </div>
                                         <div class="form-group mb-0">
-                                            <select name="existing_recon_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
+                                            <select name="existing_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
                                                 <option value="day" ${drone.shift_type === 'day' ? 'selected' : ''}>Денна</option>
                                                 <option value="night" ${drone.shift_type === 'night' ? 'selected' : ''}>Нічна</option>
                                                 <option value="both" ${drone.shift_type === 'both' ? 'selected' : ''}>Обидві</option>

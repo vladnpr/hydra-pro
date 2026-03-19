@@ -12,6 +12,8 @@ use App\Repositories\Contracts\PositionRepositoryInterface;
 use App\Repositories\Eloquent\EloquentPositionRepository;
 use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCombatShiftRepository;
+use App\Repositories\Contracts\VampireDroneRepositoryInterface;
+use App\Repositories\Eloquent\EloquentVampireDroneRepository;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Services\CombatShiftsAdminService;
@@ -30,6 +32,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(AmmunitionRepositoryInterface::class, EloquentAmmunitionRepository::class);
         $this->app->bind(PositionRepositoryInterface::class, EloquentPositionRepository::class);
         $this->app->bind(CombatShiftRepositoryInterface::class, EloquentCombatShiftRepository::class);
+        $this->app->bind(VampireDroneRepositoryInterface::class, EloquentVampireDroneRepository::class);
     }
 
     /**
@@ -37,8 +40,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-vampire', function (User $user) {
+            return $user->isAdmin() || $user->isVampire();
+        });
+
         Gate::define('manage-recon', function (User $user) {
             return $user->isAdmin() || $user->isRecon();
+        });
+
+        Gate::define('manage-vampire-drones', function (User $user) {
+            return $user->isAdmin() || $user->isVampire();
+        });
+
+        Gate::define('manage-vampire-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isVampire();
         });
 
         Gate::define('manage-recon-ammunition', function (User $user) {
@@ -66,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('view-reports', function (User $user) {
-            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon();
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire();
         });
 
         Gate::define('access-combat', function (User $user) {

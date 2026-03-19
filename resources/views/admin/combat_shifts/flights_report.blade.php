@@ -27,7 +27,11 @@
                     <form action="{{ route('combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
                         <label for="date" class="mr-2">Оберіть дату:</label>
                         <select name="date" id="date" class="form-control mr-2" onchange="this.form.submit()">
-                            @foreach(array_keys($shift->flights) as $flightDate)
+                            @php
+                                $dates = array_keys($shift->flights);
+                                rsort($dates);
+                            @endphp
+                            @foreach($dates as $flightDate)
                                 <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
                                     {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
                                 </option>

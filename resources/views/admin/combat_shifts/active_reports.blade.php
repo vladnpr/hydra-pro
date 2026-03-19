@@ -41,7 +41,13 @@
                                 @foreach($activeShifts as $shift)
                                     @php
                                         $isRecon = $shift->type === \App\Enums\PositionTypesEnum::RECON->value;
-                                        $routePrefix = $isRecon ? 'recon.' : '';
+                                        $isVampire = $shift->type === \App\Enums\PositionTypesEnum::VAMPIRE->value;
+                                        $routePrefix = '';
+                                        if ($isRecon) {
+                                            $routePrefix = 'recon.';
+                                        } elseif ($isVampire) {
+                                            $routePrefix = 'vampire.';
+                                        }
                                     @endphp
                                     <tr>
                                         <td>{{ $shift->id }}</td>
@@ -49,6 +55,8 @@
                                             {{ $shift->position_name }}
                                             @if($isRecon)
                                                 <span class="badge badge-warning ml-1">розвідка</span>
+                                            @elseif($isVampire)
+                                                <span class="badge badge-danger ml-1">Vampire</span>
                                             @else
                                                 <span class="badge badge-info ml-1">FPV</span>
                                             @endif
@@ -65,7 +73,7 @@
                                                     <i class="fas fa-file-alt mr-1"></i> Залишки
                                                 </a>
                                                 @if(!$isRecon)
-                                                    <a href="{{ route('combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-primary btn-sm ml-1" title="Звіт по витратам">
+                                                    <a href="{{ route($isVampire ? 'vampire.combat_shifts.spending_report' : 'combat_shifts.spending_fpv_report', $shift->id) }}" class="btn btn-info btn-sm ml-1" title="Звіт по витратам">
                                                         <i class="fas fa-bomb mr-1"></i> Витрати
                                                     </a>
                                                 @endif

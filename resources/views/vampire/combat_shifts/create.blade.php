@@ -1,16 +1,16 @@
 @extends('adminlte::page')
 
-@section('title', 'Редагувати чергування "' . $shift->position_name . '"')
+@section('title', 'Розпочати чергування Vampire')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати чергування "{{ $shift->position_name }}"</h1>
+        <h1>Розпочати нове чергування Vampire</h1>
         <div>
-            <a href="{{ route('recon.combat_shifts.index') }}" class="btn btn-default">
+            <a href="{{ route('vampire.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
             </a>
-            <button type="submit" form="edit-shift-form" class="btn btn-primary ml-2">
-                <i class="fas fa-save"></i> Оновити
+            <button type="submit" form="create-shift-form" class="btn btn-primary ml-2">
+                <i class="fas fa-save"></i> Зберегти
             </button>
         </div>
     </div>
@@ -29,27 +29,10 @@
         </div>
     @endif
 
-    @if(session('success'))
-        <div class="alert alert-success alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-            <h5><i class="icon fas fa-check"></i> Успіх!</h5>
-            {{ session('success') }}
-        </div>
-    @endif
-
-    @if(session('error'))
-        <div class="alert alert-danger alert-dismissible">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
-            <h5><i class="icon fas fa-ban"></i> Помилка!</h5>
-            {{ session('error') }}
-        </div>
-    @endif
-
     <div class="row">
         <div class="col-md-12">
-            <form action="{{ route('recon.combat_shifts.update', $shift->id) }}" method="POST" id="edit-shift-form">
+            <form action="{{ route('vampire.combat_shifts.store') }}" method="POST" id="create-shift-form">
                 @csrf
-                @method('PUT')
                 <div class="row">
                     <div class="col-md-6">
                         <div class="card card-primary">
@@ -61,7 +44,7 @@
                                     <label for="user_ids">Користувачі (Екіпаж системи)</label>
                                     <select name="user_ids[]" id="user_ids" class="form-control select2 @error('user_ids') is-invalid @enderror" multiple required>
                                         @foreach($users as $user)
-                                            <option value="{{ $user->id }}" {{ (is_array(old('user_ids', collect($shift->users)->pluck('id')->toArray())) && in_array($user->id, old('user_ids', collect($shift->users)->pluck('id')->toArray()))) ? 'selected' : '' }}>
+                                            <option value="{{ $user->id }}" {{ (is_array(old('user_ids')) && in_array($user->id, old('user_ids'))) || (!old('user_ids') && $user->id == auth()->id()) ? 'selected' : '' }}>
                                                 {{ $user->name }} ({{ $user->email }})
                                             </option>
                                         @endforeach
@@ -72,11 +55,11 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="position_id">Позиція (розвідка)</label>
+                                    <label for="position_id">Позиція (Vampire)</label>
                                     <select name="position_id" id="position_id" class="form-control @error('position_id') is-invalid @enderror" required>
                                         <option value="">Оберіть позицію</option>
                                         @foreach($positions as $position)
-                                            <option value="{{ $position->id }}" {{ old('position_id', $shift->position_id) == $position->id ? 'selected' : '' }}>
+                                            <option value="{{ $position->id }}" {{ old('position_id') == $position->id ? 'selected' : '' }}>
                                                 {{ $position->name }}
                                             </option>
                                         @endforeach
@@ -89,8 +72,8 @@
                                 <div class="form-group">
                                     <label for="status">Статус</label>
                                     <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
-                                        <option value="opened" {{ old('status', $shift->status) == 'opened' ? 'selected' : '' }}>Відкрито</option>
-                                        <option value="closed" {{ old('status', $shift->status) == 'closed' ? 'selected' : '' }}>Закрито</option>
+                                        <option value="opened" {{ old('status') == 'opened' ? 'selected' : '' }}>Відкрито</option>
+                                        <option value="closed" {{ old('status') == 'closed' ? 'selected' : '' }}>Закрито</option>
                                     </select>
                                     @error('status')
                                         <span class="error invalid-feedback">{{ $message }}</span>
@@ -99,7 +82,7 @@
 
                                 <div class="form-group">
                                     <label for="started_at">Час початку</label>
-                                    <input type="datetime-local" name="started_at" id="started_at" class="form-control @error('started_at') is-invalid @enderror" value="{{ old('started_at', \Carbon\Carbon::parse($shift->started_at)->format('Y-m-d\TH:i')) }}" required>
+                                    <input type="datetime-local" name="started_at" id="started_at" class="form-control @error('started_at') is-invalid @enderror" value="{{ old('started_at', now()->format('Y-m-d\TH:i')) }}" required>
                                     @error('started_at')
                                         <span class="error invalid-feedback">{{ $message }}</span>
                                     @enderror
@@ -118,29 +101,30 @@
                             </div>
                             <div class="card-body">
                                 <div id="crew-container">
-                                    @php $crewData = old('crew', $shift->crew); @endphp
-                                    @foreach($crewData as $index => $member)
-                                        <div class="crew-member row mb-2">
-                                            <div class="col-md-4">
-                                                <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ is_array($member) ? $member['callsign'] : $member->callsign }}" required>
+                                    @if(old('crew'))
+                                        @foreach(old('crew') as $index => $member)
+                                            <div class="crew-member row mb-2">
+                                                <div class="col-md-4">
+                                                    <input type="text" name="crew[{{ $index }}][callsign]" class="form-control form-control-sm" placeholder="Позивний" value="{{ $member['callsign'] }}" required>
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ $member['role'] }}" required>
+                                                </div>
+                                                <div class="col-md-3">
+                                                    <select name="crew[{{ $index }}][shift_type]" class="form-control form-control-sm" required>
+                                                        <option value="day" {{ ($member['shift_type'] ?? 'day') === 'day' ? 'selected' : '' }}>Денна</option>
+                                                        <option value="night" {{ ($member['shift_type'] ?? 'day') === 'night' ? 'selected' : '' }}>Нічна</option>
+                                                        <option value="both" {{ ($member['shift_type'] ?? 'day') === 'both' ? 'selected' : '' }}>Обидві</option>
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-1">
+                                                    <button type="button" class="btn btn-danger btn-sm remove-crew-member">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
                                             </div>
-                                            <div class="col-md-4">
-                                                <input type="text" name="crew[{{ $index }}][role]" class="form-control form-control-sm" placeholder="Посада" value="{{ is_array($member) ? $member['role'] : $member->role }}" required>
-                                            </div>
-                                            <div class="col-md-3">
-                                                <select name="crew[{{ $index }}][shift_type]" class="form-control form-control-sm" required>
-                                                    <option value="day" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member->shift_type?->value ?? 'day')) === 'day' ? 'selected' : '' }}>Денна</option>
-                                                    <option value="night" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member->shift_type?->value ?? 'day')) === 'night' ? 'selected' : '' }}>Нічна</option>
-                                                    <option value="both" {{ (is_array($member) ? ($member['shift_type'] ?? 'day') : ($member->shift_type?->value ?? 'day')) === 'both' ? 'selected' : '' }}>Обидві</option>
-                                                </select>
-                                            </div>
-                                            <div class="col-md-1">
-                                                <button type="button" class="btn btn-danger btn-sm remove-crew-member">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -152,7 +136,7 @@
                                 <h3 class="card-title">Майно на зміну</h3>
                             </div>
                             <div class="card-body">
-                                <h5>Боєприпаси (розвідка)</h5>
+                                <h5>Боєприпаси (Vampire)</h5>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>
@@ -166,7 +150,7 @@
                                                 <tr>
                                                     <td>{{ $item->name }}</td>
                                                     <td>
-                                                        <input type="number" name="ammunition[{{ $item->id }}]" class="form-control form-control-sm" value="{{ old('ammunition.' . $item->id, $currentAmmunition[$item->id] ?? 0) }}" min="0">
+                                                        <input type="number" name="ammunition[{{ $item->id }}]" class="form-control form-control-sm" value="{{ old('ammunition.' . $item->id, 0) }}" min="0">
                                                     </td>
                                                 </tr>
                                             @endforeach
@@ -202,7 +186,7 @@
                 theme: 'bootstrap4'
             });
 
-            let crewIndex = {{ count($crewData) }};
+            let crewIndex = {{ old('crew') ? count(old('crew')) : 0 }};
             $('#add-crew-member').click(function() {
                 let html = `
                     <div class="crew-member row mb-2">
@@ -240,7 +224,7 @@
                     <div class="new-drone-item border p-2 mb-2">
                         <div class="form-group mb-1">
                             <label class="small">Назва дрона</label>
-                            <input type="text" name="new_drones[${droneIndex}][name]" class="form-control form-control-sm" placeholder="Наприклад: Mavic 3" required>
+                            <input type="text" name="new_drones[${droneIndex}][name]" class="form-control form-control-sm" placeholder="Наприклад: Vampire 1" required>
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Серійний номер</label>
@@ -248,12 +232,16 @@
                         </div>
                         <div class="form-group mb-1">
                             <label class="small">Статус</label>
-                            <select name="new_drones[${droneIndex}][status]" class="form-control form-control-sm" required>
+                            <select name="new_drones[${droneIndex}][status]" class="form-control form-control-sm drone-status-select" required>
                                 <option value="active">Активний</option>
                                 <option value="repair">В ремонті</option>
                                 <option value="non_operational">Не боєготовий</option>
                                 <option value="lost">Втрачений</option>
                             </select>
+                        </div>
+                        <div class="form-group mb-1 lost-at-container" style="display: none;">
+                            <label class="small">Час втрати</label>
+                            <input type="datetime-local" name="new_drones[${droneIndex}][lost_at]" class="form-control form-control-sm">
                         </div>
                         <div class="form-group mb-2">
                             <label class="small">Тип зміни</label>
@@ -274,6 +262,21 @@
                 $(this).closest('.new-drone-item').remove();
             });
 
+            $(document).on('change', '.drone-status-select', function() {
+                let status = $(this).val();
+                let container = $(this).closest('.form-group').next('.lost-at-container');
+                if (status === 'lost') {
+                    container.show();
+                    if (!container.find('input').val()) {
+                        let now = new Date();
+                        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                        container.find('input').val(now.toISOString().slice(0, 16));
+                    }
+                } else {
+                    container.hide();
+                }
+            });
+
             $('#position_id').change(function() {
                 let positionId = $(this).val();
                 if (!positionId) {
@@ -283,7 +286,7 @@
 
                 $('#existing-drones-container').html('<p class="text-muted small"><i class="fas fa-spinner fa-spin"></i> Завантаження...</p>');
 
-                $.get(`/admin/recon/drones/by-position/${positionId}`, function(drones) {
+                $.get(`/admin/vampire/drones/by-position/${positionId}`, function(drones) {
                     if (drones.length === 0) {
                         $('#existing-drones-container').html('<p class="text-muted small">На цій позиції немає зареєстрованих дронів</p>');
                         return;
@@ -291,17 +294,6 @@
 
                     let html = '<div class="list-group list-group-sm">';
                     drones.forEach(function(drone) {
-                        let statusText = drone.status;
-                        if (drone.status === 'active') statusText = 'Активний';
-                        else if (drone.status === 'repair') statusText = 'В ремонті';
-                        else if (drone.status === 'non_operational') statusText = 'Не боєготовий';
-                        else if (drone.status === 'lost') statusText = 'Втрачений';
-
-                        let shiftIcon = '';
-                        if (drone.shift_type === 'day') shiftIcon = '<i class="fas fa-sun text-warning" title="Денний"></i>';
-                        else if (drone.shift_type === 'night') shiftIcon = '<i class="fas fa-moon text-secondary" title="Нічний"></i>';
-                        else if (drone.shift_type === 'both') shiftIcon = '<i class="fas fa-sun text-warning"></i> / <i class="fas fa-moon text-secondary"></i>';
-
                         html += `
                             <div class="list-group-item">
                                 <div class="row align-items-center">
@@ -312,12 +304,15 @@
                                     <div class="col-md-5">
                                         <input type="hidden" name="existing_drones[${drone.id}][id]" value="${drone.id}">
                                         <div class="form-group mb-1">
-                                            <select name="existing_drones[${drone.id}][status]" class="form-control form-control-sm">
+                                            <select name="existing_drones[${drone.id}][status]" class="form-control form-control-sm drone-status-select">
                                                 <option value="active" ${drone.status === 'active' ? 'selected' : ''}>Активний</option>
                                                 <option value="repair" ${drone.status === 'repair' ? 'selected' : ''}>В ремонті</option>
                                                 <option value="non_operational" ${drone.status === 'non_operational' ? 'selected' : ''}>Не боєготовий</option>
                                                 <option value="lost" ${drone.status === 'lost' ? 'selected' : ''}>Втрачений</option>
                                             </select>
+                                        </div>
+                                        <div class="form-group mb-1 lost-at-container" style="${drone.status === 'lost' ? '' : 'display: none;'}">
+                                            <input type="datetime-local" name="existing_drones[${drone.id}][lost_at]" class="form-control form-control-sm" value="${drone.lost_at ? drone.lost_at.substring(0, 16) : ''}">
                                         </div>
                                         <div class="form-group mb-0">
                                             <select name="existing_drones[${drone.id}][shift_type]" class="form-control form-control-sm">
@@ -338,7 +333,7 @@
                 });
             });
 
-            // Trigger change if position is already selected (e.g., after validation error or on edit page load)
+            // Trigger change if position is already selected (e.g., after validation error)
             if ($('#position_id').val()) {
                 $('#position_id').trigger('change');
             }
