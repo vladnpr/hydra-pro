@@ -14,7 +14,8 @@ class VampireFlight extends Model
         'combat_shift_id',
         'vampire_flight_plan_id',
         'vampire_drone_id',
-        'flight_time',
+        'start_time',
+        'end_time',
         'stream_status',
         'mission_type',
         'result',
@@ -22,7 +23,8 @@ class VampireFlight extends Model
     ];
 
     protected $casts = [
-        'flight_time' => 'datetime',
+        'start_time' => 'datetime',
+        'end_time' => 'datetime',
         'stream_status' => 'boolean',
     ];
 

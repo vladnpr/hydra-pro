@@ -63,8 +63,26 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="flight_time">Час</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}" required>
+                            <label for="start_time">Час зльоту</label>
+                            <div class="input-group">
+                                <input type="datetime-local" name="start_time" id="start_time" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('start_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="end_time">Час посадки</label>
+                            <div class="input-group">
+                                <input type="datetime-local" name="end_time" id="end_time" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('end_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="mission_type">Місія</label>
@@ -143,13 +161,18 @@
                                     <td>{{ $plan['position_name'] }}</td>
                                     <td>{{ $plan['coordinates'] }}</td>
                                     <td>
-                                        <form action="{{ route('vampire.flight_plans.destroy', $plan['id']) }}" method="POST" style="display:inline-block;">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити з плану?')">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </form>
+                                        <div class="btn-group">
+                                            <a href="{{ route('vampire.flight_plans.edit', $plan['id']) }}" class="btn btn-xs btn-info">
+                                                <i class="fas fa-edit"></i>
+                                            </a>
+                                            <form action="{{ route('vampire.flight_plans.destroy', $plan['id']) }}" method="POST" style="display:inline-block;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити з плану?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                             @empty
@@ -184,7 +207,12 @@
                             <tbody>
                                 @forelse($flights as $flight)
                                     <tr>
-                                        <td>{{ \Carbon\Carbon::parse($flight->flight_time)->format('H:i') }}</td>
+                                    <td>
+                                        <div class="text-nowrap">{{ \Carbon\Carbon::parse($flight->start_time)->format('H:i') }}</div>
+                                        @if($flight->end_time)
+                                            <div class="text-nowrap text-muted small">{{ \Carbon\Carbon::parse($flight->end_time)->format('H:i') }}</div>
+                                        @endif
+                                    </td>
                                         <td>{{ $flight->drone?->name }}</td>
                                         <td>{{ $flight->flightPlan?->position_name ?? '-' }}</td>
                                         <td>
@@ -209,13 +237,18 @@
                                         </td>
                                         <td>{{ $flight->comment }}</td>
                                         <td>
-                                            <form action="{{ route('vampire.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити цей виліт?')">
-                                                    <i class="fas fa-trash"></i>
-                                                </button>
-                                            </form>
+                                            <div class="btn-group">
+                                                <a href="{{ route('vampire.flights.edit', $flight->id) }}" class="btn btn-xs btn-info">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <form action="{{ route('vampire.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Видалити цей виліт?')">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
                                         </td>
                                     </tr>
                                 @empty
@@ -234,6 +267,13 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function() {
             function toggleAmmunition() {
                 if ($('#mission_type').val() === 'combat') {

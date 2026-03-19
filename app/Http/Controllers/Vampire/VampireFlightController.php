@@ -30,7 +30,7 @@ class VampireFlightController extends Controller
 
         $flights = VampireFlight::with(['drone', 'flightPlan'])
             ->where('combat_shift_id', $userActiveShift->id)
-            ->orderBy('flight_time', 'desc')
+            ->orderBy('start_time', 'desc')
             ->get();
 
         $drones = collect($userActiveShift->vampire_drones)->where('status', 'active');
@@ -68,13 +68,40 @@ class VampireFlightController extends Controller
         return redirect()->back()->with('success', 'Ціль видалена з плану');
     }
 
+    public function editPlan(int $id)
+    {
+        $plan = VampireFlightPlan::findOrFail($id);
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        if (!$userActiveShift || $plan->combat_shift_id !== $userActiveShift->id) {
+            return redirect()->route('vampire.flights.index')
+                ->with('error', 'Ви можете редагувати цілі лише своєї активної зміни');
+        }
+
+        return view('vampire.flight_plans.edit', compact('plan', 'userActiveShift'));
+    }
+
+    public function updatePlan(Request $request, int $id)
+    {
+        $plan = VampireFlightPlan::findOrFail($id);
+        $request->validate([
+            'position_name' => 'required|string|max:255',
+            'coordinates' => 'nullable|string|max:255',
+        ]);
+
+        $plan->update($request->only(['position_name', 'coordinates']));
+
+        return redirect()->route('vampire.flights.index')->with('success', 'Ціль оновлена');
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'combat_shift_id' => 'required|exists:combat_shifts,id',
             'vampire_flight_plan_id' => 'nullable|exists:vampire_flight_plans,id',
             'vampire_drone_id' => 'required|exists:vampire_drones,id',
-            'flight_time' => 'required|date',
+            'start_time' => 'required|date',
+            'end_time' => 'nullable|date|after_or_equal:start_time',
             'stream_status' => 'boolean',
             'mission_type' => 'required|string',
             'result' => 'required|string',
@@ -178,5 +205,148 @@ class VampireFlightController extends Controller
         });
 
         return redirect()->back()->with('success', 'Виліт видалено');
+    }
+
+    public function edit(int $id)
+    {
+        $flight = VampireFlight::with('ammunition')->findOrFail($id);
+        $userActiveShift = $this->shiftService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+
+        if (!$userActiveShift || $flight->combat_shift_id !== $userActiveShift->id) {
+            return redirect()->route('vampire.flights.index')
+                ->with('error', 'Ви можете редагувати вильоти лише своєї активної зміни');
+        }
+
+        $drones = collect($userActiveShift->vampire_drones)->where('status', 'active');
+        // Додаємо дрон цього польоту до списку, якщо він не активний (наприклад, lost)
+        $currentDrone = \App\Models\VampireDrone::find($flight->vampire_drone_id);
+        if ($currentDrone && $currentDrone->status !== 'active') {
+             $drones->push([
+                 'id' => $currentDrone->id,
+                 'name' => $currentDrone->name,
+                 'serial_number' => $currentDrone->serial_number,
+                 'status' => $currentDrone->status
+             ]);
+        }
+
+        $plans = collect($userActiveShift->vampire_flight_plans)->where('status', 'planned');
+        // Додаємо план цього польоту до списку
+        if ($flight->vampire_flight_plan_id) {
+            $currentPlan = \App\Models\VampireFlightPlan::find($flight->vampire_flight_plan_id);
+            if ($currentPlan) {
+                $plans->push([
+                    'id' => $currentPlan->id,
+                    'position_name' => $currentPlan->position_name,
+                    'coordinates' => $currentPlan->coordinates,
+                    'status' => $currentPlan->status
+                ]);
+            }
+        }
+
+        return view('vampire.flights.edit', compact('flight', 'userActiveShift', 'drones', 'plans'));
+    }
+
+    public function update(Request $request, int $id)
+    {
+        $flight = VampireFlight::with('ammunition')->findOrFail($id);
+        $request->validate([
+            'vampire_flight_plan_id' => 'nullable|exists:vampire_flight_plans,id',
+            'vampire_drone_id' => 'required|exists:vampire_drones,id',
+            'start_time' => 'required|date',
+            'end_time' => 'nullable|date|after_or_equal:start_time',
+            'stream_status' => 'boolean',
+            'mission_type' => 'required|string',
+            'result' => 'required|string',
+            'comment' => 'nullable|string',
+            'ammunition' => 'nullable|array',
+            'ammunition.*.id' => 'nullable|exists:ammunition,id',
+            'ammunition.*.quantity' => 'nullable|integer|min:1',
+        ]);
+
+        $data = $request->all();
+        $data['stream_status'] = $request->boolean('stream_status');
+
+        if ($request->mission_type !== 'combat') {
+            unset($data['ammunition']);
+        }
+
+        try {
+            \Illuminate\Support\Facades\DB::transaction(function () use ($data, $request, $flight) {
+                // 1. Обробка зміни статусу дрона
+                if ($flight->result !== $request->result || $flight->vampire_drone_id != $request->vampire_drone_id) {
+                    // Повертаємо старий дрон до активного стану, якщо він був втрачений
+                    if ($flight->result === 'loss') {
+                        $oldDrone = \App\Models\VampireDrone::find($flight->vampire_drone_id);
+                        if ($oldDrone) {
+                            $oldDrone->update(['status' => 'active']);
+                        }
+                    }
+                    // Списуємо новий дрон, якщо новий результат - втрата
+                    if ($request->result === 'loss') {
+                        $newDrone = \App\Models\VampireDrone::find($request->vampire_drone_id);
+                        if ($newDrone) {
+                            $newDrone->update(['status' => 'lost']);
+                        }
+                    }
+                }
+
+                // 2. Обробка зміни плану
+                if ($flight->vampire_flight_plan_id != $request->vampire_flight_plan_id) {
+                    // Повертаємо старий план у статус planned
+                    if ($flight->vampire_flight_plan_id) {
+                        $oldPlan = \App\Models\VampireFlightPlan::find($flight->vampire_flight_plan_id);
+                        if ($oldPlan) {
+                            $oldPlan->update(['status' => 'planned']);
+                        }
+                    }
+                }
+
+                // Оновлюємо статус плану (поточного або нового)
+                if ($request->vampire_flight_plan_id) {
+                    $plan = \App\Models\VampireFlightPlan::find($request->vampire_flight_plan_id);
+                    if ($plan) {
+                        $plan->update(['status' => $request->result === 'worked' ? 'completed' : 'planned']);
+                    }
+                }
+
+                // 3. Повернення старого БК
+                foreach ($flight->ammunition as $ammo) {
+                    \Illuminate\Support\Facades\DB::table('combat_shift_ammunition')
+                        ->where('combat_shift_id', $flight->combat_shift_id)
+                        ->where('ammunition_id', $ammo->id)
+                        ->increment('quantity', $ammo->pivot->quantity);
+                }
+                $flight->ammunition()->detach();
+
+                // 4. Оновлення даних польоту
+                $flight->update($data);
+
+                // 5. Списання нового БК
+                if (!empty($data['ammunition'])) {
+                    foreach ($data['ammunition'] as $ammunitionItem) {
+                        if (empty($ammunitionItem['id'])) continue;
+
+                        $flight->ammunition()->attach($ammunitionItem['id'], [
+                            'quantity' => $ammunitionItem['quantity'] ?? 1
+                        ]);
+
+                        $ammunitionPivot = \Illuminate\Support\Facades\DB::table('combat_shift_ammunition')
+                            ->where('combat_shift_id', $flight->combat_shift_id)
+                            ->where('ammunition_id', $ammunitionItem['id'])
+                            ->first();
+
+                        if ($ammunitionPivot) {
+                            \Illuminate\Support\Facades\DB::table('combat_shift_ammunition')
+                                ->where('id', $ammunitionPivot->id)
+                                ->decrement('quantity', $ammunitionItem['quantity'] ?? 1);
+                        }
+                    }
+                }
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Помилка при оновленні вильоту: ' . $e->getMessage())->withInput();
+        }
+
+        return redirect()->route('vampire.flights.index')->with('success', 'Виліт оновлено');
     }
 }
