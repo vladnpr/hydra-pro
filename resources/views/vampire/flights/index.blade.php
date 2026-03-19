@@ -40,10 +40,6 @@
                             <label for="position_name">Назва позиції / Цілі</label>
                             <input type="text" name="position_name" id="position_name" class="form-control" placeholder="напр. ПНГ 1" required>
                         </div>
-                        <div class="form-group">
-                            <label for="coordinates">Координати</label>
-                            <input type="text" name="coordinates" id="coordinates" class="form-control" placeholder="47.123, 37.456">
-                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-info btn-block">Додати в план</button>
@@ -59,12 +55,22 @@
                     @csrf
                     <input type="hidden" name="combat_shift_id" value="{{ $userActiveShift->id }}">
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <div class="form-group">
                             <label for="vampire_flight_plan_id">Ціль з плану</label>
                             <select name="vampire_flight_plan_id" id="vampire_flight_plan_id" class="form-control">
                                 <option value="">-- Оберіть ціль (не обов'язково) --</option>
                                 @foreach($plans as $plan)
-                                    <option value="{{ $plan['id'] }}">{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
+                                    <option value="{{ $plan['id'] }}" {{ old('vampire_flight_plan_id') == $plan['id'] ? 'selected' : '' }}>{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -72,14 +78,14 @@
                             <label for="vampire_drone_id">Дрон</label>
                             <select name="vampire_drone_id" id="vampire_drone_id" class="form-control" required>
                                 @foreach($drones as $drone)
-                                    <option value="{{ $drone['id'] }}">{{ $drone['name'] }} ({{ $drone['serial_number'] }})</option>
+                                    <option value="{{ $drone['id'] }}" {{ old('vampire_drone_id') == $drone['id'] ? 'selected' : '' }}>{{ $drone['name'] }} ({{ $drone['serial_number'] }})</option>
                                 @endforeach
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="start_time">Час зльоту</label>
                             <div class="input-group">
-                                <input type="datetime-local" name="start_time" id="start_time" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}" required>
+                                <input type="datetime-local" name="start_time" id="start_time" class="form-control" value="{{ old('start_time', now()->format('Y-m-d\TH:i')) }}" required>
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('start_time')" title="Зараз">
                                         <i class="fas fa-clock"></i>
@@ -90,7 +96,7 @@
                         <div class="form-group">
                             <label for="end_time">Час посадки</label>
                             <div class="input-group">
-                                <input type="datetime-local" name="end_time" id="end_time" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}">
+                                <input type="datetime-local" name="end_time" id="end_time" class="form-control" value="{{ old('end_time', now()->format('Y-m-d\TH:i')) }}">
                                 <div class="input-group-append">
                                     <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('end_time')" title="Зараз">
                                         <i class="fas fa-clock"></i>
@@ -101,28 +107,44 @@
                         <div class="form-group">
                             <label for="mission_type">Місія</label>
                             <select name="mission_type" id="mission_type" class="form-control" required>
-                                <option value="combat">бойова (мінування, бімба)</option>
-                                <option value="logistics">логістика</option>
+                                <option value="logistics" {{ old('mission_type') === 'logistics' ? 'selected' : '' }}>логістика</option>
+                                <option value="combat" {{ old('mission_type') === 'combat' ? 'selected' : '' }}>бойова (мінування, бімба)</option>
                             </select>
                         </div>
-                        <div id="ammunition-section" style="display: none;">
+                        <div class="form-group" id="coordinates-section" style="{{ old('mission_type') === 'combat' ? '' : 'display: none;' }}">
+                            <label for="flight_coordinates">Координати</label>
+                            <input type="text" name="coordinates" id="flight_coordinates" class="form-control" value="{{ old('coordinates') }}" placeholder="47.123, 37.456">
+                        </div>
+                        <div id="ammunition-section" style="{{ old('mission_type') === 'combat' ? '' : 'display: none;' }}">
                             <div id="ammunition-container">
-                                <div class="form-group ammunition-row">
-                                    <label>Боєприпаси</label>
-                                    <div class="row mb-2">
+                                @php
+                                    $oldAmmo = old('ammunition', []);
+                                    if (empty($oldAmmo)) {
+                                        $oldAmmo = [['id' => '', 'quantity' => 1]];
+                                    }
+                                @endphp
+                                @foreach($oldAmmo as $index => $currentAmmo)
+                                    <div class="form-group ammunition-row row mb-2">
                                         <div class="col-8">
-                                            <select name="ammunition[0][id]" class="form-control select2">
+                                            <select name="ammunition[{{ $index }}][id]" class="form-control select2">
                                                 <option value="">-- Оберіть БК --</option>
                                                 @foreach($userActiveShift->ammunition as $ammo)
-                                                    <option value="{{ $ammo['id'] }}">{{ $ammo['name'] }} (Залишок: {{ $ammo['quantity'] }})</option>
+                                                    <option value="{{ $ammo['id'] }}" {{ ($currentAmmo['id'] ?? '') == $ammo['id'] ? 'selected' : '' }}>{{ $ammo['name'] }} (Залишок: {{ $ammo['quantity'] }})</option>
                                                 @endforeach
                                             </select>
                                         </div>
                                         <div class="col-4">
-                                            <input type="number" name="ammunition[0][quantity]" class="form-control" value="1" min="1" placeholder="К-ть">
+                                            <div class="input-group">
+                                                <input type="number" name="ammunition[{{ $index }}][quantity]" class="form-control" value="{{ $currentAmmo['quantity'] ?? 1 }}" min="1" placeholder="К-ть">
+                                                @if($index > 0)
+                                                    <div class="input-group-append">
+                                                        <button type="button" class="btn btn-outline-danger remove-ammo"><i class="fas fa-times"></i></button>
+                                                    </div>
+                                                @endif
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                @endforeach
                             </div>
                             <button type="button" class="btn btn-xs btn-outline-info mb-3" id="add-ammunition">
                                 <i class="fas fa-plus"></i> Додати боєприпас
@@ -131,19 +153,19 @@
                         <div class="form-group">
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control" required>
-                                <option value="worked">відпрацювали</option>
-                                <option value="loss">втрата борту</option>
+                                <option value="worked" {{ old('result') === 'worked' ? 'selected' : '' }}>відпрацювали</option>
+                                <option value="loss" {{ old('result') === 'loss' ? 'selected' : '' }}>втрата борту</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <div class="custom-control custom-switch">
-                                <input type="checkbox" class="custom-control-input" id="stream_status" name="stream_status" value="1" checked>
+                                <input type="checkbox" class="custom-control-input" id="stream_status" name="stream_status" value="1" {{ old('stream_status', true) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="stream_status">Стрім</label>
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="comment">Коментар</label>
-                            <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="450, збили, подавлення, інше"></textarea>
+                            <textarea name="comment" id="comment" class="form-control" rows="2" placeholder="450, збили, подавлення, інше">{{ old('comment') }}</textarea>
                         </div>
                     </div>
                     <div class="card-footer">
@@ -164,7 +186,6 @@
                             <tr>
                                 <th>#</th>
                                 <th>Ціль</th>
-                                <th>Координати</th>
                                 <th>Дії</th>
                             </tr>
                         </thead>
@@ -173,7 +194,6 @@
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td>{{ $plan['position_name'] }}</td>
-                                    <td>{{ $plan['coordinates'] }}</td>
                                     <td>
                                         <div class="btn-group">
                                             <a href="{{ route('vampire.flight_plans.edit', $plan['id']) }}" class="btn btn-xs btn-info">
@@ -191,7 +211,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="4" class="text-center">План порожній</td>
+                                    <td colspan="3" class="text-center">План порожній</td>
                                 </tr>
                             @endforelse
                         </tbody>
@@ -245,7 +265,7 @@
                                                 @endif
                                             </td>
                                             <td>{{ $flight->drone?->name }}</td>
-                                            <td>{{ $flight->flightPlan?->position_name ?? '-' }}</td>
+                                            <td>{{ $flight->flightPlan?->position_name ?? '-' }} {{ $flight->coordinates ? "({$flight->coordinates})" : '' }}</td>
                                             <td>
                                                 @if($flight->mission_type === 'combat')
                                                     <span class="badge badge-danger">бойова</span>
@@ -307,16 +327,18 @@
         }
 
         $(document).ready(function() {
-            function toggleAmmunition() {
+            function toggleCombatFields() {
                 if ($('#mission_type').val() === 'combat') {
                     $('#ammunition-section').show();
+                    $('#coordinates-section').show();
                 } else {
                     $('#ammunition-section').hide();
+                    $('#coordinates-section').hide();
                 }
             }
 
-            $('#mission_type').on('change', toggleAmmunition);
-            toggleAmmunition();
+            $('#mission_type').on('change', toggleCombatFields);
+            toggleCombatFields();
 
             $('input[name="global_shift_type"]').on('change', function() {
                 let shiftType = $(this).val();

@@ -21,10 +21,6 @@
                             <label for="position_name">Назва позиції / Цілі</label>
                             <input type="text" name="position_name" id="position_name" class="form-control" value="{{ old('position_name', $plan->position_name) }}" required>
                         </div>
-                        <div class="form-group">
-                            <label for="coordinates">Координати</label>
-                            <input type="text" name="coordinates" id="coordinates" class="form-control" value="{{ old('coordinates', $plan->coordinates) }}">
-                        </div>
                     </div>
                     <div class="card-footer">
                         <button type="submit" class="btn btn-primary">Зберегти зміни</button>

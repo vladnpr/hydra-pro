@@ -67,7 +67,6 @@ class VampireFlightController extends Controller
         $request->validate([
             'combat_shift_id' => 'required|exists:combat_shifts,id',
             'position_name' => 'required|string|max:255',
-            'coordinates' => 'nullable|string|max:255',
         ]);
 
         $lastOrder = VampireFlightPlan::where('combat_shift_id', $request->combat_shift_id)
@@ -76,7 +75,6 @@ class VampireFlightController extends Controller
         VampireFlightPlan::create([
             'combat_shift_id' => $request->combat_shift_id,
             'position_name' => $request->position_name,
-            'coordinates' => $request->coordinates,
             'order' => $lastOrder + 1,
             'status' => 'planned',
         ]);
@@ -109,10 +107,9 @@ class VampireFlightController extends Controller
         $plan = VampireFlightPlan::findOrFail($id);
         $request->validate([
             'position_name' => 'required|string|max:255',
-            'coordinates' => 'nullable|string|max:255',
         ]);
 
-        $plan->update($request->only(['position_name', 'coordinates']));
+        $plan->update($request->only(['position_name']));
 
         return redirect()->route('vampire.flights.index')->with('success', 'Ціль оновлена');
     }
@@ -122,6 +119,7 @@ class VampireFlightController extends Controller
         $request->validate([
             'combat_shift_id' => 'required|exists:combat_shifts,id',
             'vampire_flight_plan_id' => 'nullable|exists:vampire_flight_plans,id',
+            'coordinates' => 'nullable|string|max:255',
             'vampire_drone_id' => 'required|exists:vampire_drones,id',
             'start_time' => 'required|date',
             'end_time' => 'nullable|date|after_or_equal:start_time',
@@ -134,8 +132,10 @@ class VampireFlightController extends Controller
             'ammunition.*.quantity' => 'nullable|integer|min:1',
         ]);
 
+
         $data = $request->all();
         $data['shift_type'] = session('vampire_active_shift_type', ShiftTypeEnum::NIGHT->value);
+        $data['stream_status'] = $request->boolean('stream_status');
 
         // Не зберігаємо БК, якщо тип місії не 'combat'
         if ($request->mission_type !== 'combat') {
@@ -145,7 +145,6 @@ class VampireFlightController extends Controller
         try {
             $flight = \Illuminate\Support\Facades\DB::transaction(function () use ($data, $request) {
                 $flight = VampireFlight::create($data);
-
                 if ($request->result === 'loss') {
                     $drone = \App\Models\VampireDrone::find($request->vampire_drone_id);
                     if ($drone) {
@@ -277,6 +276,7 @@ class VampireFlightController extends Controller
         $flight = VampireFlight::with('ammunition')->findOrFail($id);
         $request->validate([
             'vampire_flight_plan_id' => 'nullable|exists:vampire_flight_plans,id',
+            'coordinates' => 'nullable|string|max:255',
             'vampire_drone_id' => 'required|exists:vampire_drones,id',
             'start_time' => 'required|date',
             'end_time' => 'nullable|date|after_or_equal:start_time',

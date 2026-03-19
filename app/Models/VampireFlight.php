@@ -13,6 +13,7 @@ class VampireFlight extends Model
     protected $fillable = [
         'combat_shift_id',
         'vampire_flight_plan_id',
+        'coordinates',
         'vampire_drone_id',
         'start_time',
         'end_time',

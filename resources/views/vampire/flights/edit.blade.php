@@ -17,6 +17,15 @@
                     @csrf
                     @method('PUT')
                     <div class="card-body">
+                        @if ($errors->any())
+                            <div class="alert alert-danger">
+                                <ul>
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
                         <div class="form-group">
                             <label for="vampire_flight_plan_id">Ціль з плану</label>
                             <select name="vampire_flight_plan_id" id="vampire_flight_plan_id" class="form-control">
@@ -63,9 +72,13 @@
                         <div class="form-group">
                             <label for="mission_type">Місія</label>
                             <select name="mission_type" id="mission_type" class="form-control" required>
-                                <option value="combat" {{ old('mission_type', $flight->mission_type) === 'combat' ? 'selected' : '' }}>бойова (мінування, бімба)</option>
                                 <option value="logistics" {{ old('mission_type', $flight->mission_type) === 'logistics' ? 'selected' : '' }}>логістика</option>
+                                <option value="combat" {{ old('mission_type', $flight->mission_type) === 'combat' ? 'selected' : '' }}>бойова (мінування, бімба)</option>
                             </select>
+                        </div>
+                        <div class="form-group" id="coordinates-section" style="{{ old('mission_type', $flight->mission_type) === 'combat' ? '' : 'display: none;' }}">
+                            <label for="flight_coordinates">Координати</label>
+                            <input type="text" name="coordinates" id="flight_coordinates" class="form-control" value="{{ old('coordinates', $flight->coordinates) }}" placeholder="47.123, 37.456">
                         </div>
                         <div id="ammunition-section" style="{{ old('mission_type', $flight->mission_type) === 'combat' ? '' : 'display: none;' }}">
                             <div id="ammunition-container">
@@ -142,15 +155,17 @@
         }
 
         $(document).ready(function() {
-            function toggleAmmunition() {
+            function toggleCombatFields() {
                 if ($('#mission_type').val() === 'combat') {
                     $('#ammunition-section').show();
+                    $('#coordinates-section').show();
                 } else {
                     $('#ammunition-section').hide();
+                    $('#coordinates-section').hide();
                 }
             }
 
-            $('#mission_type').on('change', toggleAmmunition);
+            $('#mission_type').on('change', toggleCombatFields);
 
             let ammoCount = {{ count($currentAmmunition) }};
             $('#add-ammunition').on('click', function() {
