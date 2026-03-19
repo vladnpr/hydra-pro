@@ -81,7 +81,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('view-reports', function (User $user) {
-            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon();
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire();
         });
 
         Gate::define('access-combat', function (User $user) {

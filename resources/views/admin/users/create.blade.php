@@ -34,6 +34,7 @@
                             <select name="role" id="role" class="form-control @error('role') is-invalid @enderror" required>
                                 <option value="user" {{ old('role') == 'user' ? 'selected' : '' }}>Користувач</option>
                                 <option value="recon" {{ old('role') == 'recon' ? 'selected' : '' }}>Розвідка</option>
+                                <option value="vampire" {{ old('role') == 'vampire' ? 'selected' : '' }}>Vampire</option>
                                 <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Менеджер</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Адміністратор</option>
                                 <option value="guest" {{ old('role') == 'guest' ? 'selected' : '' }}>Гість</option>
