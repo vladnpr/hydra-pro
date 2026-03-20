@@ -205,6 +205,55 @@ class ReconCombatShiftsController extends Controller
         return view('recon.combat_shifts.report', compact('shift'));
     }
 
+    public function spendingReport(int $id, \Illuminate\Http\Request $request)
+    {
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
+        if ($shift->type !== PositionTypesEnum::RECON->value) {
+            abort(404);
+        }
+
+        $date = $request->query('date');
+        if (!$date) {
+            $now = now();
+            if ($now->hour < 8) {
+                $date = $now->copy()->subDay()->format('Y-m-d');
+            } else {
+                $date = $now->format('Y-m-d');
+            }
+        }
+
+        $flights = $shift->recon_flights[$date] ?? [];
+
+        $spendingAmmunition = [];
+        foreach ($flights as $flight) {
+            if (!empty($flight['ammunition'])) {
+                foreach ($flight['ammunition'] as $ammo) {
+                    $name = $ammo['name'];
+                    $qty = $ammo['quantity'];
+                    if (!isset($spendingAmmunition[$name])) {
+                        $spendingAmmunition[$name] = 0;
+                    }
+                    $spendingAmmunition[$name] += $qty;
+                }
+            }
+        }
+
+        $startDate = \Carbon\Carbon::parse($date)->hour(8)->minute(0)->second(0);
+        $endDate = $startDate->copy()->addDay();
+
+        $lostDrones = \App\Models\ReconDrone::where('position_id', $shift->position_id)
+            ->where('status', 'lost')
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->get()
+            ->map(fn($d) => [
+                'name' => $d->name,
+                'serial' => $d->serial_number,
+                'lost_at' => $d->updated_at ? $d->updated_at->format('H:i') : '-'
+            ])->toArray();
+
+        return view('recon.combat_shifts.spending_report', compact('shift', 'date', 'spendingAmmunition', 'lostDrones'));
+    }
+
     public function activeFlightsReport(\Illuminate\Http\Request $request)
     {
         $activeShift = $this->combatShiftsAdminService->getActiveShiftByUserId(Auth::id());

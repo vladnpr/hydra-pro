@@ -18,6 +18,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
 
     Route::group(['prefix' => 'recon', 'as' => 'recon.'], function () {
         Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'flightsReport'])->name('combat_shifts.flights_report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}/spending-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'spendingReport'])->name('combat_shifts.spending_report')->where('id', '[0-9]+');
         Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'report'])->name('combat_shifts.report')->where('id', '[0-9]+');
         Route::get('combat_shifts/{id}', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
         Route::get('active-shift/flights-report', [\App\Http\Controllers\Recon\ReconCombatShiftsController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
