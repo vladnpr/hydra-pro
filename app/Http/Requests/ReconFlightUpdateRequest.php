@@ -38,8 +38,38 @@ class ReconFlightUpdateRequest extends FormRequest
             'ammunition.*.id' => 'nullable|required_with:ammunition.*.quantity|exists:ammunition,id',
             'ammunition.*.quantity' => 'nullable|required_with:ammunition.*.id|integer|min:1',
             'mission_type' => ['required', new Enum(ReconMissionTypesEnum::class)],
-            'coordinates' => 'required|string|max:255',
+            'coordinates' => [
+                'required_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'prohibited_if:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'target_name' => [
+                'required_if:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'prohibited_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'nullable',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) return;
+
+                    // 1. Формат 36U UA 24232 91610 (MGRS-подібний)
+                    if (preg_match('/^\d{2}[A-Z]\s+[A-Z]{2}\s+\d{5}\s+\d{5}$/i', $value)) {
+                        $fail('Поле "Назва цілі" не може містити координати у форматі MGRS.');
+                    }
+                    // 2. Формат 50.5000, 31.0500 (Decimal Degrees)
+                    if (preg_match('/^-?\d{1,3}\.\d+,\s*-?\d{1,3}\.\d+$/', $value)) {
+                        $fail('Поле "Назва цілі" не може містити координати у десятковому форматі.');
+                    }
+                    // 3. Формат 50°30′00″N 31°03′00″E (DMS)
+                    if (preg_match('/\d{1,3}°\d{1,2}′\d{1,2}″[NSEW]/i', $value)) {
+                        $fail('Поле "Назва цілі" не може містити координати у форматі градусів/мінут/секунд.');
+                    }
+                },
+            ],
             'flight_time' => 'required|date',
+            'landing_time' => 'nullable|date|after_or_equal:flight_time',
             'result' => ['required', new Enum(ReconMissionResultsEnum::class)],
             'shift_type' => ['required', new Enum(ShiftTypeEnum::class)],
             'stream_status' => 'boolean',
