@@ -202,11 +202,7 @@ class ReconCombatShiftsController extends Controller
             abort(404);
         }
 
-        $hour = now()->hour;
-        $defaultShiftType = ($hour >= 8 && $hour < 20) ? 'day' : 'night';
-        $activeShiftType = $request->query('shift_type', $defaultShiftType);
-
-        return view('recon.combat_shifts.report', compact('shift', 'activeShiftType'));
+        return view('recon.combat_shifts.report', compact('shift'));
     }
 
     public function activeFlightsReport(\Illuminate\Http\Request $request)
