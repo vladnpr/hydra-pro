@@ -73,14 +73,7 @@
                 </div>
                 <div class="card-footer">
                     @can('manage-recon')
-                        @if($shift->status === 'opened')
-                            <form action="{{ route('recon.combat_shifts.finish', $shift->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="btn btn-danger btn-block" onclick="return confirm('Завершити чергування?')">
-                                    Завершити чергування
-                                </button>
-                            </form>
-                        @else
+                        @if($shift->status !== 'opened')
                             <form action="{{ route('recon.combat_shifts.reopen', $shift->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-block" onclick="return confirm('Відновити чергування?')">
@@ -115,14 +108,133 @@
             <div class="card">
                 <div class="card-header p-2">
                     <ul class="nav nav-pills">
-                        <li class="nav-item"><a class="nav-link active" href="#inventory" data-toggle="tab">Майно</a></li>
+                        <li class="nav-item"><a class="nav-link active" href="#flights" data-toggle="tab">Польоти</a></li>
+                        <li class="nav-item"><a class="nav-link" href="#inventory" data-toggle="tab">Майно</a></li>
                         <li class="nav-item"><a class="nav-link" href="#crew" data-toggle="tab">Екіпаж</a></li>
-                        <li class="nav-item"><a class="nav-link" href="#flights" data-toggle="tab">Останні вильоти</a></li>
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content">
-                        <div class="active tab-pane" id="inventory">
+                        <div class="active tab-pane" id="flights">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h5>Журнал польотів розвідки</h5>
+                                <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-sm btn-info">
+                                    <i class="fas fa-file-alt"></i> Повний звіт по польотам
+                                </a>
+                            </div>
+
+                            @php
+                                $today = now()->format('Y-m-d');
+                            @endphp
+
+                            @forelse($shift->recon_flights as $date => $dayFlights)
+                                <div class="card card-outline card-secondary mb-2">
+                                    <div class="card-header">
+                                        <h3 class="card-title">
+                                            {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}
+                                            @if($date == $today)
+                                                <span class="badge badge-primary ml-2">Сьогодні</span>
+                                            @endif
+                                            <span class="ml-2 text-muted">({{ count($dayFlights) }})</span>
+                                        </h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas {{ $loop->first ? 'fa-minus' : 'fa-plus' }}"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0" style="{{ $loop->first ? '' : 'display: none;' }}">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-striped mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="pl-3">Час</th>
+                                                        <th>Зміна</th>
+                                                        <th>Дрон</th>
+                                                        <th>Ціль/Координати</th>
+                                                        <th class="d-none d-md-table-cell">Місія</th>
+                                                        <th class="d-none d-xl-table-cell">Стрім</th>
+                                                        <th>Результат</th>
+                                                        <th>Відео</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($dayFlights as $flight)
+                                                        <tr>
+                                                            <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                            <td>
+                                                                @if($flight['shift_type'] === 'day')
+                                                                    <i class="fas fa-sun text-warning" title="Денна"></i>
+                                                                @else
+                                                                    <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $flight['drone_name'] }}</td>
+                                                            <td>
+                                                                @if($flight['mission_type'] === 'delivery')
+                                                                    <strong>{{ $flight['target_name'] }}</strong>
+                                                                @else
+                                                                    <span class="small">{{ $flight['coordinates'] }}</span>
+                                                                @endif
+                                                            </td>
+                                                            <td class="d-none d-md-table-cell text-nowrap">{{ $flight['mission_type_label'] }}</td>
+                                                            <td class="d-none d-xl-table-cell">
+                                                                {!! $flight['stream_status'] ? '<span class="text-success">+</span>' : '<span class="text-danger">-</span>' !!}
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge badge-{{ $flight['result'] === 'success' ? 'success' : 'danger' }}">
+                                                                    {{ $flight['result_label'] }}
+                                                                </span>
+                                                            </td>
+                                                            <td>
+                                                                @if(!empty($flight['video_path']))
+                                                                    <div class="btn-group">
+                                                                        <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                                            <i class="fas fa-video"></i>
+                                                                        </button>
+                                                                        <a href="{{ route('recon.flights.download', $flight['id']) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                                            <i class="fas fa-download"></i>
+                                                                        </a>
+                                                                    </div>
+
+                                                                    <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-lg" role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title">Відео польоту ({{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }})</h5>
+                                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div class="modal-body text-center bg-black">
+                                                                                    <video width="100%" controls>
+                                                                                        <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                                                        Ваш браузер не підтримує відео.
+                                                                                    </video>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            @empty
+                                <div class="text-center py-4 text-muted">
+                                    <i class="fas fa-paper-plane fa-3x mb-3"></i>
+                                    <p>Польотів ще не зафіксовано</p>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <div class="tab-pane" id="inventory">
                             <h5>Дрони на позиції</h5>
                             <table class="table table-bordered table-sm mb-4">
                                 <thead>
@@ -191,61 +303,6 @@
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
-                        <div class="tab-pane" id="flights">
-                            <div class="d-flex justify-content-between align-items-center mb-3">
-                                <h5>Останні зафіксовані польоти розвідки</h5>
-                                <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-sm btn-info">
-                                    <i class="fas fa-file-alt"></i> Повний звіт по польотам
-                                </a>
-                            </div>
-                            <table class="table table-bordered table-sm">
-                                <thead>
-                                    <tr>
-                                        <th>Дата</th>
-                                        <th>Час</th>
-                                        <th>Зміна</th>
-                                        <th>Дрон</th>
-                                        <th>Місія</th>
-                                        <th>Результат</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @php $count = 0; @endphp
-                                    @forelse($shift->recon_flights as $day => $flights)
-                                        @foreach($flights as $flight)
-                                            @if($count < 10)
-                                                <tr>
-                                                    <td>{{ \Carbon\Carbon::parse($day)->format('d.m.Y') }}</td>
-                                                    <td>{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
-                                                    <td>
-                                                        @if($flight['shift_type'] === 'day')
-                                                            <i class="fas fa-sun text-warning"></i> Денна
-                                                        @else
-                                                            <i class="fas fa-moon text-secondary"></i> Нічна
-                                                        @endif
-                                                    </td>
-                                                    <td>{{ $flight['drone_name'] }}</td>
-                                                    <td>{{ $flight['mission_type_label'] }}</td>
-                                                    <td>{{ $flight['result_label'] }}</td>
-                                                </tr>
-                                                @php $count++; @endphp
-                                            @endif
-                                        @endforeach
-                                    @empty
-                                        <tr>
-                                            <td colspan="6" class="text-center">Польотів ще не зафіксовано</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                            @if(count($shift->recon_flights) > 0)
-                                <div class="text-center mt-3">
-                                    <a href="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" class="btn btn-default">
-                                        Переглянути всі польоти
-                                    </a>
-                                </div>
-                            @endif
                         </div>
                     </div>
                 </div>
