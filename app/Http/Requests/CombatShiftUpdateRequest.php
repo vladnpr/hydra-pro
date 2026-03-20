@@ -20,6 +20,7 @@ class CombatShiftUpdateRequest extends FormRequest
             'status' => 'required|in:opened,closed',
             'started_at' => 'required|date',
             'ended_at' => 'nullable|date|after_or_equal:started_at',
+            'request_source' => 'nullable|string',
             'drones' => 'nullable|array',
             'drones.*' => 'integer|min:0',
             'ammunition' => 'nullable|array',

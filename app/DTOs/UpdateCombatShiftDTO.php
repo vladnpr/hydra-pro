@@ -18,6 +18,7 @@ class UpdateCombatShiftDTO
         public readonly array $flights,
         public readonly array $damaged_drones,
         public readonly array $damaged_coils,
+        public readonly ?string $request_source = null,
         public readonly array $new_drones = [],
         public readonly array $existing_drones = [],
     ) {}
@@ -36,6 +37,7 @@ class UpdateCombatShiftDTO
             flights: $request->validated('flights', []),
             damaged_drones: $request->validated('damaged_drones', []),
             damaged_coils: $request->validated('damaged_coils', []),
+            request_source: $request->validated('request_source'),
             new_drones: $request->validated('new_drones', []),
             existing_drones: $request->validated('existing_drones', []),
         );
