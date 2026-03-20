@@ -50,7 +50,23 @@ class ReconFlightUpdateRequest extends FormRequest
                 'prohibited_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
                 'nullable',
                 'string',
-                'max:255'
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    if (empty($value)) return;
+
+                    // 1. Формат 36U UA 24232 91610 (MGRS-подібний)
+                    if (preg_match('/^\d{2}[A-Z]\s+[A-Z]{2}\s+\d{5}\s+\d{5}$/i', $value)) {
+                        $fail('Поле "Назва цілі" не може містити координати у форматі MGRS.');
+                    }
+                    // 2. Формат 50.5000, 31.0500 (Decimal Degrees)
+                    if (preg_match('/^-?\d{1,3}\.\d+,\s*-?\d{1,3}\.\d+$/', $value)) {
+                        $fail('Поле "Назва цілі" не може містити координати у десятковому форматі.');
+                    }
+                    // 3. Формат 50°30′00″N 31°03′00″E (DMS)
+                    if (preg_match('/\d{1,3}°\d{1,2}′\d{1,2}″[NSEW]/i', $value)) {
+                        $fail('Поле "Назва цілі" не може містити координати у форматі градусів/мінут/секунд.');
+                    }
+                },
             ],
             'flight_time' => 'required|date',
             'landing_time' => 'nullable|date|after_or_equal:flight_time',
