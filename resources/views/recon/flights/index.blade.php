@@ -131,10 +131,18 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="coordinates-section">
                             <label for="coordinates">Координати</label>
-                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000" required>
+                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000">
                             @error('coordinates')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group" id="target-name-section" style="display: none;">
+                            <label for="target_name">Назва цілі</label>
+                            <input type="text" name="target_name" id="target_name" class="form-control @error('target_name') is-invalid @enderror" value="{{ old('target_name') }}" placeholder="напр. ПНГ 1">
+                            @error('target_name')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
@@ -240,7 +248,7 @@
                                     <th>Стрім</th>
                                     <th>Тип</th>
                                     <th>БК</th>
-                                    <th>Координати</th>
+                                    <th>Ціль / Координати</th>
                                     <th>Результат</th>
                                     <th>Опис</th>
                                     <th>Відео</th>
@@ -292,7 +300,13 @@
                                                 -
                                             @endif
                                         </td>
-                                        <td>{{ $flight->coordinates }}</td>
+                                        <td>
+                                            @if($flight->mission_type->value === 'delivery')
+                                                {{ $flight->target_name }}
+                                            @else
+                                                {{ $flight->coordinates }}
+                                            @endif
+                                        </td>
                                         <td>
                                             @php
                                                 $badgeClass = match($flight->result->value) {
@@ -457,8 +471,9 @@
                 @endforeach
             @endif
 
-            $('#mission_type').on('change', function() {
-                if ($(this).val() === 'combat') {
+            function toggleMissionFields() {
+                const missionType = $('#mission_type').val();
+                if (missionType === 'combat') {
                     $('#ammunition-section').slideDown();
                 } else {
                     $('#ammunition-section').slideUp();
@@ -469,7 +484,22 @@
                     $('#ammunition-container .row.mb-2').not(':first').remove();
                     ammoCount = 1;
                 }
-            });
+
+                if (missionType === 'delivery') {
+                    $('#coordinates-section').hide();
+                    $('#target-name-section').show();
+                    $('#coordinates').removeAttr('required');
+                    $('#target_name').attr('required', 'required');
+                } else {
+                    $('#coordinates-section').show();
+                    $('#target-name-section').hide();
+                    $('#coordinates').attr('required', 'required');
+                    $('#target_name').removeAttr('required');
+                }
+            }
+
+            $('#mission_type').on('change', toggleMissionFields);
+            toggleMissionFields();
 
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();

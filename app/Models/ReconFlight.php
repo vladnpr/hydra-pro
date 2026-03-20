@@ -20,6 +20,7 @@ class ReconFlight extends Model
         'recon_ammunition_id',
         'mission_type',
         'coordinates',
+        'target_name',
         'flight_time',
         'landing_time',
         'result',

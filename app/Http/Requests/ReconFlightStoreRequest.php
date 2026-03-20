@@ -51,7 +51,20 @@ class ReconFlightStoreRequest extends FormRequest
                 'min:1'
             ],
             'mission_type' => ['required', new Enum(ReconMissionTypesEnum::class)],
-            'coordinates' => 'required|string|max:255',
+            'coordinates' => [
+                'required_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'prohibited_if:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'nullable',
+                'string',
+                'max:255'
+            ],
+            'target_name' => [
+                'required_if:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'prohibited_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
+                'nullable',
+                'string',
+                'max:255'
+            ],
             'flight_time' => 'required|date',
             'landing_time' => 'nullable|date|after_or_equal:flight_time',
             'result' => ['required', new Enum(ReconMissionResultsEnum::class)],

@@ -74,7 +74,7 @@
                         <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
                         @forelse($dayFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
+                                <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
                                 <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
                                     @if(!empty($flight['landing_time']))
                                         - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
@@ -95,7 +95,7 @@
                         <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
                         @forelse($nightFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
+                                <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
                                 <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
                                     @if(!empty($flight['landing_time']))
                                         - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
