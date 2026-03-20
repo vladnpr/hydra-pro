@@ -147,7 +147,10 @@ readonly class CombatShiftsAdminService
             }
 
             $this->combatShiftRepository->syncCrew($shiftModel, $dto->crew);
-            $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
+
+            if ($dto->request_source !== 'admin_edit' || !empty($dto->flights)) {
+                $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
+            }
 
             $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
 
