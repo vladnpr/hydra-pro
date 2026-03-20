@@ -131,10 +131,18 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="coordinates-section">
                             <label for="coordinates">Координати</label>
-                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000" required>
+                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000">
                             @error('coordinates')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group" id="target-name-section" style="display: none;">
+                            <label for="target_name">Назва цілі</label>
+                            <input type="text" name="target_name" id="target_name" class="form-control @error('target_name') is-invalid @enderror" value="{{ old('target_name') }}" placeholder="напр. ПНГ 1">
+                            @error('target_name')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
@@ -148,9 +156,31 @@
 
                         <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                            <div class="input-group">
+                                <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('flight_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                             @error('flight_time')
-                                <span class="error invalid-feedback">{{ $message }}</span>
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="landing_time">Час посадки</label>
+                            <div class="input-group">
+                                <input type="datetime-local" name="landing_time" id="landing_time" class="form-control @error('landing_time') is-invalid @enderror" value="{{ old('landing_time') }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('landing_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @error('landing_time')
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -209,141 +239,160 @@
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
-                        <table class="table table-sm table-striped mb-0">
-                            <thead>
-                                <tr>
-                                    <th>Час</th>
-                                    <th>Зміна</th>
-                                    <th>Дрон</th>
-                                    <th>Стрім</th>
-                                    <th>Тип</th>
-                                    <th>БК</th>
-                                    <th>Координати</th>
-                                    <th>Результат</th>
-                                    <th>Опис</th>
-                                    <th>Відео</th>
-                                    <th>Дії</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($flights as $flight)
+                        @forelse($flights as $date => $dayFlights)
+                            <div class="p-2 bg-light border-bottom">
+                                <h6 class="mb-0 font-weight-bold">
+                                    <i class="fas fa-calendar-day mr-1"></i>
+                                    {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}
+                                </h6>
+                            </div>
+                            <table class="table table-sm table-striped mb-0">
+                                <thead>
                                     <tr>
-                                        <td>{{ $flight->flight_time->format('H:i d.m') }}</td>
-                                        <td>
-                                            @if($flight->shift_type?->value === 'day')
-                                                <i class="fas fa-sun text-warning" title="Денна"></i>
-                                            @elseif($flight->shift_type?->value === 'night')
-                                                <i class="fas fa-moon text-secondary" title="Нічна"></i>
-                                            @elseif($flight->shift_type?->value === 'both')
-                                                <i class="fas fa-sun text-warning" title="Денна"></i> / <i class="fas fa-moon text-secondary" title="Нічна"></i>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ $flight->drone->name }}</td>
-                                        <td class="text-center">
-                                            @if($flight->stream_status)
-                                                <i class="fas fa-check-circle text-success" title="Є стрім"></i>
-                                            @else
-                                                <i class="fas fa-times-circle text-danger" title="Без стріму"></i>
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <span class="badge badge-info">
-                                                {{ $flight->mission_type->value === 'recon' ? 'Розвідка' : 'Скид' }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            @foreach($flight->ammunition as $ammo)
-                                                <div>{{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
-                                            @endforeach
-                                            @if($flight->ammunition->isNotEmpty())
-                                                <div class="mt-1 border-top pt-1">
-                                                    <strong>Всього: {{ $flight->total_ammunition_quantity }}</strong>
-                                                </div>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>{{ $flight->coordinates }}</td>
-                                        <td>
-                                            @php
-                                                $badgeClass = match($flight->result->value) {
-                                                    'success' => 'success',
-                                                    'board_loosed' => 'danger',
-                                                    default => 'secondary'
-                                                };
-                                                $resultLabel = match($flight->result->value) {
-                                                    'success' => 'Успішно',
-                                                    'board_loosed' => 'Втрата',
-                                                    'other' => 'Інше',
-                                                    default => $flight->result->value
-                                                };
-                                            @endphp
-                                            <span class="badge badge-{{ $badgeClass }}">{{ $resultLabel }}</span>
-                                        </td>
-                                        <td>
-                                            @if($flight->description)
-                                                <span title="{{ $flight->description }}">{{ Str::limit($flight->description, 30) }}</span>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            @if($flight->video_path)
-                                                <div class="btn-group">
-                                                    <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight->id }}" title="Переглянути">
-                                                        <i class="fas fa-video"></i>
-                                                    </button>
-                                                    <a href="{{ route('recon.flights.download', $flight->id) }}" class="btn btn-xs btn-success" title="Скачати">
-                                                        <i class="fas fa-download"></i>
-                                                    </a>
-                                                </div>
+                                        <th>Час</th>
+                                        <th>Зміна</th>
+                                        <th>Дрон</th>
+                                        <th>Стрім</th>
+                                        <th>Тип</th>
+                                        <th>БК</th>
+                                        <th>Ціль / Координати</th>
+                                        <th>Результат</th>
+                                        <th>Опис</th>
+                                        <th>Відео</th>
+                                        <th>Дії</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach($dayFlights as $flight)
+                                        <tr>
+                                            <td>
+                                                <div class="text-nowrap">{{ $flight->flight_time->format('H:i') }}</div>
+                                                @if($flight->landing_time)
+                                                    <div class="text-nowrap text-muted small">{{ $flight->landing_time->format('H:i') }}</div>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($flight->shift_type?->value === 'day')
+                                                    <i class="fas fa-sun text-warning" title="Денна"></i>
+                                                @elseif($flight->shift_type?->value === 'night')
+                                                    <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                                @elseif($flight->shift_type?->value === 'both')
+                                                    <i class="fas fa-sun text-warning" title="Денна"></i> / <i class="fas fa-moon text-secondary" title="Нічна"></i>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>{{ $flight->drone->name }}</td>
+                                            <td class="text-center">
+                                                @if($flight->stream_status)
+                                                    <i class="fas fa-check-circle text-success" title="Є стрім"></i>
+                                                @else
+                                                    <i class="fas fa-times-circle text-danger" title="Без стріму"></i>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-info">
+                                                    {{ $flight->mission_type->value === 'recon' ? 'Розвідка' : 'Скид' }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                @foreach($flight->ammunition as $ammo)
+                                                    <div>{{ $ammo->name }} ({{ $ammo->pivot->quantity }})</div>
+                                                @endforeach
+                                                @if($flight->ammunition->isNotEmpty())
+                                                    <div class="mt-1 border-top pt-1">
+                                                        <strong>Всього: {{ $flight->total_ammunition_quantity }}</strong>
+                                                    </div>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($flight->mission_type->value === 'delivery')
+                                                    {{ $flight->target_name }}
+                                                @else
+                                                    {{ $flight->coordinates }}
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @php
+                                                    $badgeClass = match($flight->result->value) {
+                                                        'success' => 'success',
+                                                        'board_loosed' => 'danger',
+                                                        default => 'secondary'
+                                                    };
+                                                    $resultLabel = match($flight->result->value) {
+                                                        'success' => 'Успішно',
+                                                        'board_loosed' => 'Втрата',
+                                                        'other' => 'Інше',
+                                                        default => $flight->result->value
+                                                    };
+                                                @endphp
+                                                <span class="badge badge-{{ $badgeClass }}">{{ $resultLabel }}</span>
+                                            </td>
+                                            <td>
+                                                @if($flight->description)
+                                                    <span title="{{ $flight->description }}">{{ Str::limit($flight->description, 30) }}</span>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($flight->video_path)
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight->id }}" title="Переглянути">
+                                                            <i class="fas fa-video"></i>
+                                                        </button>
+                                                        <a href="{{ route('recon.flights.download', $flight->id) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                            <i class="fas fa-download"></i>
+                                                        </a>
+                                                    </div>
 
-                                                <div class="modal fade" id="videoModal{{ $flight->id }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                                    <div class="modal-dialog modal-lg" role="document">
-                                                        <div class="modal-content">
-                                                            <div class="modal-header">
-                                                                <h5 class="modal-title">Відео польоту ({{ $flight->flight_time->format('H:i') }})</h5>
-                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                    <span aria-hidden="true">&times;</span>
-                                                                </button>
-                                                            </div>
-                                                            <div class="modal-body text-center bg-black">
-                                                                <video width="100%" controls>
-                                                                    <source src="{{ Storage::url($flight->video_path) }}" type="video/mp4">
-                                                                    Ваш браузер не підтримує відео.
-                                                                </video>
+                                                    <div class="modal fade" id="videoModal{{ $flight->id }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                        <div class="modal-dialog modal-lg" role="document">
+                                                            <div class="modal-content">
+                                                                <div class="modal-header">
+                                                                    <h5 class="modal-title">Відео польоту ({{ $flight->flight_time->format('H:i') }})</h5>
+                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                        <span aria-hidden="true">&times;</span>
+                                                                    </button>
+                                                                </div>
+                                                                <div class="modal-body text-center bg-black">
+                                                                    <video width="100%" controls>
+                                                                        <source src="{{ Storage::url($flight->video_path) }}" type="video/mp4">
+                                                                        Ваш браузер не підтримує відео.
+                                                                    </video>
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                @else
+                                                    -
+                                                @endif
+                                            </td>
+                                            <td>
+                                                <div class="btn-group">
+                                                    <a href="{{ route('recon.flights.edit', $flight->id) }}" class="btn btn-xs btn-info">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <form action="{{ route('recon.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    </form>
                                                 </div>
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                        <td>
-                                            <div class="btn-group">
-                                                <a href="{{ route('recon.flights.edit', $flight->id) }}" class="btn btn-xs btn-info">
-                                                    <i class="fas fa-edit"></i>
-                                                </a>
-                                                <form action="{{ route('recon.flights.destroy', $flight->id) }}" method="POST" style="display:inline-block;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="10" class="text-center p-4">Польотів ще не зафіксовано</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @empty
+                            <div class="p-4 text-center">
+                                <p class="text-muted">Польотів ще не зафіксовано</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -353,6 +402,13 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function () {
             $('.select2').select2({
                 theme: 'bootstrap4'
@@ -423,8 +479,9 @@
                 @endforeach
             @endif
 
-            $('#mission_type').on('change', function() {
-                if ($(this).val() === 'combat') {
+            function toggleMissionFields() {
+                const missionType = $('#mission_type').val();
+                if (missionType === 'combat') {
                     $('#ammunition-section').slideDown();
                 } else {
                     $('#ammunition-section').slideUp();
@@ -435,7 +492,22 @@
                     $('#ammunition-container .row.mb-2').not(':first').remove();
                     ammoCount = 1;
                 }
-            });
+
+                if (missionType === 'delivery') {
+                    $('#coordinates-section').hide();
+                    $('#target-name-section').show();
+                    $('#coordinates').removeAttr('required');
+                    $('#target_name').attr('required', 'required');
+                } else {
+                    $('#coordinates-section').show();
+                    $('#target-name-section').hide();
+                    $('#coordinates').attr('required', 'required');
+                    $('#target_name').removeAttr('required');
+                }
+            }
+
+            $('#mission_type').on('change', toggleMissionFields);
+            toggleMissionFields();
 
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();

@@ -62,7 +62,10 @@ class ReconFlightController extends Controller
         $flights = ReconFlight::with(['drone', 'ammunition'])
             ->whereIn('recon_drone_id', collect($userActiveShift->recon_drones)->pluck('id'))
             ->orderBy('flight_time', 'desc')
-            ->get();
+            ->get()
+            ->groupBy(function ($f) {
+                return $f->flight_time->format('Y-m-d');
+            });
 
         $drones = collect($userActiveShift->recon_drones)
             ->where('status', 'active')

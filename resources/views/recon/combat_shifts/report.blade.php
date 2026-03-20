@@ -20,27 +20,6 @@
 @endsection
 
 @section('content')
-    <div class="row mb-3 no-print">
-        <div class="col-md-8 mx-auto">
-            <div class="card">
-                <div class="card-body">
-                    <form action="{{ route('recon.combat_shifts.report', $shift->id) }}" method="GET" class="form-inline">
-                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
-                            <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-sun"></i> Денна
-                            </label>
-                            <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-moon"></i> Нічна
-                            </label>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <div class="row">
         <div class="col-md-8 mx-auto">
             <div class="card shadow-sm">
@@ -51,53 +30,55 @@
                         @php
                             $now = \Carbon\Carbon::now();
                             $startedAt = \Carbon\Carbon::parse($shift->started_at);
-                            $dayOfShift = (int) $startedAt->diffInDays($now) + 1;;
-
-                            $shiftLabel = $activeShiftType === 'day' ? 'День' : 'Ніч';
+                            $dayOfShift = (int) $startedAt->diffInDays($now) + 1;
 
                             $dayCrew = array_filter($shift->crew, fn($member) => $member['shift_type'] === 'day');
                             $nightCrew = array_filter($shift->crew, fn($member) => $member['shift_type'] === 'night');
                         @endphp
 
-                        <p class="mb-1"><strong>{{ $shiftLabel }} ({{ $dayOfShift }})</strong></p>
-                        @if($activeShiftType === 'day')
-                            @forelse($dayCrew as $member)
+                        <p class="mb-1"><strong>Звіт за {{ $startedAt->format('d.m.Y') }} (день {{ $dayOfShift }})</strong></p>
+
+                        @if(count($dayCrew) > 0)
+                            <p class="mb-0 mt-2"><strong>Денна зміна:</strong></p>
+                            @foreach($dayCrew as $member)
                                 <p class="mb-0">{{ $member['callsign'] }}</p>
-                            @empty
-                                <p class="mb-0">Екіпаж не вказано</p>
-                            @endforelse
-                        @else
-                            @forelse($nightCrew as $member)
+                            @endforeach
+                        @endif
+
+                        @if(count($nightCrew) > 0)
+                            <p class="mb-0 mt-2"><strong>Нічна зміна:</strong></p>
+                            @foreach($nightCrew as $member)
                                 <p class="mb-0">{{ $member['callsign'] }}</p>
-                            @empty
-                                <p class="mb-0">Екіпаж не вказано</p>
-                            @endforelse
+                            @endforeach
                         @endif
 
                         @php
                             $bgDrones = array_filter($shift->recon_drones, fn($d) => $d['status'] === 'active');
                             $nonBgDrones = array_filter($shift->recon_drones, fn($d) => $d['status'] !== 'active' && $d['status'] !== 'lost');
 
-                            if ($activeShiftType === 'day') {
-                                $bgDrones = array_filter($bgDrones, fn($d) => $d['shift_type'] === 'day');
-                                $nonBgDrones = array_filter($nonBgDrones, fn($d) => $d['shift_type'] === 'day');
-                            } else {
-                                $bgDrones = array_filter($bgDrones, fn($d) => $d['shift_type'] === 'night');
-                                $nonBgDrones = array_filter($nonBgDrones, fn($d) => $d['shift_type'] === 'night');
+                            if (!function_exists('getReconShiftLabel')) {
+                                function getReconShiftLabel($type) {
+                                    return match($type) {
+                                        'day' => '(денний)',
+                                        'night' => '(нічний)',
+                                        'both' => '(день-ніч)',
+                                        default => ''
+                                    };
+                                }
                             }
                         @endphp
 
                         @if(count($bgDrones) > 0)
                             <h5 class="mt-4"><strong>БГ Борти:</strong></h5>
                             @foreach($bgDrones as $drone)
-                                <p class="mb-0">{{ $drone['name'] }} {{ $drone['serial_number'] }}</p>
+                                <p class="mb-0">{{ $drone['name'] }} {{ $drone['serial_number'] }} {{ getReconShiftLabel($drone['shift_type']) }}</p>
                             @endforeach
                         @endif
 
                         @if(count($nonBgDrones) > 0)
                             <h5 class="mt-4"><strong>Не БГ Борти:</strong></h5>
                             @foreach($nonBgDrones as $drone)
-                                <p class="mb-0">{{ $drone['name'] }} {{ $drone['serial_number'] }}</p>
+                                <p class="mb-0">{{ $drone['name'] }} {{ $drone['serial_number'] }} {{ getReconShiftLabel($drone['shift_type']) }}</p>
                             @endforeach
                         @endif
 

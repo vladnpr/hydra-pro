@@ -110,10 +110,18 @@
                             </button>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="coordinates-section">
                             <label for="coordinates">Координати</label>
-                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}" required>
+                            <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}">
                             @error('coordinates')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group" id="target-name-section" style="display: none;">
+                            <label for="target_name">Назва цілі</label>
+                            <input type="text" name="target_name" id="target_name" class="form-control @error('target_name') is-invalid @enderror" value="{{ old('target_name', $flight->target_name) }}" placeholder="напр. ПНГ 1">
+                            @error('target_name')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
@@ -127,9 +135,31 @@
 
                         <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                            <div class="input-group">
+                                <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('flight_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                             @error('flight_time')
-                                <span class="error invalid-feedback">{{ $message }}</span>
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="landing_time">Час посадки</label>
+                            <div class="input-group">
+                                <input type="datetime-local" name="landing_time" id="landing_time" class="form-control @error('landing_time') is-invalid @enderror" value="{{ old('landing_time', $flight->landing_time?->format('Y-m-d\TH:i')) }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('landing_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @error('landing_time')
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -185,6 +215,13 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function () {
             $('.select2').select2({
                 theme: 'bootstrap4'
@@ -221,13 +258,29 @@
                 ammoCount++;
             });
 
-            $('#mission_type').on('change', function() {
-                if ($(this).val() === 'combat') {
+            function toggleMissionFields() {
+                const missionType = $('#mission_type').val();
+                if (missionType === 'combat') {
                     $('#ammunition-section').slideDown();
                 } else {
                     $('#ammunition-section').slideUp();
                 }
-            });
+
+                if (missionType === 'delivery') {
+                    $('#coordinates-section').hide();
+                    $('#target-name-section').show();
+                    $('#coordinates').removeAttr('required');
+                    $('#target_name').attr('required', 'required');
+                } else {
+                    $('#coordinates-section').show();
+                    $('#target-name-section').hide();
+                    $('#coordinates').attr('required', 'required');
+                    $('#target_name').removeAttr('required');
+                }
+            }
+
+            $('#mission_type').on('change', toggleMissionFields);
+            toggleMissionFields();
 
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();

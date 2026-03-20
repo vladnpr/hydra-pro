@@ -32,7 +32,7 @@
                                 if (!in_array($date, $dates)) {
                                     $dates[] = $date;
                                 }
-                                sort($dates);
+                                rsort($dates);
                             @endphp
                             @foreach($dates as $flightDate)
                                 <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
@@ -74,13 +74,48 @@
                         <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
                         @forelse($dayFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                                <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
+                                <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
+                                    @if(!empty($flight['landing_time']))
+                                        - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
+                                    @endif
+                                </p>
                                 <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
                                 <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
                                 <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
                                 <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
                                 <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
+                                @if(!empty($flight['video_path']))
+                                    <div class="mt-2 no-print">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                <i class="fas fa-video"></i> Переглянути
+                                            </button>
+                                            <a href="{{ route('recon.flights.download', $flight['id']) }}" class="btn btn-xs btn-success ml-1" title="Скачати">
+                                                <i class="fas fa-download"></i> Скачати відео
+                                            </a>
+                                        </div>
+
+                                        <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body text-center bg-black">
+                                                        <video width="100%" controls>
+                                                            <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                            Ваш браузер не підтримує відео.
+                                                        </video>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @empty
                             <p class="text-muted">Денних польотів не знайдено.</p>
@@ -91,13 +126,48 @@
                         <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
                         @forelse($nightFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                                <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
+                                <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
+                                    @if(!empty($flight['landing_time']))
+                                        - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
+                                    @endif
+                                </p>
                                 <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
                                 <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
                                 <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
                                 <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
                                 <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
+                                @if(!empty($flight['video_path']))
+                                    <div class="mt-2 no-print">
+                                        <div class="btn-group">
+                                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                <i class="fas fa-video"></i> Переглянути
+                                            </button>
+                                            <a href="{{ route('recon.flights.download', $flight['id']) }}" class="btn btn-xs btn-success ml-1" title="Скачати">
+                                                <i class="fas fa-download"></i> Скачати відео
+                                            </a>
+                                        </div>
+
+                                        <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body text-center bg-black">
+                                                        <video width="100%" controls>
+                                                            <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                            Ваш браузер не підтримує відео.
+                                                        </video>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endif
                             </div>
                         @empty
                             <p class="text-muted">Нічних польотів не знайдено.</p>
@@ -173,6 +243,11 @@
                     alert('Не вдалося скопіювати текст');
                 });
             });
+
+            $('.modal').on('hidden.bs.modal', function () {
+                let video = $(this).find('video')[0];
+                if (video) video.pause();
+            });
         });
     </script>
 @endsection
@@ -191,6 +266,7 @@
     .flight-report-item p {
         margin-bottom: 0 !important;
     }
+    .bg-black { background-color: #000; }
     @media print {
         .no-print, .no-copy {
             display: none !important;
