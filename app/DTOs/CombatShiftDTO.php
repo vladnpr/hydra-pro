@@ -76,6 +76,7 @@ class CombatShiftDTO
             'mission_type_label' => $f->mission_type->value === 'recon' ? 'розвідка' : ($f->mission_type->value === 'combat' ? 'бойова (скид)' : $f->mission_type->value),
             'coordinates' => $f->coordinates,
             'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
+            'landing_time' => $f->landing_time?->format('Y-m-d H:i:s'),
             'result' => $f->result->value,
             'result_label' => $f->result->value === 'success' ? 'відпрацювали' : ($f->result->value === 'board_loosed' ? 'втрата борту' : $f->result->value),
             'shift_type' => $f->shift_type->value,

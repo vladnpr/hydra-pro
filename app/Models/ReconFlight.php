@@ -21,6 +21,7 @@ class ReconFlight extends Model
         'mission_type',
         'coordinates',
         'flight_time',
+        'landing_time',
         'result',
         'shift_type',
         'stream_status',
@@ -30,6 +31,7 @@ class ReconFlight extends Model
 
     protected $casts = [
         'flight_time' => 'datetime',
+        'landing_time' => 'datetime',
         'mission_type' => ReconMissionTypesEnum::class,
         'result' => ReconMissionResultsEnum::class,
         'shift_type' => ShiftTypeEnum::class,

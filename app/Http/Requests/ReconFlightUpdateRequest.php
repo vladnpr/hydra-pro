@@ -40,6 +40,7 @@ class ReconFlightUpdateRequest extends FormRequest
             'mission_type' => ['required', new Enum(ReconMissionTypesEnum::class)],
             'coordinates' => 'required|string|max:255',
             'flight_time' => 'required|date',
+            'landing_time' => 'nullable|date|after_or_equal:flight_time',
             'result' => ['required', new Enum(ReconMissionResultsEnum::class)],
             'shift_type' => ['required', new Enum(ShiftTypeEnum::class)],
             'stream_status' => 'boolean',

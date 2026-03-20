@@ -75,7 +75,11 @@
                         @forelse($dayFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
                                 <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                                <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
+                                    @if(!empty($flight['landing_time']))
+                                        - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
+                                    @endif
+                                </p>
                                 <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
                                 <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
                                 <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
@@ -92,7 +96,11 @@
                         @forelse($nightFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
                                 <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
-                                <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                                <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
+                                    @if(!empty($flight['landing_time']))
+                                        - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
+                                    @endif
+                                </p>
                                 <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
                                 <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
                                 <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>

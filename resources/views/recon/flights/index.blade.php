@@ -148,9 +148,31 @@
 
                         <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                            <div class="input-group">
+                                <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('flight_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                             @error('flight_time')
-                                <span class="error invalid-feedback">{{ $message }}</span>
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="landing_time">Час посадки</label>
+                            <div class="input-group">
+                                <input type="datetime-local" name="landing_time" id="landing_time" class="form-control @error('landing_time') is-invalid @enderror" value="{{ old('landing_time') }}">
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('landing_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @error('landing_time')
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -228,7 +250,12 @@
                             <tbody>
                                 @forelse($flights as $flight)
                                     <tr>
-                                        <td>{{ $flight->flight_time->format('H:i d.m') }}</td>
+                                        <td>
+                                            <div class="text-nowrap">{{ $flight->flight_time->format('H:i d.m') }}</div>
+                                            @if($flight->landing_time)
+                                                <div class="text-nowrap text-muted small">{{ $flight->landing_time->format('H:i') }}</div>
+                                            @endif
+                                        </td>
                                         <td>
                                             @if($flight->shift_type?->value === 'day')
                                                 <i class="fas fa-sun text-warning" title="Денна"></i>
@@ -353,6 +380,13 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function () {
             $('.select2').select2({
                 theme: 'bootstrap4'
