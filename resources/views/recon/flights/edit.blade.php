@@ -14,6 +14,16 @@
 @section('content')
     <div class="row">
         <div class="col-md-6">
+            @if ($errors->any())
+                <div class="alert alert-danger">
+                    <h5><i class="icon fas fa-ban"></i> Помилка!</h5>
+                    <ul>
+                        @foreach ($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
             <div class="card card-info">
                 <div class="card-header">
                     <h3 class="card-title">Дані польоту</h3>
@@ -76,12 +86,10 @@
 
                                 @php
                                     $currentAmmunition = old('ammunition', $flight->ammunition->map(fn($a) => ['id' => $a->id, 'quantity' => $a->pivot->quantity])->toArray());
-                                    if (empty($currentAmmunition)) {
-                                        $currentAmmunition = [['id' => '', 'quantity' => 1]];
-                                    }
                                 @endphp
 
-                                @foreach($currentAmmunition as $index => $oldAmmo)
+                                @if(!empty($currentAmmunition))
+                                    @foreach($currentAmmunition as $index => $oldAmmo)
                                     <div class="row mb-2 ammunition-row">
                                         <div class="col-8">
                                             <select name="ammunition[{{ $index }}][id]" class="form-control select2 @error("ammunition.$index.id") is-invalid @enderror">
@@ -104,6 +112,7 @@
                                         </div>
                                     </div>
                                 @endforeach
+                                @endif
                             </div>
                             <button type="button" class="btn btn-xs btn-outline-info mb-3" id="add-ammunition">
                                 <i class="fas fa-plus"></i> Додати боєприпас
@@ -111,7 +120,7 @@
                         </div>
 
                         <div class="form-group" id="coordinates-section">
-                            <label for="coordinates">Координати</label>
+                            <label for="coordinates">Координати <span class="text-danger">*</span></label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}">
                             @error('coordinates')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -119,7 +128,7 @@
                         </div>
 
                         <div class="form-group" id="target-name-section" style="display: none;">
-                            <label for="target_name">Назва цілі</label>
+                            <label for="target_name">Назва цілі <span class="text-danger">*</span></label>
                             <input type="text" name="target_name" id="target_name" class="form-control @error('target_name') is-invalid @enderror" value="{{ old('target_name', $flight->target_name) }}" placeholder="напр. ПНГ 1">
                             @error('target_name')
                                 <span class="error invalid-feedback">{{ $message }}</span>
