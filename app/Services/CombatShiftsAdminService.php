@@ -351,9 +351,9 @@ readonly class CombatShiftsAdminService
     private function calculateVampireStats(\Illuminate\Support\Collection $flights): array
     {
         $totalFlights = $flights->count();
-        $success = $flights->where('result', 'успішно')->count();
-        $failed = $flights->where('result', 'не успішно')->count();
-        $loosed = $flights->where('result', 'втрата борту')->count();
+        $success = $flights->where('result', 'worked')->count();
+        $failed = $flights->where('result', 'not_worked')->count();
+        $loosed = $flights->where('result', 'loss')->count();
 
         // Ефективність Вампіра: (Успішні) / (Успішні + Не успішні + Втрати)
         $divisorVampire = $success + $failed + $loosed;
