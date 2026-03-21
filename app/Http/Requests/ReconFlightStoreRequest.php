@@ -37,30 +37,24 @@ class ReconFlightStoreRequest extends FormRequest
             ],
             'ammunition.*.id' => [
                 'nullable',
-                'required_if:mission_type,combat',
                 'required_with:ammunition.*.quantity',
-                'prohibited_unless:mission_type,combat',
                 'exists:ammunition,id'
             ],
             'ammunition.*.quantity' => [
                 'nullable',
-                'required_if:mission_type,combat',
                 'required_with:ammunition.*.id',
-                'prohibited_unless:mission_type,combat',
                 'integer',
                 'min:1'
             ],
             'mission_type' => ['required', new Enum(ReconMissionTypesEnum::class)],
             'coordinates' => [
                 'required_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
-                'prohibited_if:mission_type,' . ReconMissionTypesEnum::OTHER->value,
                 'nullable',
                 'string',
                 'max:255'
             ],
             'target_name' => [
                 'required_if:mission_type,' . ReconMissionTypesEnum::OTHER->value,
-                'prohibited_unless:mission_type,' . ReconMissionTypesEnum::OTHER->value,
                 'nullable',
                 'string',
                 'max:255',
