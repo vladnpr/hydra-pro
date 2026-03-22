@@ -95,7 +95,12 @@ class AppServiceProvider extends ServiceProvider
         view()->composer('*', function ($view) {
             if (Auth::check()) {
                 $service = $this->app->make(CombatShiftsAdminService::class);
-                $view->with('globalActiveShift', $service->getActiveShiftByUserId(Auth::id()));
+                // Ми можемо кешувати активну зміну на час запиту, щоб не робити запит кожного разу, коли в'юшка рендериться
+                static $activeShift = null;
+                if ($activeShift === null) {
+                    $activeShift = $service->getActiveShiftByUserId(Auth::id());
+                }
+                $view->with('globalActiveShift', $activeShift);
             }
         });
     }

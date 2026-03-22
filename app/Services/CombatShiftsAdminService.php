@@ -237,25 +237,18 @@ readonly class CombatShiftsAdminService
 
     public function getDashboardStats(): array
     {
-        $fpvAllFlights = \App\Models\CombatShiftFlight::all();
-        $reconAllFlights = \App\Models\ReconFlight::all();
-        $vampireAllFlights = \App\Models\VampireFlight::all();
-
         $activeShiftIds = \App\Models\CombatShift::where('status', 'opened')->pluck('id');
-        $fpvActiveFlights = \App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
-        $reconActiveFlights = \App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
-        $vampireActiveFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get();
 
         return [
             'total' => [
-                'fpv' => $this->calculateFpvStats($fpvAllFlights),
-                'recon' => $this->calculateReconStats($reconAllFlights),
-                'vampire' => $this->calculateVampireStats($vampireAllFlights),
+                'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::all()),
+                'recon' => $this->calculateReconStats(\App\Models\ReconFlight::all()),
+                'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::all()),
             ],
             'active' => [
-                'fpv' => $this->calculateFpvStats($fpvActiveFlights),
-                'recon' => $this->calculateReconStats($reconActiveFlights),
-                'vampire' => $this->calculateVampireStats($vampireActiveFlights),
+                'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
+                'recon' => $this->calculateReconStats(\App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
+                'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
             ],
             'positions' => $this->getStatsByPositions(),
             'active_shifts' => $this->getStatsByActiveShifts(),
@@ -264,22 +257,22 @@ readonly class CombatShiftsAdminService
 
     private function getStatsByActiveShifts(): array
     {
-        $activeShifts = \App\Models\CombatShift::where('status', 'opened')->with(['position', 'crew'])->get();
+        $activeShifts = \App\Models\CombatShift::where('status', 'opened')
+            ->with(['position', 'crew', 'flights', 'reconFlights'])
+            ->get();
         $stats = [];
 
-        foreach ($activeShifts as $shift) {
-            $fpvFlights = $shift->flights;
-            $reconFlights = $shift->reconFlights;
-            $vampireFlights = \App\Models\VampireFlight::where('combat_shift_id', $shift->id)->get();
+        $vampireFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
 
+        foreach ($activeShifts as $shift) {
             $stats[] = [
                 'id' => $shift->id,
                 'position_name' => $shift->position?->name ?? 'Невідома позиція',
                 'crew' => $shift->crew->pluck('callsign')->toArray(),
                 'type' => $shift->type?->value,
-                'fpv' => $this->calculateFpvStats($fpvFlights),
-                'recon' => $this->calculateReconStats($reconFlights),
-                'vampire' => $this->calculateVampireStats($vampireFlights),
+                'fpv' => $this->calculateFpvStats($shift->flights),
+                'recon' => $this->calculateReconStats($shift->reconFlights),
+                'vampire' => $this->calculateVampireStats($vampireFlights->get($shift->id, collect())),
             ];
         }
 
@@ -375,17 +368,22 @@ readonly class CombatShiftsAdminService
         $positions = \App\Models\Position::all();
         $stats = [];
 
+        $fpvFlights = \App\Models\CombatShiftFlight::join('combat_shifts', 'combat_shift_flights.combat_shift_id', '=', 'combat_shifts.id')
+            ->select('combat_shift_flights.*', 'combat_shifts.position_id')
+            ->get()
+            ->groupBy('position_id');
+
+        $reconFlights = \App\Models\ReconFlight::join('combat_shifts', 'recon_flights.combat_shift_id', '=', 'combat_shifts.id')
+            ->select('recon_flights.*', 'combat_shifts.position_id')
+            ->get()
+            ->groupBy('position_id');
+
         foreach ($positions as $position) {
-            $shiftIds = \App\Models\CombatShift::where('position_id', $position->id)->pluck('id');
-
-            $fpvFlights = \App\Models\CombatShiftFlight::whereIn('combat_shift_id', $shiftIds)->get();
-            $reconFlights = \App\Models\ReconFlight::whereIn('combat_shift_id', $shiftIds)->get();
-
             $stats[$position->id] = [
                 'name' => $position->name,
                 'type' => $position->type,
-                'fpv' => $this->calculateFpvStats($fpvFlights),
-                'recon' => $this->calculateReconStats($reconFlights),
+                'fpv' => $this->calculateFpvStats($fpvFlights->get($position->id, collect())),
+                'recon' => $this->calculateReconStats($reconFlights->get($position->id, collect())),
             ];
         }
 
