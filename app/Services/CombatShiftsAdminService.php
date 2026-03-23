@@ -31,7 +31,12 @@ readonly class CombatShiftsAdminService
      */
     public function getAllShifts(?string $type = null): Collection
     {
-        return $this->combatShiftRepository->all($type)->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+        return $this->combatShiftRepository->all($type)->map(function($shift) {
+            if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+                $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
+            }
+            return CombatShiftDTO::fromModel($shift);
+        });
     }
 
     public function getShiftById(int $id): CombatShiftDTO
@@ -40,6 +45,10 @@ readonly class CombatShiftsAdminService
 
         if (!$shift) {
             throw new ModelNotFoundException("Combat shift with ID {$id} not found");
+        }
+
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
         }
 
         return CombatShiftDTO::fromModel($shift);
@@ -53,6 +62,10 @@ readonly class CombatShiftsAdminService
             return null;
         }
 
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
+        }
+
         return CombatShiftDTO::fromModel($shift);
     }
 
@@ -62,7 +75,12 @@ readonly class CombatShiftsAdminService
      */
     public function getActiveShifts(?string $type = null): Collection
     {
-        return $this->combatShiftRepository->getActiveShifts($type)->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+        return $this->combatShiftRepository->getActiveShifts($type)->map(function($shift) {
+            if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+                $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
+            }
+            return CombatShiftDTO::fromModel($shift);
+        });
     }
 
     public function createShift(CreateCombatShiftDTO $dto): CombatShiftDTO
@@ -124,6 +142,10 @@ readonly class CombatShiftsAdminService
                         ]);
                     }
                 }
+            }
+
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                return CombatShiftDTO::fromModel($shiftModel->load(['position', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights']));
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
@@ -188,6 +210,10 @@ readonly class CombatShiftsAdminService
                         ]);
                     }
                 }
+            }
+
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                return CombatShiftDTO::fromModel($shiftModel->load(['position', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights']));
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));

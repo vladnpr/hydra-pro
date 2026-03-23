@@ -31,6 +31,8 @@ class CombatShiftDTO
         public readonly array $ugv_drones = [],
         public readonly array $ugv_races = [],
         public readonly array $ugv_race_plans = [],
+        public readonly array $airDefenceDrones = [],
+        public readonly array $airDefenceAmmunition = [],
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -202,6 +204,23 @@ class CombatShiftDTO
                 'order' => $p->order,
             ])->toArray();
 
+        $airDefenceDrones = [];
+        $airDefenceAmmunition = [];
+        if ($shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE) {
+            $airDefenceDrones = $shift->airDefenceDrones->map(fn($d) => [
+                'id' => $d->id,
+                'name' => $d->name,
+                'model' => $d->model,
+                'quantity' => $d->pivot->quantity
+            ])->toArray();
+
+            $airDefenceAmmunition = $shift->airDefenceAmmunition->map(fn($a) => [
+                'id' => $a->id,
+                'name' => $a->name,
+                'quantity' => $a->pivot->quantity
+            ])->toArray();
+        }
+
         return new self(
             id: $shift->id,
             users: $shift->users->map(fn($u) => [
@@ -275,6 +294,8 @@ class CombatShiftDTO
             ugv_drones: $ugvDrones,
             ugv_races: $ugvRaces,
             ugv_race_plans: $ugvRacePlans,
+            airDefenceDrones: $airDefenceDrones,
+            airDefenceAmmunition: $airDefenceAmmunition,
         );
     }
 }

@@ -501,7 +501,7 @@ return [
                 ],
                 [
                     'text' => 'Польоти',
-                    'route' => 'air-defence.races.index',
+                    'route' => 'air-defence.flights.index',
                     'icon' => 'fas fa-plane-departure',
                     'can' => 'manage-air-defence',
                 ],

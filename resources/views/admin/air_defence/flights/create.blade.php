@@ -10,7 +10,7 @@
     <div class="row">
         <div class="col-md-8">
             <div class="card card-primary">
-                <form action="{{ route('air-defence.races.store') }}" method="POST">
+                <form action="{{ route('air-defence.flights.store') }}" method="POST">
                     @csrf
                     <div class="card-body">
                         <div class="row">
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                     <div class="card-footer">
-                        <a href="{{ route('air-defence.races.index') }}" class="btn btn-default">Скасувати</a>
+                        <a href="{{ route('air-defence.flights.index') }}" class="btn btn-default">Скасувати</a>
                         <button type="submit" class="btn btn-primary float-right">Зберегти</button>
                     </div>
                 </form>

@@ -33,7 +33,7 @@
                             Ваша активна зміна
                         </h3>
                         <div class="card-tools">
-                            <a href="{{ route('air-defence.races.index') }}" class="btn btn-tool">
+                            <a href="{{ route('air-defence.flights.index') }}" class="btn btn-tool">
                                 <i class="fas fa-paper-plane mr-1"></i> До вильотів
                             </a>
                             <a href="{{ route('air-defence.combat_shifts.show', $userActiveShift->id) }}" class="btn btn-tool">

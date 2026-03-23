@@ -125,7 +125,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
             Route::resource('combat_shifts', \App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class)->except(['show']);
             Route::get('combat_shifts/{id}', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
 
-            Route::resource('races', \App\Http\Controllers\AirDefenceFlightsController::class);
+            Route::resource('flights', \App\Http\Controllers\AirDefenceFlightsController::class);
         });
     });
 
