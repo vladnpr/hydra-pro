@@ -151,12 +151,31 @@ class AirDefenceCombatShiftController extends Controller
         return view('admin.air_defence.combat_shifts.report', compact('shift', 'dayNumber'));
     }
 
-    public function flightsReport(int $id)
+    public function flightsReport(int $id, \Illuminate\Http\Request $request)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
         if ($shift->type !== PositionTypesEnum::AIR_DEFENCE->value) {
             abort(404);
         }
-        return view('admin.air_defence.combat_shifts.flights_report', compact('shift'));
+
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        // Отримуємо польоти для цієї зміни, згруповані по даті
+        $flightsByDate = \App\Models\AirDefenceFlight::with(['drone', 'ammunition'])
+            ->where('position_id', $shift->position_id)
+            ->whereBetween('start_time', [
+                \Carbon\Carbon::parse($shift->started_at)->startOfDay(),
+                $shift->ended_at ? \Carbon\Carbon::parse($shift->ended_at)->endOfDay() : now()->endOfDay()
+            ])
+            ->orderBy('start_time', 'desc')
+            ->get()
+            ->groupBy(function ($flight) {
+                return $flight->start_time->format('Y-m-d');
+            });
+
+        $flights = $flightsByDate[$date] ?? collect();
+        $availableDates = $flightsByDate->keys()->sortDesc();
+
+        return view('admin.air_defence.combat_shifts.flights_report', compact('shift', 'date', 'flights', 'availableDates'));
     }
 }
