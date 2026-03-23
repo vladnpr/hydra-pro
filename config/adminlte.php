@@ -434,6 +434,41 @@ return [
             ]
         ],
         // END_VAMPIRE______________________________
+        // UGV______________________________________
+        [
+            'header' => 'НРК-напрямок',
+            'can' => 'manage-vampire'
+        ],
+        [
+            'text' => 'НРК',
+            'icon' => 'fas fa-ghost',
+            'can' => 'manage-ugv',
+            'submenu' => [
+                [
+                    'text' => 'Чергування',
+                    'route' => 'ufv.combat_shifts.index',
+                    'icon' => 'fas fa-shield-alt',
+                ],
+                [
+                    'text' => 'Виїзди',
+                    'route' => 'ugv.races.index',
+                    'icon' => 'fas fa-paper-plane',
+                ],
+                [
+                    'text' => 'Дрони',
+                    'route' => 'ugv.drones.index',
+                    'icon' => 'fas fa-helicopter',
+                    'can' => 'manage-ugv',
+                ],
+                [
+                    'text' => 'Боєприпаси',
+                    'route' => 'ugv.ammunition.index',
+                    'icon' => 'fas fa-bomb',
+                    'can' => 'manage-ugv',
+                ],
+            ]
+        ],
+        // END_UGV__________________________________
         [
             'header' => 'Звітність',
             'can' => 'view-reports'
