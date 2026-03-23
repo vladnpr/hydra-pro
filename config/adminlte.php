@@ -437,33 +437,35 @@ return [
         // UGV______________________________________
         [
             'header' => 'НРК-напрямок',
-            'can' => 'manage-vampire'
+            'can' => 'manage-ugv'
         ],
         [
-            'text' => 'НРК',
-            'icon' => 'fas fa-ghost',
+            'text' => 'НРК (UGV)',
+            'icon' => 'fas fa-truck-pickup',
             'can' => 'manage-ugv',
             'submenu' => [
                 [
-                    'text' => 'Чергування',
-                    'route' => 'ufv.combat_shifts.index',
-                    'icon' => 'fas fa-shield-alt',
-                ],
-                [
-                    'text' => 'Виїзди',
-                    'route' => 'ugv.races.index',
-                    'icon' => 'fas fa-paper-plane',
-                ],
-                [
-                    'text' => 'Дрони',
+                    'text' => 'Борти (НРК)',
                     'route' => 'ugv.drones.index',
-                    'icon' => 'fas fa-helicopter',
+                    'icon' => 'fas fa-robot',
                     'can' => 'manage-ugv',
                 ],
                 [
                     'text' => 'Боєприпаси',
                     'route' => 'ugv.ammunition.index',
                     'icon' => 'fas fa-bomb',
+                    'can' => 'manage-ugv',
+                ],
+                [
+                    'text' => 'Зміни / Чергування',
+                    'route' => 'ugv.combat_shifts.index',
+                    'icon' => 'fas fa-users-cog',
+                    'can' => 'manage-ugv',
+                ],
+                [
+                    'text' => 'Рейси (Виїзди)',
+                    'route' => 'ugv.races.index',
+                    'icon' => 'fas fa-truck-moving',
                     'can' => 'manage-ugv',
                 ],
             ]
@@ -500,6 +502,12 @@ return [
                     'icon' => 'fas fa-fw fa-bomb',
                     'route' => 'combat_shifts.active_spending_fpv_report',
                     'can' => 'manage-combat',
+                ],
+                [
+                    'text' => 'Активні рейси UGV',
+                    'icon' => 'fas fa-fw fa-truck',
+                    'route' => 'ugv.combat_shifts.active_flights_report',
+                    'can' => 'manage-ugv',
                 ],
             ],
         ],

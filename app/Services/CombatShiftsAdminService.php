@@ -20,6 +20,7 @@ readonly class CombatShiftsAdminService
         readonly private CombatShiftFlightsRepository   $flightRepository,
         readonly private ReconDroneAdminService         $reconDroneService,
         readonly private VampireDroneAdminService       $vampireDroneService,
+        readonly private UgvDroneAdminService           $ugvDroneService,
     )
     {
     }
@@ -188,6 +189,7 @@ readonly class CombatShiftsAdminService
         return match ($type) {
             PositionTypesEnum::RECON->value => $this->reconDroneService,
             PositionTypesEnum::VAMPIRE->value => $this->vampireDroneService,
+            PositionTypesEnum::UGV->value => $this->ugvDroneService,
             default => null,
         };
     }
@@ -244,11 +246,13 @@ readonly class CombatShiftsAdminService
                 'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::all()),
                 'recon' => $this->calculateReconStats(\App\Models\ReconFlight::all()),
                 'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::all()),
+                'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::all()),
             ],
             'active' => [
                 'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'recon' => $this->calculateReconStats(\App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
+                'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::whereIn('combat_shift_id', $activeShiftIds)->get()),
             ],
             'positions' => $this->getStatsByPositions(),
             'active_shifts' => $this->getStatsByActiveShifts(),
@@ -263,6 +267,7 @@ readonly class CombatShiftsAdminService
         $stats = [];
 
         $vampireFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
+        $ugvRaces = \App\Models\UgvRace::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
 
         foreach ($activeShifts as $shift) {
             $stats[] = [
@@ -273,10 +278,21 @@ readonly class CombatShiftsAdminService
                 'fpv' => $this->calculateFpvStats($shift->flights),
                 'recon' => $this->calculateReconStats($shift->reconFlights),
                 'vampire' => $this->calculateVampireStats($vampireFlights->get($shift->id, collect())),
+                'ugv' => $this->calculateUgvStats($ugvRaces->get($shift->id, collect())),
             ];
         }
 
         return $stats;
+    }
+
+    private function calculateUgvStats(\Illuminate\Support\Collection $flights): array
+    {
+        return [
+            'total_flights' => $flights->count(),
+            'worked' => $flights->where('result', 'worked')->count(),
+            'loss' => $flights->where('result', 'loss')->count(),
+            'not_worked' => $flights->where('result', 'not_worked')->count(),
+        ];
     }
 
     private function calculateFpvStats(\Illuminate\Support\Collection $flights): array

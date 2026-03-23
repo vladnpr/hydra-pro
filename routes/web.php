@@ -76,6 +76,38 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
         });
     });
 
+    Route::group(['prefix' => 'ugv', 'as' => 'ugv.'], function () {
+        Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'flightsReport'])->name('combat_shifts.flights_report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}/spending-report', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'spendingReport'])->name('combat_shifts.spending_report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'report'])->name('combat_shifts.report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
+        Route::get('active-shift/races-report', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
+
+        Route::group(['middleware' => 'can:manage-ugv'], function () {
+            Route::get('drones/by-position/{positionId}', [\App\Http\Controllers\Ugv\UgvDronesController::class, 'getByPosition'])->name('drones.by_position');
+            Route::resource('drones', \App\Http\Controllers\Ugv\UgvDronesController::class);
+            Route::resource('ammunition', \App\Http\Controllers\Ugv\UgvAmmunitionController::class);
+
+            Route::post('combat_shifts/{id}/join', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'join'])->name('combat_shifts.join')->where('id', '[0-9]+');
+            Route::post('combat_shifts/{id}/leave', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'leave'])->name('combat_shifts.leave')->where('id', '[0-9]+');
+            Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'finish'])->name('combat_shifts.finish')->where('id', '[0-9]+');
+            Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\Ugv\UgvCombatShiftController::class, 'reopen'])->name('combat_shifts.reopen')->where('id', '[0-9]+');
+            Route::resource('combat_shifts', \App\Http\Controllers\Ugv\UgvCombatShiftController::class)->except(['show']);
+
+            Route::get('races', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'index'])->name('races.index');
+            Route::post('races/set-shift-type', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'setShiftType'])->name('races.set_shift_type');
+            Route::post('races', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'store'])->name('races.store');
+            Route::get('races/{id}/edit', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'edit'])->name('races.edit')->where('id', '[0-9]+');
+            Route::put('races/{id}', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'update'])->name('races.update')->where('id', '[0-9]+');
+            Route::get('races/{id}/download', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'downloadVideo'])->name('races.download')->where('id', '[0-9]+');
+            Route::delete('races/{id}', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'destroy'])->name('races.destroy')->where('id', '[0-9]+');
+            Route::post('race-plans', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'storePlan'])->name('race_plans.store');
+            Route::get('race-plans/{id}/edit', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'editPlan'])->name('race_plans.edit')->where('id', '[0-9]+');
+            Route::put('race-plans/{id}', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'updatePlan'])->name('race_plans.update')->where('id', '[0-9]+');
+            Route::delete('race-plans/{id}', [\App\Http\Controllers\Ugv\UgvRaceController::class, 'deletePlan'])->name('race_plans.destroy')->where('id', '[0-9]+');
+        });
+    });
+
     Route::group(['middleware' => 'can:view-reports'], function () {
         Route::get('combat-shifts-active-reports', [CombatShiftsController::class, 'activeShiftsReports'])->name('combat_shifts.active_reports');
         Route::get('combat_shifts/{shiftId}/spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'spendFPVReport'])->name('combat_shifts.spending_fpv_report')->where('shiftId', '[0-9]+');
