@@ -19,7 +19,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Список НРКів UGV</h3>
+                    <h3 class="card-title">Список НРК змін</h3>
                     <div class="card-tools">
                         <a href="{{ route('ugv.drones.create') }}" class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Додати новий НРК
@@ -88,7 +88,7 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="7" class="text-center">НРКів не знайдено.</td>
+                                    <td colspan="7" class="text-center">НРК не знайдено.</td>
                                 </tr>
                             @endforelse
                         </tbody>

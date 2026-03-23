@@ -181,8 +181,9 @@ class UgvCombatShiftController extends Controller
 
         $workedRaces = collect($dayRaces)->where('result', 'worked');
         $notWorkedRaces = collect($dayRaces)->where('result', '!=', 'worked');
+        $allRacesSorted = collect($dayRaces)->sortBy('start_time');
 
-        return view('ugv.combat_shifts.races_report', compact('shift', 'date', 'workedRaces', 'notWorkedRaces'));
+        return view('ugv.combat_shifts.races_report', compact('shift', 'date', 'workedRaces', 'notWorkedRaces', 'allRacesSorted'));
     }
 
     public function activeFlightsReport()
