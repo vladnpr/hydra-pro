@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Рейси UGV')
+@section('title', 'Рейси НРК')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Рейси UGV ({{ $userActiveShift->position_name }})</h1>
+        <h1>Рейси НРК ({{ $userActiveShift->position_name }})</h1>
         <div class="d-flex align-items-center">
             <div class="mr-4">
                 <div class="btn-group btn-group-toggle" data-toggle="buttons">

@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'Боєприпаси UGV')
+@section('title', 'Боєприпаси НРК')
 
 @section('content_header')
-    <h1>Боєприпаси UGV</h1>
+    <h1>Боєприпаси НРК</h1>
 @endsection
 
 @section('content')

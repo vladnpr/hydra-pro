@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Чергування UGV')
+@section('title', 'Чергування НРК')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Чергування UGV</h1>
+        <h1>Чергування НРК</h1>
         <div class="d-flex">
             @can('manage-ugv')
                 @if(!$userActiveShift)
@@ -27,7 +27,7 @@
                     <div class="card-header">
                         <h3 class="card-title">
                             <i class="fas fa-clock mr-1"></i>
-                            Ваша активна зміна (UGV)
+                            Ваша активна зміна (НРК)
                         </h3>
                         <div class="card-tools">
                             <a href="{{ route('ugv.combat_shifts.show', $userActiveShift->id) }}" class="btn btn-tool">
@@ -86,7 +86,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title">Список чергувань UGV</h3>
+                    <h3 class="card-title">Список чергувань НРК</h3>
                 </div>
                 <div class="card-body table-responsive p-0">
                     <table class="table table-hover">

@@ -51,6 +51,14 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isUgv();
         });
 
+        Gate::define('manage-ugv-drones', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
+        });
+
+        Gate::define('manage-ugv-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
+        });
+
         Gate::define('manage-recon', function (User $user) {
             return $user->isAdmin() || $user->isRecon();
         });
@@ -91,8 +99,12 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv();
         });
 
-        Gate::define('access-combat', function (User $user) {
+        Gate::define('view-dashboard-stats', function (User $user) {
             return !$user->isGuest();
+        });
+
+        Gate::define('access-combat', function (User $user) {
+            return true;
         });
 
         Gate::define('manage-combat', function (User $user) {

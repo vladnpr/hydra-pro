@@ -448,13 +448,13 @@ return [
                     'text' => 'Борти (НРК)',
                     'route' => 'ugv.drones.index',
                     'icon' => 'fas fa-robot',
-                    'can' => 'manage-ugv',
+                    'can' => 'manage-ugv-drones',
                 ],
                 [
                     'text' => 'Боєприпаси',
                     'route' => 'ugv.ammunition.index',
                     'icon' => 'fas fa-bomb',
-                    'can' => 'manage-ugv',
+                    'can' => 'manage-ugv-ammunition',
                 ],
                 [
                     'text' => 'Чергування',
@@ -484,6 +484,7 @@ return [
                     'text' => 'Звіти по активним змінам',
                     'icon' => 'fas fa-fw fa-chart-line',
                     'url' => 'admin/combat-shifts-active-reports',
+                    'can' => 'view-reports',
                 ],
             ],
         ],
