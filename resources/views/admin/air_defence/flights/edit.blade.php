@@ -7,12 +7,25 @@
 @endsection
 
 @section('content')
+    @if ($errors->any())
+        <div class="alert alert-danger alert-dismissible">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+            <h5><i class="icon fas fa-ban"></i> Помилка!</h5>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="row">
         <div class="col-md-8">
             <div class="card card-primary">
                 <form action="{{ route('air-defence.flights.update', $flight->id) }}" method="POST">
                     @csrf
                     @method('PUT')
+                    <input type="hidden" name="position_id" value="{{ $flight->position_id }}">
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
