@@ -133,58 +133,56 @@
         </div>
 
         <div class="col-md-8">
-            @forelse($flights as $date => $dayFlights)
-                <div class="card card-outline card-secondary mb-4">
-                    <div class="card-header">
-                        <h3 class="card-title">
-                            <i class="fas fa-calendar-alt mr-1"></i>
-                            {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}
-                        </h3>
-                        <div class="card-tools">
-                            <span class="badge badge-info">{{ count($dayFlights) }} вильотів</span>
-                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                <i class="fas fa-minus"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-hover mb-0">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Журнал вильотів</h3>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        @forelse($flights as $date => $dayFlights)
+                            <div class="p-2 bg-light border-bottom">
+                                <h6 class="mb-0 font-weight-bold">
+                                    <i class="fas fa-calendar-day mr-1"></i>
+                                    {{ \Carbon\Carbon::parse($date)->translatedFormat('d F Y') }}
+                                </h6>
+                            </div>
+                            <table class="table table-striped table-sm mb-0">
                                 <thead>
                                     <tr>
                                         <th>Час</th>
-                                        <th>Дрон / БК</th>
+                                        <th>Дрон</th>
+                                        <th>БК</th>
                                         <th>Координати</th>
-                                        <th>Результат</th>
-                                        <th>Детонація</th>
                                         <th>Відео</th>
+                                        <th>Результат</th>
+                                        <th>Дет.</th>
+                                        <th>Стрім</th>
+                                        <th>Коментар</th>
                                         <th>Дії</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($dayFlights as $flight)
                                         <tr>
-                                            <td class="text-nowrap">
-                                                {{ $flight->start_time?->format('H:i') }} - {{ $flight->end_time?->format('H:i') }}
-                                            </td>
                                             <td>
-                                                <strong>{{ $flight->drone?->name }}</strong><br>
-                                                <small class="text-muted">{{ $flight->ammunition?->name }}</small>
-                                            </td>
-                                            <td><small>{{ $flight->coordinates }}</small></td>
-                                            <td>{{ $flight->result }}</td>
-                                            <td>
-                                                @if($flight->detonation)
-                                                    <span class="badge badge-success">Так</span>
-                                                @else
-                                                    <span class="badge badge-danger">Ні</span>
+                                                <div class="text-nowrap">{{ $flight->start_time?->format('H:i') }}</div>
+                                                @if($flight->end_time)
+                                                    <div class="text-nowrap text-muted small">{{ $flight->end_time?->format('H:i') }}</div>
                                                 @endif
                                             </td>
+                                            <td>{{ $flight->drone?->name }}</td>
+                                            <td>{{ $flight->ammunition?->name }}</td>
+                                            <td><small>{{ $flight->coordinates ?? '-' }}</small></td>
                                             <td>
                                                 @if($flight->video_path)
-                                                    <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight->id }}">
-                                                        <i class="fas fa-video"></i>
-                                                    </button>
+                                                    <div class="btn-group">
+                                                        <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight->id }}" title="Переглянути">
+                                                            <i class="fas fa-video"></i>
+                                                        </button>
+                                                        <a href="{{ route('air-defence.flights.download', $flight->id) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                            <i class="fas fa-download"></i>
+                                                        </a>
+                                                    </div>
 
                                                     <div class="modal fade" id="videoModal{{ $flight->id }}" tabindex="-1" role="dialog" aria-hidden="true">
                                                         <div class="modal-dialog modal-lg" role="document">
@@ -209,47 +207,52 @@
                                                 @endif
                                             </td>
                                             <td>
+                                                @php
+                                                    $badgeClass = match($flight->result) {
+                                                        'влучання' => 'success',
+                                                        'в районі цілі' => 'warning',
+                                                        'втрата борта' => 'danger',
+                                                        'борт повернувся' => 'info',
+                                                        default => 'secondary'
+                                                    };
+                                                @endphp
+                                                <span class="badge badge-{{ $badgeClass }}">{{ $flight->result }}</span>
+                                            </td>
+                                            <td>
+                                                @if($flight->detonation)
+                                                    <span class="badge badge-success">Так</span>
+                                                @else
+                                                    <span class="badge badge-warning">Ні</span>
+                                                @endif
+                                            </td>
+                                            <td>{{ $flight->stream }}</td>
+                                            <td class="small">{{ $flight->comment }}</td>
+                                            <td>
                                                 <div class="btn-group">
-                                                    <a href="{{ route('air-defence.flights.edit', $flight->id) }}" class="btn btn-xs btn-default">
+                                                    <a href="{{ route('air-defence.flights.edit', $flight->id) }}" class="btn btn-xs btn-info" title="Редагувати">
                                                         <i class="fas fa-edit"></i>
                                                     </a>
                                                     <form action="{{ route('air-defence.flights.destroy', $flight->id) }}" method="POST" onsubmit="return confirm('Ви впевнені?')">
                                                         @csrf
                                                         @method('DELETE')
-                                                        <button type="submit" class="btn btn-xs btn-danger">
+                                                        <button type="submit" class="btn btn-xs btn-danger" title="Видалити">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     </form>
                                                 </div>
                                             </td>
                                         </tr>
-                                        @if($flight->comment || $flight->stream)
-                                            <tr class="expandable-body">
-                                                <td colspan="7">
-                                                    <div class="p-2">
-                                                        @if($flight->stream)
-                                                            <div><strong>Стрім:</strong> {{ $flight->stream }}</div>
-                                                        @endif
-                                                        @if($flight->comment)
-                                                            <div><strong>Коментар:</strong> {{ $flight->comment }}</div>
-                                                        @endif
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endif
                                     @endforeach
                                 </tbody>
                             </table>
-                        </div>
+                        @empty
+                            <div class="p-3 text-center text-muted">
+                                Вильотів поки що немає
+                            </div>
+                        @endforelse
                     </div>
                 </div>
-            @empty
-                <div class="card">
-                    <div class="card-body text-center text-muted">
-                        Вильотів поки що немає
-                    </div>
-                </div>
-            @endforelse
+            </div>
         </div>
     </div>
 @endsection
@@ -307,6 +310,5 @@
 @section('css')
     <style>
         .bg-black { background-color: #000; }
-        .expandable-body { background-color: #f8f9fa; }
     </style>
 @endsection
