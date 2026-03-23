@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Редагувати чергування UGV "' . $shift->position_name . '"')
+@section('title', 'Редагувати чергування НРК "' . $shift->position_name . '"')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Редагувати чергування UGV "{{ $shift->position_name }}"</h1>
+        <h1>Редагувати чергування НРК "{{ $shift->position_name }}"</h1>
         <div>
             <a href="{{ route('ugv.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку
@@ -149,10 +149,10 @@
                     <div class="col-md-6">
                         <div class="card card-info">
                             <div class="card-header">
-                                <h3 class="card-title">Майно на зміну</h3>
+                                <h3 class="card-title">Майно на зміну (НРК)</h3>
                             </div>
                             <div class="card-body">
-                                <h5>Боєприпаси (UGV)</h5>
+                                <h5>Боєприпаси (НРК)</h5>
                                 <div class="table-responsive">
                                     <table class="table table-sm">
                                         <thead>

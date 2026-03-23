@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Розпочати чергування UGV')
+@section('title', 'Розпочати чергування НРК')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Розпочати нове чергування UGV</h1>
+        <h1>Розпочати нове чергування НРК</h1>
         <div>
             <a href="{{ route('ugv.combat_shifts.index') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до списку

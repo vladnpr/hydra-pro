@@ -484,6 +484,7 @@ return [
                     'text' => 'Звіти по активним змінам',
                     'icon' => 'fas fa-fw fa-chart-line',
                     'url' => 'admin/combat-shifts-active-reports',
+                    'can' => 'view-reports',
                 ],
             ],
         ],

@@ -24,7 +24,13 @@ class AdminController extends Controller
      */
     public function index()
     {
-        $activeShift = $this->combatShiftsService->getActiveShiftByUserId(\Illuminate\Support\Facades\Auth::id());
+        $user = \Illuminate\Support\Facades\Auth::user();
+        if ($user->isGuest()) {
+            $admins = \App\Models\User::where('role', 'admin')->pluck('name');
+            return view('admin.guest_dashboard', compact('admins'));
+        }
+
+        $activeShift = $this->combatShiftsService->getActiveShiftByUserId($user->id);
         $stats = $this->combatShiftsService->getDashboardStats();
 
         return view('admin.dashboard', compact('stats', 'activeShift'));

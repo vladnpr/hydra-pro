@@ -59,9 +59,9 @@
                                             @if($isRecon)
                                                 <span class="badge badge-warning ml-1"><i class="fas fa-binoculars mr-1"></i>розвідка</span>
                                             @elseif($isVampire)
-                                                <span class="badge badge-danger ml-1"><i class="fas fa-bat mr-1"></i>Vampire</span>
+                                                <span class="badge badge-danger ml-1"><i class="fas fa-ghost mr-1"></i>Vampire</span>
                                             @elseif($isUgv)
-                                                <span class="badge badge-success ml-1"><i class="fas fa-robot mr-1"></i>UGV</span>
+                                                <span class="badge badge-success ml-1"><i class="fas fa-truck-pickup mr-1"></i>НРК</span>
                                             @else
                                                 <span class="badge badge-info ml-1"><i class="fas fa-crosshairs mr-1"></i>FPV</span>
                                             @endif

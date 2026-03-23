@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по витратах UGV')
+@section('title', 'Звіт по витратах НРК')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по витратах UGV</h1>
+        <h1>Звіт по витратах НРК</h1>
         <div>
             <a href="{{ route('ugv.combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до деталей

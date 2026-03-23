@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Звіт по залишку UGV')
+@section('title', 'Звіт по залишку НРК')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по залишку UGV</h1>
+        <h1>Звіт по залишку НРК</h1>
         <div class="no-print">
             <a href="{{ route('ugv.combat_shifts.show', $shift->id) }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад до чергування
@@ -25,7 +25,7 @@
             <div class="card shadow-sm">
                 <div class="card-body p-5" id="printableArea">
                     <div class="report-content">
-                        <h4 class="mb-4">Позиція "{{ $shift->position_name }}" (UGV)</h4>
+                        <h4 class="mb-4">Позиція "{{ $shift->position_name }}" (НРК)</h4>
 
                         @php
                             $now = \Carbon\Carbon::now();

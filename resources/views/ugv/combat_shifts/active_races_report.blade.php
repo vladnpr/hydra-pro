@@ -1,10 +1,10 @@
 @extends('adminlte::page')
 
-@section('title', 'Активні рейси UGV')
+@section('title', 'Активні рейси НРК')
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Активні рейси UGV</h1>
+        <h1>Активні рейси НРК</h1>
         <div>
             <button onclick="window.print()" class="btn btn-success">
                 <i class="fas fa-print"></i> Друкувати

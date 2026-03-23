@@ -1,9 +1,9 @@
 @extends('adminlte::page')
 
-@section('title', 'НРК UGV: ' . $drone->name)
+@section('title', 'НРК: ' . $drone->name)
 
 @section('content_header')
-    <h1>Деталі НРК UGV</h1>
+    <h1>Деталі НРК</h1>
 @endsection
 
 @section('content')
