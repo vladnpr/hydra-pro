@@ -440,7 +440,7 @@ return [
             'can' => 'manage-ugv'
         ],
         [
-            'text' => 'НРК (UGV)',
+            'text' => 'НРК',
             'icon' => 'fas fa-truck-pickup',
             'can' => 'manage-ugv',
             'submenu' => [
@@ -457,7 +457,7 @@ return [
                     'can' => 'manage-ugv',
                 ],
                 [
-                    'text' => 'Зміни / Чергування',
+                    'text' => 'Чергування',
                     'route' => 'ugv.combat_shifts.index',
                     'icon' => 'fas fa-users-cog',
                     'can' => 'manage-ugv',
@@ -484,30 +484,6 @@ return [
                     'text' => 'Звіти по активним змінам',
                     'icon' => 'fas fa-fw fa-chart-line',
                     'url' => 'admin/combat-shifts-active-reports',
-                ],
-                [
-                    'text' => 'Польоти',
-                    'icon' => 'fas fa-fw fa-paper-plane',
-                    'route' => 'combat_shifts.active_flights_report',
-                    'can' => 'manage-combat',
-                ],
-                [
-                    'text' => 'Залишок',
-                    'icon' => 'fas fa-fw fa-boxes',
-                    'route' => 'combat_shifts.active_remains_report',
-                    'can' => 'manage-combat',
-                ],
-                [
-                    'text' => 'Витрати',
-                    'icon' => 'fas fa-fw fa-bomb',
-                    'route' => 'combat_shifts.active_spending_fpv_report',
-                    'can' => 'manage-combat',
-                ],
-                [
-                    'text' => 'Активні рейси UGV',
-                    'icon' => 'fas fa-fw fa-truck',
-                    'route' => 'ugv.combat_shifts.active_races_report',
-                    'can' => 'manage-ugv',
                 ],
             ],
         ],
