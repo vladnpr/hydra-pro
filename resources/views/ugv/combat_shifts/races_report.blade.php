@@ -29,7 +29,7 @@
                         <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
                             @php
                                 $dates = array_keys($shift->ugv_races);
-                                if ($date && !in_array($date, $dates)) {
+                                if (!in_array($date, $dates)) {
                                     $dates[] = $date;
                                 }
                                 rsort($dates);

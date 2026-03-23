@@ -172,10 +172,17 @@ class UgvCombatShiftController extends Controller
         return view('ugv.combat_shifts.spending_report', compact('shift'));
     }
 
-    public function racesReport(int $id)
+    public function racesReport(int $id, \Illuminate\Http\Request $request)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
-        return view('ugv.combat_shifts.races_report', compact('shift'));
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        $dayRaces = $shift->ugv_races[$date] ?? [];
+
+        $workedRaces = collect($dayRaces)->where('result', 'worked');
+        $notWorkedRaces = collect($dayRaces)->where('result', '!=', 'worked');
+
+        return view('ugv.combat_shifts.races_report', compact('shift', 'date', 'workedRaces', 'notWorkedRaces'));
     }
 
     public function activeFlightsReport()
