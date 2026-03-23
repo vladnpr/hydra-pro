@@ -43,6 +43,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-air-defence', function (User $user) {
+            return $user->isAdmin();
+        });
+
+        Gate::define('manage-air-defence-drones', function (User $user) {
+            return $user->isAdmin();
+        });
+
+        Gate::define('manage-air-defence-ammunition', function (User $user) {
+            return $user->isAdmin();
+        });
+
         Gate::define('manage-vampire', function (User $user) {
             return $user->isAdmin() || $user->isVampire();
         });
