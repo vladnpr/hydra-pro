@@ -283,12 +283,14 @@ readonly class CombatShiftsAdminService
                 'recon' => $this->calculateReconStats(\App\Models\ReconFlight::all()),
                 'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::all()),
                 'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::all()),
+                'air_defence' => $this->calculateAirDefenceStats(\App\Models\AirDefenceFlight::all()),
             ],
             'active' => [
                 'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'recon' => $this->calculateReconStats(\App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::whereIn('combat_shift_id', $activeShiftIds)->get()),
+                'air_defence' => $this->calculateAirDefenceStats(\App\Models\AirDefenceFlight::whereIn('position_id', \App\Models\CombatShift::whereIn('id', $activeShiftIds)->pluck('position_id'))->get()), // ППО поки не прив'язано до змін, фільтруємо по позиціях активних змін
             ],
             'positions' => $this->getStatsByPositions(),
             'active_shifts' => $this->getStatsByActiveShifts(),
@@ -304,8 +306,18 @@ readonly class CombatShiftsAdminService
 
         $vampireFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
         $ugvRaces = \App\Models\UgvRace::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
+        $airDefenceFlights = \App\Models\AirDefenceFlight::join('positions', 'air_defence_flights.position_id', '=', 'positions.id')
+            ->whereIn('positions.id', $activeShifts->pluck('position_id'))
+            ->select('air_defence_flights.*', 'positions.id as position_id')
+            ->get();
 
         foreach ($activeShifts as $shift) {
+            $shiftAirDefenceFlights = $airDefenceFlights->filter(function($flight) use ($shift) {
+                return $flight->position_id == $shift->position_id &&
+                       $flight->created_at >= $shift->started_at &&
+                       ($shift->ended_at ? $flight->created_at <= $shift->ended_at : true);
+            });
+
             $stats[] = [
                 'id' => $shift->id,
                 'position_name' => $shift->position?->name ?? 'Невідома позиція',
@@ -315,6 +327,7 @@ readonly class CombatShiftsAdminService
                 'recon' => $this->calculateReconStats($shift->reconFlights),
                 'vampire' => $this->calculateVampireStats($vampireFlights->get($shift->id, collect())),
                 'ugv' => $this->calculateUgvStats($ugvRaces->get($shift->id, collect())),
+                'air_defence' => $this->calculateAirDefenceStats($shiftAirDefenceFlights),
             ];
         }
 
@@ -340,6 +353,26 @@ readonly class CombatShiftsAdminService
             'loss' => $loss,
             'success_rate' => $successRate,
             'combat_flights_for_success' => $divisorUgv,
+        ];
+    }
+
+    private function calculateAirDefenceStats(\Illuminate\Support\Collection $flights): array
+    {
+        $totalFlights = $flights->count();
+        $hits = $flights->where('result', 'влучання')->count();
+        $misses = $flights->where('result', 'промах')->count();
+
+        // Ефективність влучань: (Влучання) / (Влучання + Промахи)
+        $divisorHit = $hits + $misses;
+        $hitRate = $divisorHit > 0 ? round(($hits / $divisorHit) * 100, 1) : 0;
+        $hitRate = min(100, max(0, $hitRate));
+
+        return [
+            'total_flights' => $totalFlights,
+            'total_hits' => $hits,
+            'total_misses' => $misses,
+            'hit_rate' => $hitRate,
+            'combat_flights_for_hit' => $divisorHit,
         ];
     }
 

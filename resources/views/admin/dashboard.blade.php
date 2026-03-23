@@ -61,10 +61,12 @@
         $reconStats = $stats['total']['recon'];
         $vampireStats = $stats['total']['vampire'];
         $ugvStats = $stats['total']['ugv'];
+        $airDefenceStats = $stats['total']['air_defence'];
         $fpvActiveStats = $stats['active']['fpv'];
         $reconActiveStats = $stats['active']['recon'];
         $vampireActiveStats = $stats['active']['vampire'];
         $ugvActiveStats = $stats['active']['ugv'];
+        $airDefenceActiveStats = $stats['active']['air_defence'];
         $positionsStats = $stats['positions'];
         $activeShiftsStats = $stats['active_shifts'];
     @endphp
@@ -93,6 +95,11 @@
                         <li class="nav-item">
                             <a class="nav-link" id="ugv-tab" data-toggle="pill" href="#ugv-content" role="tab" aria-controls="ugv-content" aria-selected="false">
                                 <i class="fas fa-truck-pickup mr-1"></i> НРК
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="air-defence-tab" data-toggle="pill" href="#air-defence-content" role="tab" aria-controls="air-defence-content" aria-selected="false">
+                                <i class="fas fa-shield-alt mr-1"></i> ППО
                             </a>
                         </li>
                         @endcan
@@ -717,6 +724,132 @@
                                                     @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'ugv' || $s['ugv']['total_flights'] > 0)) === 0)
                                                         <tr>
                                                             <td colspan="5" class="text-center">Немає активних змін НРК</td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        @endcan
+
+                        <!-- Air Defence Tab -->
+                        @can('view-dashboard-stats')
+                        <div class="tab-pane fade" id="air-defence-content" role="tabpanel" aria-labelledby="air-defence-tab">
+                            <div class="row">
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-info">
+                                        <div class="inner">
+                                            <h3>{{ $airDefenceStats['total_flights'] }}</h3>
+                                            <p>Всього вильотів ППО</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-paper-plane"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-success">
+                                        <div class="inner">
+                                            <h3>{{ $airDefenceStats['total_hits'] }}</h3>
+                                            <p>Влучання</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-bullseye"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-danger">
+                                        <div class="inner">
+                                            <h3>{{ $airDefenceStats['total_misses'] }}</h3>
+                                            <p>Промахи</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card card-outline card-info">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Ефективність влучань (ППО)</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="progress-group">
+                                                Відсоток влучань (Загальний)
+                                                <span class="float-right"><b>{{ $airDefenceStats['total_hits'] }}</b>/{{ $airDefenceStats['combat_flights_for_hit'] }}</span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-success" style="width: {{ $airDefenceStats['hit_rate'] }}%"></div>
+                                                </div>
+                                            </div>
+
+                                            <div class="progress-group mt-3">
+                                                Відсоток влучань (Активні зміни)
+                                                <span class="float-right"><b>{{ $airDefenceActiveStats['total_hits'] }}</b>/{{ $airDefenceActiveStats['combat_flights_for_hit'] }}</span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-info" style="width: {{ $airDefenceActiveStats['hit_rate'] }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Air Defence Stats by Active Shifts -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Статистика ППО по активних змінах</h3>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Зміна / Екіпаж</th>
+                                                        <th>Всього вильотів</th>
+                                                        <th>Влучання</th>
+                                                        <th>Промахи</th>
+                                                        <th>Ефективність</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($activeShiftsStats as $shiftStat)
+                                                        @if($shiftStat['type'] === 'air_defence' || $shiftStat['air_defence']['total_flights'] > 0)
+                                                            <tr>
+                                                                <td>
+                                                                    <strong>{{ $shiftStat['position_name'] }}</strong><br>
+                                                                    @foreach($shiftStat['crew'] as $callsign)
+                                                                        <span class="badge badge-info">{{ $callsign }}</span>
+                                                                    @endforeach
+                                                                </td>
+                                                                <td>{{ $shiftStat['air_defence']['total_flights'] }}</td>
+                                                                <td>{{ $shiftStat['air_defence']['total_hits'] }}</td>
+                                                                <td>{{ $shiftStat['air_defence']['total_misses'] }}</td>
+                                                                <td>
+                                                                    @php
+                                                                        $pAirRate = $shiftStat['air_defence']['hit_rate'];
+                                                                    @endphp
+                                                                    <div class="progress progress-xs">
+                                                                        <div class="progress-bar bg-success" style="width: {{ $pAirRate }}%"></div>
+                                                                    </div>
+                                                                    <small>{{ $pAirRate }}%</small>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                    @endforeach
+                                                    @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'air_defence' || $s['air_defence']['total_flights'] > 0)) === 0)
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">Немає активних змін ППО</td>
                                                         </tr>
                                                     @endif
                                                 </tbody>
