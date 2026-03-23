@@ -50,12 +50,10 @@ class AirDefenceCombatShiftController extends Controller
 
         $users = \App\Models\User::all();
         $positions = $this->positionRepository->getActive(PositionTypesEnum::AIR_DEFENCE->value);
+        $drones = AirDefenceDrone::where('status', 'active')->get();
+        $ammunition = AirDefenceAmmunition::where('status', 'active')->get();
 
-        // Air Defence uses its own drone/ammunition models but standard shifts use Drone/Ammunition.
-        // For now, if they are not in combat_shift_drone/ammunition tables, we might just skip them or handle specially.
-        // FPV/UGV use different tables/models.
-
-        return view('admin.air_defence.combat_shifts.create', compact('positions', 'users'));
+        return view('admin.air_defence.combat_shifts.create', compact('positions', 'users', 'drones', 'ammunition'));
     }
 
     public function store(AirDefenceCombatShiftStoreRequest $request)
@@ -91,8 +89,20 @@ class AirDefenceCombatShiftController extends Controller
 
         $users = \App\Models\User::all();
         $positions = $this->positionRepository->getActive(PositionTypesEnum::AIR_DEFENCE->value);
+        $drones = AirDefenceDrone::where('status', 'active')->get();
+        $ammunition = AirDefenceAmmunition::where('status', 'active')->get();
 
-        return view('admin.air_defence.combat_shifts.edit', compact('shift', 'positions', 'users'));
+        $currentDrones = [];
+        foreach ($shift->drones as $d) {
+            $currentDrones[$d['id']] = $d['quantity'];
+        }
+
+        $currentAmmunition = [];
+        foreach ($shift->ammunition as $a) {
+            $currentAmmunition[$a['id']] = $a['quantity'];
+        }
+
+        return view('admin.air_defence.combat_shifts.edit', compact('shift', 'positions', 'users', 'drones', 'ammunition', 'currentDrones', 'currentAmmunition'));
     }
 
     public function update(AirDefenceCombatShiftUpdateRequest $request, int $id)

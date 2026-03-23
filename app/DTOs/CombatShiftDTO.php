@@ -217,7 +217,14 @@ class CombatShiftDTO
             status_color: $shift->status_color,
             started_at: $shift->started_at->format('Y-m-d H:i:s'),
             ended_at: $shift->ended_at?->format('Y-m-d H:i:s'),
-            drones: $shift->drones->map(function($d) {
+            drones: $shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE ? $shift->airDefenceDrones->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'name' => $d->name,
+                    'model' => $d->model,
+                    'quantity' => $d->pivot->quantity
+                ];
+            })->toArray() : $shift->drones->map(function($d) {
                 return [
                     'id' => $d->id,
                     'name' => $d->name,
@@ -225,7 +232,13 @@ class CombatShiftDTO
                     'quantity' => $d->pivot->quantity
                 ];
             })->toArray(),
-            ammunition: $shift->ammunition->map(function($a) {
+            ammunition: $shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE ? $shift->airDefenceAmmunition->map(function($a) {
+                return [
+                    'id' => $a->id,
+                    'name' => $a->name,
+                    'quantity' => $a->pivot->quantity
+                ];
+            })->toArray() : $shift->ammunition->map(function($a) {
                 return [
                     'id' => $a->id,
                     'name' => $a->name,

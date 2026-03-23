@@ -91,10 +91,16 @@ readonly class CombatShiftsAdminService
                 $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
             }
 
-            $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
-
-            if (!empty($dto->ammunition)) {
-                $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                $this->combatShiftRepository->syncAirDefenceDrones($shiftModel, $this->formatPivotData($dto->drones));
+                if (!empty($dto->ammunition)) {
+                    $this->combatShiftRepository->syncAirDefenceAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+                }
+            } else {
+                $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
+                if (!empty($dto->ammunition)) {
+                    $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+                }
             }
 
             if (!empty($dto->new_drones)) {
@@ -153,9 +159,13 @@ readonly class CombatShiftsAdminService
                 $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
             }
 
-            $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
-
-            $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                $this->combatShiftRepository->syncAirDefenceDrones($shiftModel, $this->formatPivotData($dto->drones));
+                $this->combatShiftRepository->syncAirDefenceAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            } else {
+                $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
+                $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            }
 
             if (!empty($dto->new_drones)) {
                 $droneService = $this->getDroneService($shiftModel->type?->value);
@@ -431,10 +441,15 @@ readonly class CombatShiftsAdminService
         $shift = $this->combatShiftRepository->find($shiftId);
         if (!$shift) return;
 
-        $currentQuantity = $shift->ammunition()->where('ammunition_id', $ammunitionId)->first()?->pivot->quantity ?? 0;
-        $newQuantity = max(0, $currentQuantity + $change);
-
-        $shift->ammunition()->updateExistingPivot($ammunitionId, ['quantity' => $newQuantity]);
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $currentQuantity = $shift->airDefenceAmmunition()->where('air_defence_ammunition_id', $ammunitionId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->airDefenceAmmunition()->updateExistingPivot($ammunitionId, ['quantity' => $newQuantity]);
+        } else {
+            $currentQuantity = $shift->ammunition()->where('ammunition_id', $ammunitionId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->ammunition()->updateExistingPivot($ammunitionId, ['quantity' => $newQuantity]);
+        }
     }
 
     public function updateDroneQuantity(int $shiftId, int $droneId, int $change): void
@@ -442,10 +457,15 @@ readonly class CombatShiftsAdminService
         $shift = $this->combatShiftRepository->find($shiftId);
         if (!$shift) return;
 
-        $currentQuantity = $shift->drones()->where('drone_id', $droneId)->first()?->pivot->quantity ?? 0;
-        $newQuantity = max(0, $currentQuantity + $change);
-
-        $shift->drones()->updateExistingPivot($droneId, ['quantity' => $newQuantity]);
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $currentQuantity = $shift->airDefenceDrones()->where('air_defence_drone_id', $droneId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->airDefenceDrones()->updateExistingPivot($droneId, ['quantity' => $newQuantity]);
+        } else {
+            $currentQuantity = $shift->drones()->where('drone_id', $droneId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->drones()->updateExistingPivot($droneId, ['quantity' => $newQuantity]);
+        }
     }
 
     private function formatPivotData(array $items): array

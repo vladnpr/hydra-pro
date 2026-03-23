@@ -10,7 +10,7 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 {
     public function all(?string $type = null): Collection
     {
-        $query = CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition']);
+        $query = CombatShift::with(['users', 'position', 'drones', 'ammunition', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights.drone', 'flights.ammunition']);
         if ($type) {
             $query->whereHas('position', function($q) use ($type) {
                 $q->where('type', $type);
@@ -26,12 +26,12 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 
     public function find(int $id): ?CombatShift
     {
-        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])->find($id);
+        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights.drone', 'flights.ammunition'])->find($id);
     }
 
     public function findActiveByUserId(int $userId): ?CombatShift
     {
-        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
+        return CombatShift::with(['users', 'position', 'drones', 'ammunition', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights.drone', 'flights.ammunition'])
             ->whereHas('users', function($q) use ($userId) {
                 $q->where('users.id', $userId);
             })
@@ -41,7 +41,7 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
 
     public function getActiveShifts(?string $type = null): Collection
     {
-        $query = CombatShift::with(['users', 'position', 'drones', 'ammunition', 'crew', 'flights.drone', 'flights.ammunition'])
+        $query = CombatShift::with(['users', 'position', 'drones', 'ammunition', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights.drone', 'flights.ammunition'])
             ->where('status', 'opened');
         if ($type) {
             $query->whereHas('position', function($q) use ($type) {
@@ -86,10 +86,20 @@ class EloquentCombatShiftRepository implements CombatShiftRepositoryInterface
         $shift->drones()->sync($drones);
     }
 
+    public function syncAirDefenceDrones(CombatShift $shift, array $drones): void
+    {
+        $shift->airDefenceDrones()->sync($drones);
+    }
+
 
     public function syncAmmunition(CombatShift $shift, array $ammunition): void
     {
         $shift->ammunition()->sync($ammunition);
+    }
+
+    public function syncAirDefenceAmmunition(CombatShift $shift, array $ammunition): void
+    {
+        $shift->airDefenceAmmunition()->sync($ammunition);
     }
 
     public function syncCrew(CombatShift $shift, array $crew): void
