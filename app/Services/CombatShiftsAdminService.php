@@ -287,11 +287,23 @@ readonly class CombatShiftsAdminService
 
     private function calculateUgvStats(\Illuminate\Support\Collection $flights): array
     {
+        $totalFlights = $flights->count();
+        $worked = $flights->where('result', 'worked')->count();
+        $notWorked = $flights->where('result', 'not_worked')->count();
+        $loss = $flights->where('result', 'loss')->count();
+
+        // Ефективність НРК: (Успішні) / (Успішні + Не успішні + Втрати)
+        $divisorUgv = $worked + $notWorked + $loss;
+        $successRate = $divisorUgv > 0 ? round(($worked / $divisorUgv) * 100, 1) : 0;
+        $successRate = min(100, max(0, $successRate));
+
         return [
-            'total_flights' => $flights->count(),
-            'worked' => $flights->where('result', 'worked')->count(),
-            'loss' => $flights->where('result', 'loss')->count(),
-            'not_worked' => $flights->where('result', 'not_worked')->count(),
+            'total_flights' => $totalFlights,
+            'worked' => $worked,
+            'not_worked' => $notWorked,
+            'loss' => $loss,
+            'success_rate' => $successRate,
+            'combat_flights_for_success' => $divisorUgv,
         ];
     }
 
@@ -400,6 +412,14 @@ readonly class CombatShiftsAdminService
                 'type' => $position->type,
                 'fpv' => $this->calculateFpvStats($fpvFlights->get($position->id, collect())),
                 'recon' => $this->calculateReconStats($reconFlights->get($position->id, collect())),
+                'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::join('combat_shifts', 'vampire_flights.combat_shift_id', '=', 'combat_shifts.id')
+                    ->where('combat_shifts.position_id', $position->id)
+                    ->select('vampire_flights.*')
+                    ->get()),
+                'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::join('combat_shifts', 'ugv_races.combat_shift_id', '=', 'combat_shifts.id')
+                    ->where('combat_shifts.position_id', $position->id)
+                    ->select('ugv_races.*')
+                    ->get()),
             ];
         }
 

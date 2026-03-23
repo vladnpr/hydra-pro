@@ -60,9 +60,11 @@
         $fpvStats = $stats['total']['fpv'];
         $reconStats = $stats['total']['recon'];
         $vampireStats = $stats['total']['vampire'];
+        $ugvStats = $stats['total']['ugv'];
         $fpvActiveStats = $stats['active']['fpv'];
         $reconActiveStats = $stats['active']['recon'];
         $vampireActiveStats = $stats['active']['vampire'];
+        $ugvActiveStats = $stats['active']['ugv'];
         $positionsStats = $stats['positions'];
         $activeShiftsStats = $stats['active_shifts'];
     @endphp
@@ -85,6 +87,11 @@
                         <li class="nav-item">
                             <a class="nav-link" id="vampire-tab" data-toggle="pill" href="#vampire-content" role="tab" aria-controls="vampire-content" aria-selected="false">
                                 <i class="fas fa-ghost mr-1"></i> Вампіри
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="ugv-tab" data-toggle="pill" href="#ugv-content" role="tab" aria-controls="ugv-content" aria-selected="false">
+                                <i class="fas fa-truck-pickup mr-1"></i> НРК
                             </a>
                         </li>
                     </ul>
@@ -558,6 +565,149 @@
                                                     @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'vampire' || $s['vampire']['total_flights'] > 0)) === 0)
                                                         <tr>
                                                             <td colspan="5" class="text-center">Немає активних змін Вампіра</td>
+                                                        </tr>
+                                                    @endif
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- UGV Tab -->
+                        <div class="tab-pane fade" id="ugv-content" role="tabpanel" aria-labelledby="ugv-tab">
+                            <div class="row">
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-info">
+                                        <div class="inner">
+                                            <h3>{{ $ugvStats['total_flights'] }}</h3>
+                                            <p>Всього вильотів НРК</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-truck-pickup"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-success">
+                                        <div class="inner">
+                                            <h3>{{ $ugvStats['worked'] }}</h3>
+                                            <p>Успішні місії</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-check-circle"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-warning">
+                                        <div class="inner">
+                                            <h3>{{ $ugvStats['not_worked'] }}</h3>
+                                            <p>Не успішні</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-danger">
+                                        <div class="inner">
+                                            <h3>{{ $ugvStats['loss'] }}</h3>
+                                            <p>Втрата борту</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-times-circle"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row mt-4">
+                                <div class="col-md-12">
+                                    <div class="card card-outline card-info">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Ефективність НРК</h3>
+                                        </div>
+                                        <div class="card-body">
+                                            @php
+                                                $ugvSuccessRate = $ugvStats['success_rate'];
+                                                $activeUgvSuccessRate = $ugvActiveStats['success_rate'];
+                                            @endphp
+
+                                            <div class="progress-group">
+                                                Відсоток успішних вильотів (Загальний)
+                                                <span class="float-right"><b>{{ $ugvStats['worked'] }}</b>/{{ $ugvStats['combat_flights_for_success'] }}</span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-success" style="width: {{ $ugvSuccessRate }}%"></div>
+                                                </div>
+                                                <small>{{ $ugvSuccessRate }}% від загальної кількості</small>
+                                            </div>
+
+                                            <div class="progress-group mt-3">
+                                                Відсоток успішних вильотів (Активні зміни)
+                                                <span class="float-right"><b>{{ $ugvActiveStats['worked'] }}</b>/{{ $ugvActiveStats['combat_flights_for_success'] }}</span>
+                                                <div class="progress progress-sm">
+                                                    <div class="progress-bar bg-info" style="width: {{ $activeUgvSuccessRate }}%"></div>
+                                                </div>
+                                                <small>{{ $activeUgvSuccessRate }}% від активних змін</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- UGV Stats by Active Shifts -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Статистика НРК по активних змінах</h3>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-striped">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Зміна / Екіпаж</th>
+                                                        <th>Всього вильотів</th>
+                                                        <th>Успішні</th>
+                                                        <th>Втрати</th>
+                                                        <th>Ефективність</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($activeShiftsStats as $shiftStat)
+                                                        @if($shiftStat['type'] === 'ugv' || $shiftStat['ugv']['total_flights'] > 0)
+                                                            <tr>
+                                                                <td>
+                                                                    <strong>{{ $shiftStat['position_name'] }}</strong><br>
+                                                                    @foreach($shiftStat['crew'] as $callsign)
+                                                                        <span class="badge badge-info">{{ $callsign }}</span>
+                                                                    @endforeach
+                                                                </td>
+                                                                <td>{{ $shiftStat['ugv']['total_flights'] }}</td>
+                                                                <td>{{ $shiftStat['ugv']['worked'] }}</td>
+                                                                <td>{{ $shiftStat['ugv']['loss'] }}</td>
+                                                                <td>
+                                                                    @php
+                                                                        $pUgvRate = $shiftStat['ugv']['success_rate'];
+                                                                    @endphp
+                                                                    <div class="progress progress-xs">
+                                                                        <div class="progress-bar bg-success" style="width: {{ $pUgvRate }}%"></div>
+                                                                    </div>
+                                                                    <small>{{ $pUgvRate }}%</small>
+                                                                </td>
+                                                            </tr>
+                                                        @endif
+                                                    @endforeach
+                                                    @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'ugv' || $s['ugv']['total_flights'] > 0)) === 0)
+                                                        <tr>
+                                                            <td colspan="5" class="text-center">Немає активних змін НРК</td>
                                                         </tr>
                                                     @endif
                                                 </tbody>
