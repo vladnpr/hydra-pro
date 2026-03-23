@@ -31,7 +31,12 @@ readonly class CombatShiftsAdminService
      */
     public function getAllShifts(?string $type = null): Collection
     {
-        return $this->combatShiftRepository->all($type)->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+        return $this->combatShiftRepository->all($type)->map(function($shift) {
+            if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+                $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
+            }
+            return CombatShiftDTO::fromModel($shift);
+        });
     }
 
     public function getShiftById(int $id): CombatShiftDTO
@@ -40,6 +45,10 @@ readonly class CombatShiftsAdminService
 
         if (!$shift) {
             throw new ModelNotFoundException("Combat shift with ID {$id} not found");
+        }
+
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
         }
 
         return CombatShiftDTO::fromModel($shift);
@@ -53,6 +62,10 @@ readonly class CombatShiftsAdminService
             return null;
         }
 
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
+        }
+
         return CombatShiftDTO::fromModel($shift);
     }
 
@@ -62,7 +75,12 @@ readonly class CombatShiftsAdminService
      */
     public function getActiveShifts(?string $type = null): Collection
     {
-        return $this->combatShiftRepository->getActiveShifts($type)->map(fn($shift) => CombatShiftDTO::fromModel($shift));
+        return $this->combatShiftRepository->getActiveShifts($type)->map(function($shift) {
+            if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+                $shift->load(['airDefenceDrones', 'airDefenceAmmunition']);
+            }
+            return CombatShiftDTO::fromModel($shift);
+        });
     }
 
     public function createShift(CreateCombatShiftDTO $dto): CombatShiftDTO
@@ -91,10 +109,16 @@ readonly class CombatShiftsAdminService
                 $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
             }
 
-            $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
-
-            if (!empty($dto->ammunition)) {
-                $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                $this->combatShiftRepository->syncAirDefenceDrones($shiftModel, $this->formatPivotData($dto->drones));
+                if (!empty($dto->ammunition)) {
+                    $this->combatShiftRepository->syncAirDefenceAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+                }
+            } else {
+                $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
+                if (!empty($dto->ammunition)) {
+                    $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+                }
             }
 
             if (!empty($dto->new_drones)) {
@@ -118,6 +142,10 @@ readonly class CombatShiftsAdminService
                         ]);
                     }
                 }
+            }
+
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                return CombatShiftDTO::fromModel($shiftModel->load(['position', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights']));
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
@@ -153,9 +181,13 @@ readonly class CombatShiftsAdminService
                 $this->combatShiftRepository->syncFlights($shiftModel, $dto->flights);
             }
 
-            $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
-
-            $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                $this->combatShiftRepository->syncAirDefenceDrones($shiftModel, $this->formatPivotData($dto->drones));
+                $this->combatShiftRepository->syncAirDefenceAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            } else {
+                $this->combatShiftRepository->syncDrones($shiftModel, $this->formatPivotData($dto->drones));
+                $this->combatShiftRepository->syncAmmunition($shiftModel, $this->formatPivotData($dto->ammunition));
+            }
 
             if (!empty($dto->new_drones)) {
                 $droneService = $this->getDroneService($shiftModel->type?->value);
@@ -178,6 +210,10 @@ readonly class CombatShiftsAdminService
                         ]);
                     }
                 }
+            }
+
+            if ($shiftModel->type === PositionTypesEnum::AIR_DEFENCE) {
+                return CombatShiftDTO::fromModel($shiftModel->load(['position', 'airDefenceDrones', 'airDefenceAmmunition', 'crew', 'flights']));
             }
 
             return CombatShiftDTO::fromModel($shiftModel->load(['position', 'drones', 'ammunition', 'crew', 'flights']));
@@ -247,12 +283,14 @@ readonly class CombatShiftsAdminService
                 'recon' => $this->calculateReconStats(\App\Models\ReconFlight::all()),
                 'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::all()),
                 'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::all()),
+                'air_defence' => $this->calculateAirDefenceStats(\App\Models\AirDefenceFlight::all()),
             ],
             'active' => [
                 'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'recon' => $this->calculateReconStats(\App\Models\ReconFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::whereIn('combat_shift_id', $activeShiftIds)->get()),
+                'air_defence' => $this->calculateAirDefenceStats(\App\Models\AirDefenceFlight::whereIn('position_id', \App\Models\CombatShift::whereIn('id', $activeShiftIds)->pluck('position_id'))->get()), // ППО поки не прив'язано до змін, фільтруємо по позиціях активних змін
             ],
             'positions' => $this->getStatsByPositions(),
             'active_shifts' => $this->getStatsByActiveShifts(),
@@ -268,8 +306,18 @@ readonly class CombatShiftsAdminService
 
         $vampireFlights = \App\Models\VampireFlight::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
         $ugvRaces = \App\Models\UgvRace::whereIn('combat_shift_id', $activeShifts->pluck('id'))->get()->groupBy('combat_shift_id');
+        $airDefenceFlights = \App\Models\AirDefenceFlight::join('positions', 'air_defence_flights.position_id', '=', 'positions.id')
+            ->whereIn('positions.id', $activeShifts->pluck('position_id'))
+            ->select('air_defence_flights.*', 'positions.id as position_id')
+            ->get();
 
         foreach ($activeShifts as $shift) {
+            $shiftAirDefenceFlights = $airDefenceFlights->filter(function($flight) use ($shift) {
+                return $flight->position_id == $shift->position_id &&
+                       $flight->created_at >= $shift->started_at &&
+                       ($shift->ended_at ? $flight->created_at <= $shift->ended_at : true);
+            });
+
             $stats[] = [
                 'id' => $shift->id,
                 'position_name' => $shift->position?->name ?? 'Невідома позиція',
@@ -279,6 +327,7 @@ readonly class CombatShiftsAdminService
                 'recon' => $this->calculateReconStats($shift->reconFlights),
                 'vampire' => $this->calculateVampireStats($vampireFlights->get($shift->id, collect())),
                 'ugv' => $this->calculateUgvStats($ugvRaces->get($shift->id, collect())),
+                'air_defence' => $this->calculateAirDefenceStats($shiftAirDefenceFlights),
             ];
         }
 
@@ -304,6 +353,26 @@ readonly class CombatShiftsAdminService
             'loss' => $loss,
             'success_rate' => $successRate,
             'combat_flights_for_success' => $divisorUgv,
+        ];
+    }
+
+    private function calculateAirDefenceStats(\Illuminate\Support\Collection $flights): array
+    {
+        $totalFlights = $flights->count();
+        $hits = $flights->where('result', 'влучання')->count();
+        $misses = $flights->where('result', 'промах')->count();
+
+        // Ефективність влучань: (Влучання) / (Влучання + Промахи)
+        $divisorHit = $hits + $misses;
+        $hitRate = $divisorHit > 0 ? round(($hits / $divisorHit) * 100, 1) : 0;
+        $hitRate = min(100, max(0, $hitRate));
+
+        return [
+            'total_flights' => $totalFlights,
+            'total_hits' => $hits,
+            'total_misses' => $misses,
+            'hit_rate' => $hitRate,
+            'combat_flights_for_hit' => $divisorHit,
         ];
     }
 
@@ -431,10 +500,15 @@ readonly class CombatShiftsAdminService
         $shift = $this->combatShiftRepository->find($shiftId);
         if (!$shift) return;
 
-        $currentQuantity = $shift->ammunition()->where('ammunition_id', $ammunitionId)->first()?->pivot->quantity ?? 0;
-        $newQuantity = max(0, $currentQuantity + $change);
-
-        $shift->ammunition()->updateExistingPivot($ammunitionId, ['quantity' => $newQuantity]);
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $currentQuantity = $shift->airDefenceAmmunition()->where('air_defence_ammunition_id', $ammunitionId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->airDefenceAmmunition()->updateExistingPivot($ammunitionId, ['quantity' => $newQuantity]);
+        } else {
+            $currentQuantity = $shift->ammunition()->where('ammunition_id', $ammunitionId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->ammunition()->updateExistingPivot($ammunitionId, ['quantity' => $newQuantity]);
+        }
     }
 
     public function updateDroneQuantity(int $shiftId, int $droneId, int $change): void
@@ -442,10 +516,15 @@ readonly class CombatShiftsAdminService
         $shift = $this->combatShiftRepository->find($shiftId);
         if (!$shift) return;
 
-        $currentQuantity = $shift->drones()->where('drone_id', $droneId)->first()?->pivot->quantity ?? 0;
-        $newQuantity = max(0, $currentQuantity + $change);
-
-        $shift->drones()->updateExistingPivot($droneId, ['quantity' => $newQuantity]);
+        if ($shift->type === PositionTypesEnum::AIR_DEFENCE) {
+            $currentQuantity = $shift->airDefenceDrones()->where('air_defence_drone_id', $droneId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->airDefenceDrones()->updateExistingPivot($droneId, ['quantity' => $newQuantity]);
+        } else {
+            $currentQuantity = $shift->drones()->where('drone_id', $droneId)->first()?->pivot->quantity ?? 0;
+            $newQuantity = max(0, $currentQuantity + $change);
+            $shift->drones()->updateExistingPivot($droneId, ['quantity' => $newQuantity]);
+        }
     }
 
     private function formatPivotData(array $items): array

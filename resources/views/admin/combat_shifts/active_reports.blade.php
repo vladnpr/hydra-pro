@@ -43,6 +43,7 @@
                                         $isRecon = $shift->type === \App\Enums\PositionTypesEnum::RECON->value;
                                         $isVampire = $shift->type === \App\Enums\PositionTypesEnum::VAMPIRE->value;
                                         $isUgv = $shift->type === \App\Enums\PositionTypesEnum::UGV->value;
+                                        $isAirDefence = $shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE->value;
                                         $routePrefix = '';
                                         if ($isRecon) {
                                             $routePrefix = 'recon.';
@@ -50,6 +51,8 @@
                                             $routePrefix = 'vampire.';
                                         } elseif ($isUgv) {
                                             $routePrefix = 'ugv.';
+                                        } elseif ($isAirDefence) {
+                                            $routePrefix = 'air-defence.';
                                         }
                                     @endphp
                                     <tr>
@@ -62,6 +65,8 @@
                                                 <span class="badge badge-danger ml-1"><i class="fas fa-ghost mr-1"></i>Vampire</span>
                                             @elseif($isUgv)
                                                 <span class="badge badge-success ml-1"><i class="fas fa-truck-pickup mr-1"></i>НРК</span>
+                                            @elseif($isAirDefence)
+                                                <span class="badge badge-primary ml-1"><i class="fas fa-shield-alt mr-1"></i>ППО</span>
                                             @else
                                                 <span class="badge badge-info ml-1"><i class="fas fa-crosshairs mr-1"></i>FPV</span>
                                             @endif
@@ -77,7 +82,7 @@
                                                 <a href="{{ route($routePrefix . 'combat_shifts.report', $shift->id) }}" class="btn btn-primary btn-sm" title="Звіт по залишку">
                                                     <i class="fas fa-file-alt mr-1"></i> Залишки
                                                 </a>
-                                                <a href="{{ route($isRecon ? 'recon.combat_shifts.spending_report' : ($isVampire ? 'vampire.combat_shifts.spending_report' : ($isUgv ? 'ugv.combat_shifts.spending_report' : 'combat_shifts.spending_fpv_report')), $shift->id) }}" class="btn btn-info btn-sm ml-1" title="Звіт по витратам">
+                                                <a href="{{ route($isRecon ? 'recon.combat_shifts.spending_report' : ($isVampire ? 'vampire.combat_shifts.spending_report' : ($isUgv ? 'ugv.combat_shifts.spending_report' : ($isAirDefence ? 'air-defence.combat_shifts.spending_report' : 'combat_shifts.spending_fpv_report'))), $shift->id) }}" class="btn btn-info btn-sm ml-1" title="Звіт по витратам">
                                                     <i class="fas fa-bomb mr-1"></i> Витрати
                                                 </a>
                                                 <a href="{{ route($isUgv ? 'ugv.combat_shifts.races_report' : $routePrefix . 'combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary btn-sm ml-1" title="{{ $isUgv ? 'Звіт по рейсам' : 'Звіт по польотам' }}">

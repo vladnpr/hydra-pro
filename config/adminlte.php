@@ -470,7 +470,44 @@ return [
                 ],
             ]
         ],
-        // END_UGV__________________________________
+        // END_UGV__________________________________________
+        // AIR_DEFENCE______________________________________
+        [
+            'header' => 'FPV-ППО-напрямок',
+            'can' => 'manage-air-defence'
+        ],
+        [
+            'text' => 'ППО',
+            'icon' => 'fas fa-shield-alt',
+            'can' => 'manage-air-defence',
+            'submenu' => [
+                [
+                    'text' => 'Чергування',
+                    'route' => 'air-defence.combat_shifts.index',
+                    'icon' => 'fas fa-user-shield',
+                    'can' => 'manage-air-defence',
+                ],
+                [
+                    'text' => 'Дрони',
+                    'route' => 'air-defence.drones.index',
+                    'icon' => 'fas fa-helicopter',
+                    'can' => 'manage-air-defence-drones',
+                ],
+                [
+                    'text' => 'Боєприпаси',
+                    'route' => 'air-defence.ammunition.index',
+                    'icon' => 'fas fa-rocket',
+                    'can' => 'manage-air-defence-ammunition',
+                ],
+                [
+                    'text' => 'Польоти',
+                    'route' => 'air-defence.flights.index',
+                    'icon' => 'fas fa-plane-departure',
+                    'can' => 'manage-air-defence',
+                ],
+            ]
+        ],
+        // END_AIR_DEFENCE__________________________________
         [
             'header' => 'Звітність',
             'can' => 'view-reports'

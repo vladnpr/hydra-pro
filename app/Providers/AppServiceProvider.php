@@ -43,6 +43,18 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Gate::define('manage-air-defence', function (User $user) {
+            return $user->isAdmin() || $user->isAirDefence();
+        });
+
+        Gate::define('manage-air-defence-drones', function (User $user) {
+            return $user->isAdmin() || $user->isAirDefence();
+        });
+
+        Gate::define('manage-air-defence-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isAirDefence();
+        });
+
         Gate::define('manage-vampire', function (User $user) {
             return $user->isAdmin() || $user->isVampire();
         });
@@ -96,7 +108,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('view-reports', function (User $user) {
-            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv();
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv() || $user->isAirDefence();
         });
 
         Gate::define('view-dashboard-stats', function (User $user) {
@@ -108,7 +120,7 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('manage-combat', function (User $user) {
-            return $user->isAdmin() || $user->isUser();
+            return $user->isAdmin() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv() || $user->isAirDefence();
         });
 
         view()->composer('*', function ($view) {
