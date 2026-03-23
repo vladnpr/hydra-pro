@@ -53,6 +53,8 @@
                                         'admin' => 'danger',
                                         'manager' => 'success',
                                         'recon' => 'warning',
+                                        'vampire' => 'info',
+                                        'ugv' => 'indigo',
                                         'user' => 'primary',
                                         'guest' => 'secondary',
                                         default => 'info'
@@ -61,6 +63,8 @@
                                         'admin' => 'adm',
                                         'manager' => 'mng',
                                         'recon' => 'rcn',
+                                        'vampire' => 'vmp',
+                                        'ugv' => 'ugv',
                                         'user' => 'usr',
                                         'guest' => 'gst',
                                         default => $user->role
@@ -69,6 +73,8 @@
                                         'admin' => 'адмін',
                                         'manager' => 'менеджер',
                                         'recon' => 'розвідка',
+                                        'vampire' => 'vampire',
+                                        'ugv' => 'НРК',
                                         'user' => 'користувач',
                                         'guest' => 'гість',
                                         default => $user->role

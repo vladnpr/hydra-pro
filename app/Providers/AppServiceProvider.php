@@ -14,6 +14,8 @@ use App\Repositories\Contracts\CombatShiftRepositoryInterface;
 use App\Repositories\Eloquent\EloquentCombatShiftRepository;
 use App\Repositories\Contracts\VampireDroneRepositoryInterface;
 use App\Repositories\Eloquent\EloquentVampireDroneRepository;
+use App\Repositories\Contracts\UgvDroneRepositoryInterface;
+use App\Repositories\Eloquent\EloquentUgvDroneRepository;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
 use App\Services\CombatShiftsAdminService;
@@ -33,6 +35,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(PositionRepositoryInterface::class, EloquentPositionRepository::class);
         $this->app->bind(CombatShiftRepositoryInterface::class, EloquentCombatShiftRepository::class);
         $this->app->bind(VampireDroneRepositoryInterface::class, EloquentVampireDroneRepository::class);
+        $this->app->bind(UgvDroneRepositoryInterface::class, EloquentUgvDroneRepository::class);
     }
 
     /**
@@ -42,6 +45,18 @@ class AppServiceProvider extends ServiceProvider
     {
         Gate::define('manage-vampire', function (User $user) {
             return $user->isAdmin() || $user->isVampire();
+        });
+
+        Gate::define('manage-ugv', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
+        });
+
+        Gate::define('manage-ugv-drones', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
+        });
+
+        Gate::define('manage-ugv-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
         });
 
         Gate::define('manage-recon', function (User $user) {
@@ -81,11 +96,15 @@ class AppServiceProvider extends ServiceProvider
         });
 
         Gate::define('view-reports', function (User $user) {
-            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire();
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv();
+        });
+
+        Gate::define('view-dashboard-stats', function (User $user) {
+            return !$user->isGuest();
         });
 
         Gate::define('access-combat', function (User $user) {
-            return !$user->isGuest();
+            return true;
         });
 
         Gate::define('manage-combat', function (User $user) {

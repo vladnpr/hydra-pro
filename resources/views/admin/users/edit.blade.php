@@ -36,6 +36,7 @@
                                 <option value="user" {{ old('role', $user->role) == 'user' ? 'selected' : '' }}>Користувач</option>
                                 <option value="recon" {{ old('role', $user->role) == 'recon' ? 'selected' : '' }}>Розвідка</option>
                                 <option value="vampire" {{ old('role', $user->role) == 'vampire' ? 'selected' : '' }}>Vampire</option>
+                                <option value="ugv" {{ old('role', $user->role) == 'ugv' ? 'selected' : '' }}>НРК</option>
                                 <option value="manager" {{ old('role', $user->role) == 'manager' ? 'selected' : '' }}>Менеджер</option>
                                 <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Адміністратор</option>
                                 <option value="guest" {{ old('role', $user->role) == 'guest' ? 'selected' : '' }}>Гість</option>
