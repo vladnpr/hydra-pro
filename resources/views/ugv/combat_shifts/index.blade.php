@@ -134,7 +134,7 @@
                                                 <i class="fas fa-file-alt"></i>
                                             </a>
                                             <a href="{{ route('ugv.combat_shifts.races_report', $shift->id) }}" class="btn btn-default btn-sm" title="Звіт по рейсам">
-                                                <i class="fas fa-paper-plane"></i>
+                                                <i class="fas fa-truck-moving"></i>
                                             </a>
                                             @can('manage-ugv')
                                                 @if($shift->status === 'opened' && !$isUserInShift && !$userActiveShift)

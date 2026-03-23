@@ -22,7 +22,7 @@ class UgvCombatShiftController extends Controller
         private readonly AmmunitionRepositoryInterface $ammunitionRepository
     ) {
         $this->middleware(function ($request, $next) {
-            $reportMethods = ['report', 'flightsReport', 'activeFlightsReport', 'show'];
+            $reportMethods = ['report', 'racesReport', 'activeFlightsReport', 'show'];
             $currentMethod = $request->route()->getActionMethod();
 
             if (in_array($currentMethod, $reportMethods)) {

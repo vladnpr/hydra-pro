@@ -506,7 +506,7 @@ return [
                 [
                     'text' => 'Активні рейси UGV',
                     'icon' => 'fas fa-fw fa-truck',
-                    'route' => 'ugv.combat_shifts.active_flights_report',
+                    'route' => 'ugv.combat_shifts.active_races_report',
                     'can' => 'manage-ugv',
                 ],
             ],
