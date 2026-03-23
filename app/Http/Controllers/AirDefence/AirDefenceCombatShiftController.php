@@ -22,9 +22,19 @@ class AirDefenceCombatShiftController extends Controller
         private readonly PositionRepositoryInterface   $positionRepository
     ) {
         $this->middleware(function ($request, $next) {
-            if (Gate::denies('manage-air-defence')) {
-                abort(403);
+            $reportMethods = ['report', 'flightsReport', 'spendingReport', 'show'];
+            $currentMethod = $request->route()->getActionMethod();
+
+            if (in_array($currentMethod, $reportMethods)) {
+                if (Gate::denies('view-reports') && Gate::denies('manage-air-defence')) {
+                    abort(403);
+                }
+            } else {
+                if (Gate::denies('manage-air-defence')) {
+                    abort(403);
+                }
             }
+
             return $next($request);
         });
     }

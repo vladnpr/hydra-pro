@@ -22,7 +22,7 @@ class ReconCombatShiftsController extends Controller
         private readonly AmmunitionRepositoryInterface $ammunitionRepository
     ) {
         $this->middleware(function ($request, $next) {
-            $reportMethods = ['report', 'flightsReport', 'activeFlightsReport', 'show'];
+            $reportMethods = ['report', 'flightsReport', 'activeFlightsReport', 'spendingReport', 'show'];
             $currentMethod = $request->route()->getActionMethod();
 
             if (in_array($currentMethod, $reportMethods)) {
