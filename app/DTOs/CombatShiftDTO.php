@@ -31,6 +31,8 @@ class CombatShiftDTO
         public readonly array $ugv_drones = [],
         public readonly array $ugv_races = [],
         public readonly array $ugv_race_plans = [],
+        public readonly array $airDefenceDrones = [],
+        public readonly array $airDefenceAmmunition = [],
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -202,6 +204,23 @@ class CombatShiftDTO
                 'order' => $p->order,
             ])->toArray();
 
+        $airDefenceDrones = [];
+        $airDefenceAmmunition = [];
+        if ($shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE) {
+            $airDefenceDrones = $shift->airDefenceDrones->map(fn($d) => [
+                'id' => $d->id,
+                'name' => $d->name,
+                'model' => $d->model,
+                'quantity' => $d->pivot->quantity
+            ])->toArray();
+
+            $airDefenceAmmunition = $shift->airDefenceAmmunition->map(fn($a) => [
+                'id' => $a->id,
+                'name' => $a->name,
+                'quantity' => $a->pivot->quantity
+            ])->toArray();
+        }
+
         return new self(
             id: $shift->id,
             users: $shift->users->map(fn($u) => [
@@ -217,7 +236,14 @@ class CombatShiftDTO
             status_color: $shift->status_color,
             started_at: $shift->started_at->format('Y-m-d H:i:s'),
             ended_at: $shift->ended_at?->format('Y-m-d H:i:s'),
-            drones: $shift->drones->map(function($d) {
+            drones: $shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE ? $shift->airDefenceDrones->map(function($d) {
+                return [
+                    'id' => $d->id,
+                    'name' => $d->name,
+                    'model' => $d->model,
+                    'quantity' => $d->pivot->quantity
+                ];
+            })->toArray() : $shift->drones->map(function($d) {
                 return [
                     'id' => $d->id,
                     'name' => $d->name,
@@ -225,7 +251,13 @@ class CombatShiftDTO
                     'quantity' => $d->pivot->quantity
                 ];
             })->toArray(),
-            ammunition: $shift->ammunition->map(function($a) {
+            ammunition: $shift->type === \App\Enums\PositionTypesEnum::AIR_DEFENCE ? $shift->airDefenceAmmunition->map(function($a) {
+                return [
+                    'id' => $a->id,
+                    'name' => $a->name,
+                    'quantity' => $a->pivot->quantity
+                ];
+            })->toArray() : $shift->ammunition->map(function($a) {
                 return [
                     'id' => $a->id,
                     'name' => $a->name,
@@ -262,6 +294,8 @@ class CombatShiftDTO
             ugv_drones: $ugvDrones,
             ugv_races: $ugvRaces,
             ugv_race_plans: $ugvRacePlans,
+            airDefenceDrones: $airDefenceDrones,
+            airDefenceAmmunition: $airDefenceAmmunition,
         );
     }
 }

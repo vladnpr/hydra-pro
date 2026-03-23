@@ -55,10 +55,25 @@ class CombatShift extends Model
             ->withTimestamps();
     }
 
+    public function airDefenceDrones(): BelongsToMany
+    {
+        return $this->belongsToMany(AirDefenceDrone::class, 'combat_shift_air_defence_drone')
+            ->withTrashed()
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
 
     public function ammunition(): BelongsToMany
     {
         return $this->belongsToMany(Ammunition::class, 'combat_shift_ammunition')
+            ->withTrashed()
+            ->withPivot('quantity')
+            ->withTimestamps();
+    }
+
+    public function airDefenceAmmunition(): BelongsToMany
+    {
+        return $this->belongsToMany(AirDefenceAmmunition::class, 'combat_shift_air_defence_ammunition')
             ->withTrashed()
             ->withPivot('quantity')
             ->withTimestamps();

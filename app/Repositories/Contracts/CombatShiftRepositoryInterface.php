@@ -18,7 +18,9 @@ interface CombatShiftRepositoryInterface
     public function attachUser(CombatShift $shift, int $userId): void;
     public function detachUser(CombatShift $shift, int $userId): void;
     public function syncDrones(CombatShift $shift, array $drones): void;
+    public function syncAirDefenceDrones(CombatShift $shift, array $drones): void;
     public function syncAmmunition(CombatShift $shift, array $ammunition): void;
+    public function syncAirDefenceAmmunition(CombatShift $shift, array $ammunition): void;
     public function syncCrew(CombatShift $shift, array $crew): void;
     public function syncFlights(CombatShift $shift, array $flights): void;
 }
