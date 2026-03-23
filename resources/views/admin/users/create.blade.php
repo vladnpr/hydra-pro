@@ -36,6 +36,7 @@
                                 <option value="recon" {{ old('role') == 'recon' ? 'selected' : '' }}>Розвідка</option>
                                 <option value="vampire" {{ old('role') == 'vampire' ? 'selected' : '' }}>Vampire</option>
                                 <option value="ugv" {{ old('role') == 'ugv' ? 'selected' : '' }}>НРК</option>
+                                <option value="air_defence" {{ old('role') == 'air_defence' ? 'selected' : '' }}>ППО</option>
                                 <option value="manager" {{ old('role') == 'manager' ? 'selected' : '' }}>Менеджер</option>
                                 <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Адміністратор</option>
                                 <option value="guest" {{ old('role') == 'guest' ? 'selected' : '' }}>Гість</option>
