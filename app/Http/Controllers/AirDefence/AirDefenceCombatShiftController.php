@@ -145,7 +145,9 @@ class AirDefenceCombatShiftController extends Controller
         if ($shift->type !== PositionTypesEnum::AIR_DEFENCE->value) {
             abort(404);
         }
-        $dayNumber = \Carbon\Carbon::parse($shift->started_at)->diffInDays(\Carbon\Carbon::create(2023, 1, 1)) + 1; // Example logic or just use a placeholder
+        $shiftDate = \Carbon\Carbon::parse($shift->started_at);
+        $now = \Carbon\Carbon::now();
+        $dayNumber = (int) $shiftDate->diffInDays($now) + 1;
         return view('admin.air_defence.combat_shifts.report', compact('shift', 'dayNumber'));
     }
 
