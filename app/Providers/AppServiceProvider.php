@@ -51,6 +51,14 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isUgv();
         });
 
+        Gate::define('manage-ugv-drones', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
+        });
+
+        Gate::define('manage-ugv-ammunition', function (User $user) {
+            return $user->isAdmin() || $user->isUgv();
+        });
+
         Gate::define('manage-recon', function (User $user) {
             return $user->isAdmin() || $user->isRecon();
         });

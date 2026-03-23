@@ -74,32 +74,41 @@
             <div class="card card-primary card-outline card-tabs">
                 <div class="card-header p-0 pt-1 border-bottom-0">
                     <ul class="nav nav-tabs" id="dashboard-tabs" role="tablist">
+                        @can('manage-combat')
                         <li class="nav-item">
                             <a class="nav-link active" id="fpv-tab" data-toggle="pill" href="#fpv-content" role="tab" aria-controls="fpv-content" aria-selected="true">
                                 <i class="fas fa-crosshairs mr-1"></i> FPV
                             </a>
                         </li>
+                        @endcan
+                        @can('manage-recon')
                         <li class="nav-item">
-                            <a class="nav-link" id="recon-tab" data-toggle="pill" href="#recon-content" role="tab" aria-controls="recon-content" aria-selected="false">
+                            <a class="nav-link {{ !auth()->user()->isAdmin() && !auth()->user()->isUser() ? 'active' : '' }}" id="recon-tab" data-toggle="pill" href="#recon-content" role="tab" aria-controls="recon-content" aria-selected="false">
                                 <i class="fas fa-binoculars mr-1"></i> Розвідка
                             </a>
                         </li>
+                        @endcan
+                        @can('manage-vampire')
                         <li class="nav-item">
-                            <a class="nav-link" id="vampire-tab" data-toggle="pill" href="#vampire-content" role="tab" aria-controls="vampire-content" aria-selected="false">
+                            <a class="nav-link {{ !auth()->user()->isAdmin() && !auth()->user()->isUser() && !auth()->user()->isRecon() ? 'active' : '' }}" id="vampire-tab" data-toggle="pill" href="#vampire-content" role="tab" aria-controls="vampire-content" aria-selected="false">
                                 <i class="fas fa-ghost mr-1"></i> Вампіри
                             </a>
                         </li>
+                        @endcan
+                        @can('manage-ugv')
                         <li class="nav-item">
-                            <a class="nav-link" id="ugv-tab" data-toggle="pill" href="#ugv-content" role="tab" aria-controls="ugv-content" aria-selected="false">
+                            <a class="nav-link {{ !auth()->user()->isAdmin() && !auth()->user()->isUser() && !auth()->user()->isRecon() && !auth()->user()->isVampire() ? 'active' : '' }}" id="ugv-tab" data-toggle="pill" href="#ugv-content" role="tab" aria-controls="ugv-content" aria-selected="false">
                                 <i class="fas fa-truck-pickup mr-1"></i> НРК
                             </a>
                         </li>
+                        @endcan
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content" id="dashboard-tabs-content">
                         <!-- FPV Tab -->
-                        <div class="tab-pane fade show active" id="fpv-content" role="tabpanel" aria-labelledby="fpv-tab">
+                        @can('manage-combat')
+                        <div class="tab-pane fade {{ auth()->user()->isAdmin() || auth()->user()->isUser() ? 'show active' : '' }}" id="fpv-content" role="tabpanel" aria-labelledby="fpv-tab">
                             <div class="row">
                                 <div class="col-lg-3 col-6">
                                     <div class="small-box bg-info">
@@ -288,9 +297,11 @@
                                 </div>
                             </div>
                         </div>
+                        @endcan
 
                         <!-- Recon Tab -->
-                        <div class="tab-pane fade" id="recon-content" role="tabpanel" aria-labelledby="recon-tab">
+                        @can('manage-recon')
+                        <div class="tab-pane fade {{ !auth()->user()->isAdmin() && !auth()->user()->isUser() && auth()->user()->isRecon() ? 'show active' : '' }}" id="recon-content" role="tabpanel" aria-labelledby="recon-tab">
                             <div class="row">
                                 <div class="col-lg-3 col-6">
                                     <div class="small-box bg-info">
@@ -431,9 +442,11 @@
                                 </div>
                             </div>
                         </div>
+                        @endcan
 
                         <!-- Vampire Tab -->
-                        <div class="tab-pane fade" id="vampire-content" role="tabpanel" aria-labelledby="vampire-tab">
+                        @can('manage-vampire')
+                        <div class="tab-pane fade {{ !auth()->user()->isAdmin() && !auth()->user()->isUser() && !auth()->user()->isRecon() && auth()->user()->isVampire() ? 'show active' : '' }}" id="vampire-content" role="tabpanel" aria-labelledby="vampire-tab">
                             <div class="row">
                                 <div class="col-lg-3 col-6">
                                     <div class="small-box bg-info">
@@ -574,9 +587,11 @@
                                 </div>
                             </div>
                         </div>
+                        @endcan
 
                         <!-- UGV Tab -->
-                        <div class="tab-pane fade" id="ugv-content" role="tabpanel" aria-labelledby="ugv-tab">
+                        @can('manage-ugv')
+                        <div class="tab-pane fade {{ !auth()->user()->isAdmin() && !auth()->user()->isUser() && !auth()->user()->isRecon() && !auth()->user()->isVampire() && auth()->user()->isUgv() ? 'show active' : '' }}" id="ugv-content" role="tabpanel" aria-labelledby="ugv-tab">
                             <div class="row">
                                 <div class="col-lg-3 col-6">
                                     <div class="small-box bg-info">
@@ -717,6 +732,7 @@
                                 </div>
                             </div>
                         </div>
+                        @endcan
                     </div>
                 </div>
             </div>
