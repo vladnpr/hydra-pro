@@ -28,6 +28,9 @@ class CombatShiftDTO
         public readonly array $vampire_drones = [],
         public readonly array $vampire_flights = [],
         public readonly array $vampire_flight_plans = [],
+        public readonly array $ugv_drones = [],
+        public readonly array $ugv_races = [],
+        public readonly array $ugv_race_plans = [],
     ) {}
 
     public static function fromModel(CombatShift $shift): self
@@ -49,6 +52,20 @@ class CombatShiftDTO
         $vampireDrones = [];
         if ($shift->position && $shift->position->type === \App\Enums\PositionTypesEnum::VAMPIRE->value) {
             $vampireDrones = \App\Models\VampireDrone::where('position_id', $shift->position_id)
+                ->get()
+                ->map(fn($d) => [
+                    'id' => $d->id,
+                    'name' => $d->name,
+                    'serial_number' => $d->serial_number,
+                    'status' => $d->status,
+                    'status_color' => $d->status_color,
+                    'shift_type' => $d->shift_type?->value ?? 'day',
+                ])->toArray();
+        }
+
+        $ugvDrones = [];
+        if ($shift->position && $shift->position->type === \App\Enums\PositionTypesEnum::UGV->value) {
+            $ugvDrones = \App\Models\UgvDrone::where('position_id', $shift->position_id)
                 ->get()
                 ->map(fn($d) => [
                     'id' => $d->id,
@@ -133,6 +150,58 @@ class CombatShiftDTO
                 'order' => $p->order,
             ])->toArray();
 
+        $ugvRaces = \App\Models\UgvRace::where('combat_shift_id', $shift->id)
+            ->with(['drone', 'racePlan', 'ammunition'])
+            ->orderByDesc('start_time')
+            ->get()
+            ->groupBy(function($f) {
+                $time = $f->start_time;
+                // Якщо час між 00:00 та 08:00, відносимо до попереднього дня
+                if ($time && $time->hour < 8) {
+                    return $time->copy()->subDay()->format('Y-m-d');
+                }
+                return $time ? $time->format('Y-m-d') : 'unknown';
+            })
+            ->map(fn($dayRaces) => $dayRaces->map(fn($f) => [
+                'id' => $f->id,
+                'drone_id' => $f->ugv_drone_id,
+                'drone_name' => $f->drone?->name,
+                'drone_serial' => $f->drone?->serial_number,
+                'ammunition' => $f->ammunition->map(fn($a) => ['name' => $a->name, 'quantity' => $a->pivot->quantity])->toArray(),
+                'mission_type' => $f->mission_type,
+                'mission_type_label' => match($f->mission_type) {
+                    'combat' => 'бойова',
+                    'logistics' => 'логістика',
+                    'evac' => 'евак',
+                    default => $f->mission_type,
+                },
+                'coordinates' => $f->coordinates ?: ($f->racePlan?->coordinates ?? '-'),
+                'position_name' => $f->racePlan?->position_name ?? '-',
+                'start_time' => $f->start_time?->format('Y-m-d H:i:s'),
+                'end_time' => $f->end_time?->format('Y-m-d H:i:s'),
+                'result' => $f->result,
+                'result_label' => match($f->result) {
+                    'worked' => 'відпрацювали',
+                    'loss' => 'втрата борту',
+                    'not_worked' => 'не відпрацювали',
+                    default => $f->result,
+                },
+                'stream_status' => $f->stream_status,
+                'comment' => $f->comment,
+                'video_path' => $f->video_path,
+            ]))->toArray();
+
+        $ugvRacePlans = \App\Models\UgvRacePlan::where('combat_shift_id', $shift->id)
+            ->orderBy('order')
+            ->get()
+            ->map(fn($p) => [
+                'id' => $p->id,
+                'position_name' => $p->position_name,
+                'coordinates' => $p->coordinates,
+                'status' => $p->status,
+                'order' => $p->order,
+            ])->toArray();
+
         return new self(
             id: $shift->id,
             users: $shift->users->map(fn($u) => [
@@ -190,6 +259,9 @@ class CombatShiftDTO
             vampire_drones: $vampireDrones,
             vampire_flights: $vampireFlights,
             vampire_flight_plans: $vampireFlightPlans,
+            ugv_drones: $ugvDrones,
+            ugv_races: $ugvRaces,
+            ugv_race_plans: $ugvRacePlans,
         );
     }
 }

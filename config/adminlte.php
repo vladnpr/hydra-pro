@@ -434,6 +434,43 @@ return [
             ]
         ],
         // END_VAMPIRE______________________________
+        // UGV______________________________________
+        [
+            'header' => 'НРК-напрямок',
+            'can' => 'manage-ugv'
+        ],
+        [
+            'text' => 'НРК',
+            'icon' => 'fas fa-truck-pickup',
+            'can' => 'manage-ugv',
+            'submenu' => [
+                [
+                    'text' => 'Борти (НРК)',
+                    'route' => 'ugv.drones.index',
+                    'icon' => 'fas fa-robot',
+                    'can' => 'manage-ugv',
+                ],
+                [
+                    'text' => 'Боєприпаси',
+                    'route' => 'ugv.ammunition.index',
+                    'icon' => 'fas fa-bomb',
+                    'can' => 'manage-ugv',
+                ],
+                [
+                    'text' => 'Чергування',
+                    'route' => 'ugv.combat_shifts.index',
+                    'icon' => 'fas fa-users-cog',
+                    'can' => 'manage-ugv',
+                ],
+                [
+                    'text' => 'Рейси (Виїзди)',
+                    'route' => 'ugv.races.index',
+                    'icon' => 'fas fa-truck-moving',
+                    'can' => 'manage-ugv',
+                ],
+            ]
+        ],
+        // END_UGV__________________________________
         [
             'header' => 'Звітність',
             'can' => 'view-reports'
@@ -447,24 +484,6 @@ return [
                     'text' => 'Звіти по активним змінам',
                     'icon' => 'fas fa-fw fa-chart-line',
                     'url' => 'admin/combat-shifts-active-reports',
-                ],
-                [
-                    'text' => 'Польоти',
-                    'icon' => 'fas fa-fw fa-paper-plane',
-                    'route' => 'combat_shifts.active_flights_report',
-                    'can' => 'manage-combat',
-                ],
-                [
-                    'text' => 'Залишок',
-                    'icon' => 'fas fa-fw fa-boxes',
-                    'route' => 'combat_shifts.active_remains_report',
-                    'can' => 'manage-combat',
-                ],
-                [
-                    'text' => 'Витрати',
-                    'icon' => 'fas fa-fw fa-bomb',
-                    'route' => 'combat_shifts.active_spending_fpv_report',
-                    'can' => 'manage-combat',
                 ],
             ],
         ],

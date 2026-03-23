@@ -49,8 +49,13 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->role === 'vampire';
     }
 
-    public function isGuest(): bool
+    public function isUgv (): bool
     {
+        return $this->role === 'ugv';
+    }
+
+    public function isGuest(): bool
+{
         return $this->role === 'guest';
     }
 
