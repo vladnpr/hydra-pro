@@ -19,7 +19,24 @@ class CombatShiftsController extends Controller
         private readonly PositionRepositoryInterface   $positionRepository,
         private readonly DroneRepositoryInterface      $droneRepository,
         private readonly AmmunitionRepositoryInterface $ammunitionRepository
-    ) {}
+    ) {
+        $this->middleware(function ($request, $next) {
+            $reportMethods = ['activeShiftsReports', 'report', 'flightsReport', 'activeFlightsReport', 'activeRemainsReport', 'show'];
+            $currentMethod = $request->route()->getActionMethod();
+
+            if (in_array($currentMethod, $reportMethods)) {
+                if (\Illuminate\Support\Facades\Gate::denies('view-reports') && \Illuminate\Support\Facades\Gate::denies('manage-combat')) {
+                    abort(403);
+                }
+            } else {
+                if (\Illuminate\Support\Facades\Gate::denies('manage-combat')) {
+                    abort(403);
+                }
+            }
+
+            return $next($request);
+        });
+    }
 
     public function index()
     {

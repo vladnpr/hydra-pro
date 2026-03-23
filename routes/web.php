@@ -109,6 +109,11 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
     });
 
     Route::group(['prefix' => 'air-defence', 'as' => 'air-defence.'], function () {
+        Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'report'])->name('combat_shifts.report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}/spending-report', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'spendingReport'])->name('combat_shifts.spending_report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'flightsReport'])->name('combat_shifts.flights_report')->where('id', '[0-9]+');
+        Route::get('combat_shifts/{id}', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
+
         Route::group(['middleware' => 'can:manage-air-defence-drones'], function () {
             Route::resource('drones', \App\Http\Controllers\AirDefenceDronesController::class);
         });
@@ -120,11 +125,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
             Route::post('combat_shifts/{id}/leave', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'leave'])->name('combat_shifts.leave')->where('id', '[0-9]+');
             Route::post('combat_shifts/{id}/finish', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'finish'])->name('combat_shifts.finish')->where('id', '[0-9]+');
             Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'reopen'])->name('combat_shifts.reopen')->where('id', '[0-9]+');
-            Route::get('combat_shifts/{id}/report', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'report'])->name('combat_shifts.report')->where('id', '[0-9]+');
-            Route::get('combat_shifts/{id}/spending-report', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'spendingReport'])->name('combat_shifts.spending_report')->where('id', '[0-9]+');
-            Route::get('combat_shifts/{id}/flights-report', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'flightsReport'])->name('combat_shifts.flights_report')->where('id', '[0-9]+');
             Route::resource('combat_shifts', \App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class)->except(['show']);
-            Route::get('combat_shifts/{id}', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
 
             Route::get('flights/{id}/download', [\App\Http\Controllers\AirDefenceFlightsController::class, 'downloadVideo'])->name('flights.download')->where('id', '[0-9]+');
             Route::resource('flights', \App\Http\Controllers\AirDefenceFlightsController::class);
