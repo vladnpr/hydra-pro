@@ -82,7 +82,7 @@
                                                 <a href="{{ route($routePrefix . 'combat_shifts.report', $shift->id) }}" class="btn btn-primary btn-sm" title="Звіт по залишку">
                                                     <i class="fas fa-file-alt mr-1"></i> Залишки
                                                 </a>
-                                                <a href="{{ route($isRecon ? 'recon.combat_shifts.spending_report' : ($isVampire ? 'vampire.combat_shifts.spending_report' : ($isUgv ? 'ugv.combat_shifts.spending_report' : ($isAirDefence ? 'air-defence.combat_shifts.report' : 'combat_shifts.spending_fpv_report'))), $shift->id) }}" class="btn btn-info btn-sm ml-1" title="Звіт по витратам">
+                                                <a href="{{ route($isRecon ? 'recon.combat_shifts.spending_report' : ($isVampire ? 'vampire.combat_shifts.spending_report' : ($isUgv ? 'ugv.combat_shifts.spending_report' : ($isAirDefence ? 'air-defence.combat_shifts.spending_report' : 'combat_shifts.spending_fpv_report'))), $shift->id) }}" class="btn btn-info btn-sm ml-1" title="Звіт по витратам">
                                                     <i class="fas fa-bomb mr-1"></i> Витрати
                                                 </a>
                                                 <a href="{{ route($isUgv ? 'ugv.combat_shifts.races_report' : $routePrefix . 'combat_shifts.flights_report', $shift->id) }}" class="btn btn-secondary btn-sm ml-1" title="{{ $isUgv ? 'Звіт по рейсам' : 'Звіт по польотам' }}">

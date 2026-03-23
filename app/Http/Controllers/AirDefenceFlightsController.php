@@ -82,7 +82,14 @@ class AirDefenceFlightsController extends Controller
 
         // Update quantities in active shift
         $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
-        if ($userActiveShift && $userActiveShift->id && $data['result'] !== 'борт повернувся') {
+        $result = mb_strtolower($data['result']);
+        $isExpense = str_contains($result, 'втрата') ||
+            str_contains($result, 'ціл') ||
+            str_contains($result, 'влучання') ||
+            str_contains($result, 'збито') ||
+            str_contains($result, 'знищено');
+
+        if ($userActiveShift && $userActiveShift->id && $isExpense) {
             $this->shiftService->updateDroneQuantity($userActiveShift->id, $data['air_defence_drone_id'], -1);
             $this->shiftService->updateAmmunitionQuantity($userActiveShift->id, $data['air_defence_ammunition_id'], -1);
         }
@@ -123,20 +130,33 @@ class AirDefenceFlightsController extends Controller
         // Update quantities in active shift
         $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
         if ($userActiveShift && $userActiveShift->id) {
-            $newResult = $data['result'];
+            $newResult = mb_strtolower($data['result']);
+            $oldResult = mb_strtolower($flight->result);
 
-            // 1. Якщо результат був "борт повернувся", а став іншим - треба відняти дрон і БК
-            if ($oldResult === 'борт повернувся' && $newResult !== 'борт повернувся') {
+            $isNewExpense = str_contains($newResult, 'втрата') ||
+                str_contains($newResult, 'ціл') ||
+                str_contains($newResult, 'влучання') ||
+                str_contains($newResult, 'збито') ||
+                str_contains($newResult, 'знищено');
+
+            $isOldExpense = str_contains($oldResult, 'втрата') ||
+                str_contains($oldResult, 'ціл') ||
+                str_contains($oldResult, 'влучання') ||
+                str_contains($oldResult, 'збито') ||
+                str_contains($oldResult, 'знищено');
+
+            // 1. Якщо раніше НЕ була витрата, а стала витратою - треба відняти дрон і БК
+            if (!$isOldExpense && $isNewExpense) {
                 $this->shiftService->updateDroneQuantity($userActiveShift->id, $data['air_defence_drone_id'], -1);
                 $this->shiftService->updateAmmunitionQuantity($userActiveShift->id, $data['air_defence_ammunition_id'], -1);
             }
-            // 2. Якщо результат став "борт повернувся", а був іншим - треба повернути дрон і БК (старі)
-            elseif ($oldResult !== 'борт повернувся' && $newResult === 'борт повернувся') {
+            // 2. Якщо раніше БУЛА витрата, а тепер НЕ витрата - треба повернути дрон і БК (старі)
+            elseif ($isOldExpense && !$isNewExpense) {
                 $this->shiftService->updateDroneQuantity($userActiveShift->id, $oldDroneId, 1);
                 $this->shiftService->updateAmmunitionQuantity($userActiveShift->id, $oldAmmoId, 1);
             }
-            // 3. Якщо результат в обох випадках НЕ "борт повернувся", обробляємо зміну дрона/БК як зазвичай
-            elseif ($oldResult !== 'борт повернувся' && $newResult !== 'борт повернувся') {
+            // 3. Якщо в обох випадках витрата, обробляємо зміну дрона/БК
+            elseif ($isOldExpense && $isNewExpense) {
                 if ($oldDroneId != $data['air_defence_drone_id']) {
                     $this->shiftService->updateDroneQuantity($userActiveShift->id, $oldDroneId, 1);
                     $this->shiftService->updateDroneQuantity($userActiveShift->id, $data['air_defence_drone_id'], -1);
@@ -146,7 +166,6 @@ class AirDefenceFlightsController extends Controller
                     $this->shiftService->updateAmmunitionQuantity($userActiveShift->id, $data['air_defence_ammunition_id'], -1);
                 }
             }
-            // 4. Якщо результат в обох випадках "борт повернувся" - нічого не робимо з кількістю
         }
 
         return redirect()->route('air-defence.flights.index')
@@ -158,7 +177,14 @@ class AirDefenceFlightsController extends Controller
         $flight = AirDefenceFlight::findOrFail($id);
 
         $userActiveShift = $this->shiftService->getActiveShiftByUserId(Auth::id());
-        if ($userActiveShift && $userActiveShift->id && $flight->result !== 'борт повернувся') {
+        $result = mb_strtolower($flight->result);
+        $isExpense = str_contains($result, 'втрата') ||
+            str_contains($result, 'ціл') ||
+            str_contains($result, 'влучання') ||
+            str_contains($result, 'збито') ||
+            str_contains($result, 'знищено');
+
+        if ($userActiveShift && $userActiveShift->id && $isExpense) {
             $this->shiftService->updateDroneQuantity($userActiveShift->id, $flight->air_defence_drone_id, 1);
             $this->shiftService->updateAmmunitionQuantity($userActiveShift->id, $flight->air_defence_ammunition_id, 1);
         }

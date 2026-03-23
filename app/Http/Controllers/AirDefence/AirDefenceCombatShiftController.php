@@ -178,4 +178,71 @@ class AirDefenceCombatShiftController extends Controller
 
         return view('admin.air_defence.combat_shifts.flights_report', compact('shift', 'date', 'flights', 'availableDates'));
     }
+
+    public function spendingReport(int $id, \Illuminate\Http\Request $request)
+    {
+        $shift = $this->combatShiftsAdminService->getShiftById($id);
+        if ($shift->type !== PositionTypesEnum::AIR_DEFENCE->value) {
+            abort(404);
+        }
+
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        // Отримуємо польоти за обрану дату для підрахунку витрат
+        $flights = \App\Models\AirDefenceFlight::with(['drone', 'ammunition'])
+            ->where('position_id', $shift->position_id)
+            ->whereDate('start_time', $date)
+            ->get();
+
+        $spendingAmmunition = [];
+        $spendingDrones = [];
+        foreach ($flights as $flight) {
+            $result = mb_strtolower($flight->result);
+            $isExpense = false;
+
+            // Дрон повернувся - не вважається витратою БК чи дрона
+            // Втрата дрона - записується у витрати дрон і БК
+            // В районі цілі - вважається витратою дрону і БК
+            // Влучання - витрата дрона і БК
+
+            if (str_contains($result, 'втрата') ||
+                str_contains($result, 'ціл') ||
+                str_contains($result, 'влучання') ||
+                str_contains($result, 'збито') ||
+                str_contains($result, 'знищено')) {
+                $isExpense = true;
+            }
+
+            if ($isExpense) {
+                if ($flight->ammunition) {
+                    $name = $flight->ammunition->name;
+                    if (!isset($spendingAmmunition[$name])) {
+                        $spendingAmmunition[$name] = 0;
+                    }
+                    $spendingAmmunition[$name] += 1;
+                }
+
+                if ($flight->drone) {
+                    $droneKey = $flight->drone->name . ' (' . $flight->drone->model . ')';
+                    if (!isset($spendingDrones[$droneKey])) {
+                        $spendingDrones[$droneKey] = 0;
+                    }
+                    $spendingDrones[$droneKey] += 1;
+                }
+            }
+        }
+
+        // Отримуємо всі доступні дати польотів для фільтра
+        $availableDates = \App\Models\AirDefenceFlight::where('position_id', $shift->position_id)
+            ->whereBetween('start_time', [
+                \Carbon\Carbon::parse($shift->started_at)->startOfDay(),
+                $shift->ended_at ? \Carbon\Carbon::parse($shift->ended_at)->endOfDay() : now()->endOfDay()
+            ])
+            ->get()
+            ->map(fn($f) => $f->start_time->format('Y-m-d'))
+            ->unique()
+            ->sortDesc();
+
+        return view('admin.air_defence.combat_shifts.spending_report', compact('shift', 'date', 'spendingAmmunition', 'spendingDrones', 'availableDates'));
+    }
 }
