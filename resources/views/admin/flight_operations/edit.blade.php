@@ -77,7 +77,7 @@
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
                                 <option value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
-                                <option value="відпрацювали" {{ old('result', $flight->result) == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
+                                <option id="result-worked" value="відпрацювали" {{ old('result', $flight->result) == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
                                 <option value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
                                 <option value="втрата борту" {{ old('result', $flight->result) == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
@@ -162,11 +162,28 @@
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
 
+            function toggleWorkedOption() {
+                const mission = $('#mission').val();
+                if (mission === 'strike') {
+                    $('#result-worked').hide();
+                    if ($('#result').val() === 'відпрацювали') {
+                        $('#result').val('влучання');
+                    }
+                } else {
+                    // Show it back for other missions
+                    $('#result-worked').show();
+                }
+            }
+
             $('#mission').on('change', function() {
+                toggleWorkedOption();
                 if ($(this).val() === 'patrol') {
                     $('#result').val('відпрацювали');
                 }
             });
+
+            // Initial check
+            toggleWorkedOption();
         });
     </script>
 @endsection
