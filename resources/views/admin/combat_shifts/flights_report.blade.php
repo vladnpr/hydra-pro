@@ -70,7 +70,7 @@
                                 <p class="m-0">БК: {{ $flight['ammunition_name'] }}</p>
                             @endif
                             <p class="m-0">Результат:
-                                @if(($flight['mission'] ?? '') === 'patrol' && $flight['result'] === 'відпрацювали')
+                                @if((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали'))
                                     <span style="color: #28a745; font-weight: bold;">{{ $flight['result'] }}</span>
                                 @else
                                     {{ $flight['result'] }}

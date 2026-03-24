@@ -76,10 +76,12 @@
                         <div class="form-group">
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
-                                <option value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option id="result-hit" value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
                                 <option id="result-worked" value="відпрацювали" {{ old('result', $flight->result) == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
-                                <option value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                <option value="втрата борту" {{ old('result', $flight->result) == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
+                                <option id="result-logistics-spent" value="відпрацювали (витрата борту)" {{ old('result', $flight->result) == 'відпрацювали (витрата борту)' ? 'selected' : '' }}>Відпрацювали (витрата борту)</option>
+                                <option id="result-logistics-returned" value="відпрацювали (повернули борт)" {{ old('result', $flight->result) == 'відпрацювали (повернули борт)' ? 'selected' : '' }}>Відпрацювали (повернули борт)</option>
+                                <option id="result-near-hit" value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                <option id="result-loss" value="втрата борту" {{ old('result', $flight->result) == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
                             @error('result')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -165,22 +167,43 @@
             function toggleWorkedOption() {
                 const mission = $('#mission').val();
                 if (mission === 'strike') {
+                    $('#result-hit').show();
                     $('#result-worked').hide();
-                    if ($('#result').val() === 'відпрацювали') {
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
+                    if (['відпрацювали', 'відпрацювали (витрата борту)', 'відпрацювали (повернули борт)'].includes($('#result').val())) {
                         $('#result').val('влучання');
                     }
+                } else if (mission === 'logistics') {
+                    $('#result-hit').hide();
+                    $('#result-worked').hide();
+                    $('#result-logistics-spent').show();
+                    $('#result-logistics-returned').show();
+                    $('#result-near-hit').hide();
+                    $('#result-loss').show();
+                    if (['влучання', 'відпрацювали', 'удар в районі цілі'].includes($('#result').val())) {
+                        $('#result').val('відпрацювали (витрата борту)');
+                    }
                 } else {
-                    // Show it back for other missions
+                    $('#result-hit').show();
                     $('#result-worked').show();
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
                 }
 
                 if (mission === 'logistics') {
                     $('#ammunition-group').hide();
                     $('#detonation-group').hide();
+                    $('#detonation').prop('disabled', true);
                     $('#coordinates-label').text('Назва Цілі/Позиції');
                 } else {
                     $('#ammunition-group').show();
                     $('#detonation-group').show();
+                    $('#detonation').prop('disabled', false);
                     $('#coordinates-label').text('Координати');
                 }
             }

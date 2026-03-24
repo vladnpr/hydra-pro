@@ -41,7 +41,7 @@ class CombatShiftFlightStoreRequest extends FormRequest
                 },
             ],
             'flight_time' => 'required|date',
-            'result' => 'required|string|in:влучання,удар в районі цілі,втрата борту,відпрацювали',
+            'result' => 'required|string|in:влучання,удар в районі цілі,втрата борту,відпрацювали,відпрацювали (витрата борту),відпрацювали (повернули борт)',
             'detonation' => 'required_unless:mission,logistics|nullable|in:так,ні,інше',
             'stream' => 'nullable|string|max:255',
             'note' => 'nullable|string',

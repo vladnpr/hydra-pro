@@ -52,7 +52,10 @@ class CombatShiftFlight extends Model
                 app(\App\Services\CombatShiftsAdminService::class)->updateAmmunitionQuantity($flight->combat_shift_id, $flight->ammunition_id, -1);
             }
             if ($flight->combat_shift_id && $flight->drone_id) {
-                app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $flight->drone_id, -1);
+                // Не вираховуємо борт, якщо його повернули
+                if ($flight->result !== 'відпрацювали (повернули борт)') {
+                    app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $flight->drone_id, -1);
+                }
             }
         });
 
@@ -61,7 +64,10 @@ class CombatShiftFlight extends Model
                 app(\App\Services\CombatShiftsAdminService::class)->updateAmmunitionQuantity($flight->combat_shift_id, $flight->ammunition_id, 1);
             }
             if ($flight->combat_shift_id && $flight->drone_id) {
-                app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $flight->drone_id, 1);
+                // Повертаємо борт в наявність тільки якщо він був вирахований (не був повернутий при вильоті)
+                if ($flight->result !== 'відпрацювали (повернули борт)') {
+                    app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $flight->drone_id, 1);
+                }
             }
         });
 
@@ -70,6 +76,8 @@ class CombatShiftFlight extends Model
             $newAmmunitionId = $flight->ammunition_id;
             $oldDroneId = $flight->getOriginal('drone_id');
             $newDroneId = $flight->drone_id;
+            $oldResult = $flight->getOriginal('result');
+            $newResult = $flight->result;
 
             if ($oldAmmunitionId != $newAmmunitionId) {
                 if ($flight->combat_shift_id && $oldAmmunitionId) {
@@ -80,12 +88,18 @@ class CombatShiftFlight extends Model
                 }
             }
 
-            if ($oldDroneId != $newDroneId) {
-                if ($flight->combat_shift_id && $oldDroneId) {
-                    app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $oldDroneId, 1);
+            // Логіка для зміни дрона або результату (повернення борту)
+            if ($oldDroneId != $newDroneId || $oldResult != $newResult) {
+                $service = app(\App\Services\CombatShiftsAdminService::class);
+
+                // 1. Повертаємо старий дрон, якщо він був вирахований
+                if ($flight->combat_shift_id && $oldDroneId && $oldResult !== 'відпрацювали (повернули борт)') {
+                    $service->updateDroneQuantity($flight->combat_shift_id, $oldDroneId, 1);
                 }
-                if ($flight->combat_shift_id && $newDroneId) {
-                    app(\App\Services\CombatShiftsAdminService::class)->updateDroneQuantity($flight->combat_shift_id, $newDroneId, -1);
+
+                // 2. Вираховуємо новий дрон, якщо він НЕ повернутий
+                if ($flight->combat_shift_id && $newDroneId && $newResult !== 'відпрацювали (повернули борт)') {
+                    $service->updateDroneQuantity($flight->combat_shift_id, $newDroneId, -1);
                 }
             }
         });

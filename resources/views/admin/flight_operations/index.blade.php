@@ -93,10 +93,12 @@
                         <div class="form-group">
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
-                                <option value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option id="result-hit" value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
                                 <option id="result-worked" value="відпрацювали" {{ old('result') == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
-                                <option value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                <option value="втрата борту" {{ old('result') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
+                                <option id="result-logistics-spent" value="відпрацювали (витрата борту)" {{ old('result') == 'відпрацювали (витрата борту)' ? 'selected' : '' }}>Відпрацювали (витрата борту)</option>
+                                <option id="result-logistics-returned" value="відпрацювали (повернули борт)" {{ old('result') == 'відпрацювали (повернули борт)' ? 'selected' : '' }}>Відпрацювали (повернули борт)</option>
+                                <option id="result-near-hit" value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                <option id="result-loss" value="втрата борту" {{ old('result') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
                             @error('result')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -262,19 +264,23 @@
                                                             $badgeClass = match($flight['result']) {
                                                                 'влучання' => 'success',
                                                                 'відпрацювали' => 'success',
+                                                                'відпрацювали (витрата борту)' => 'success',
+                                                                'відпрацювали (повернули борт)' => 'success',
                                                                 'удар в районі цілі' => 'warning',
                                                                 'втрата борту' => 'danger',
                                                                 default => 'secondary'
                                                             };
 
                                                             $badgeStyle = '';
-                                                            if (($flight['mission'] ?? '') === 'patrol' && $flight['result'] === 'відпрацювали') {
+                                                            if ((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали')) {
                                                                 $badgeStyle = 'background-color: #28a745 !important; color: white;';
                                                             }
 
                                                             $shortResult = match($flight['result']) {
                                                                 'влучання' => 'влуч.',
                                                                 'відпрацювали' => 'відпр.',
+                                                                'відпрацювали (витрата борту)' => 'відпр.',
+                                                                'відпрацювали (повернули борт)' => 'відпр.',
                                                                 'удар в районі цілі' => 'удар',
                                                                 'втрата борту' => 'втрата',
                                                                 default => $flight['result']
@@ -335,22 +341,44 @@
             function toggleWorkedOption() {
                 const mission = $('#mission').val();
                 if (mission === 'strike') {
+                    $('#result-hit').show();
                     $('#result-worked').hide();
-                    if ($('#result').val() === 'відпрацювали') {
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
+                    if (['відпрацювали', 'відпрацювали (витрата борту)', 'відпрацювали (повернули борт)'].includes($('#result').val())) {
                         $('#result').val('влучання');
                     }
+                } else if (mission === 'logistics') {
+                    $('#result-hit').hide();
+                    $('#result-worked').hide();
+                    $('#result-logistics-spent').show();
+                    $('#result-logistics-returned').show();
+                    $('#result-near-hit').hide();
+                    $('#result-loss').show();
+                    if (['влучання', 'відпрацювали', 'удар в районі цілі'].includes($('#result').val())) {
+                        $('#result').val('відпрацювали (витрата борту)');
+                    }
                 } else {
+                    $('#result-hit').show();
                     $('#result-worked').show();
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
                 }
 
                 if (mission === 'logistics') {
                     $('#ammunition-group').hide();
                     $('#detonation-group').hide();
+                    $('#detonation').prop('disabled', true);
                     $('#coordinates-label').text('Назва Цілі/Позиції');
                     $('#coordinates').attr('placeholder', 'Назва цілі або позиції');
                 } else {
                     $('#ammunition-group').show();
                     $('#detonation-group').show();
+                    $('#detonation').prop('disabled', false);
                     $('#coordinates-label').text('Координати');
                     $('#coordinates').attr('placeholder', '00.0000, 00.0000');
                 }
