@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\FPV;
+
+use App\Http\Controllers\Controller;
 
 use App\DTOs\CreateDroneDTO;
 use App\DTOs\UpdateDroneDTO;
@@ -9,7 +11,7 @@ use App\Http\Requests\DroneUpdateRequest;
 use App\Services\DronesAdminService;
 use Illuminate\Support\Facades\Gate;
 
-class DronesController extends Controller
+class FpvDronesController extends Controller
 {
 
     public function __construct(private readonly DronesAdminService $service)
