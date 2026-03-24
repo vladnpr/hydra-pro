@@ -41,7 +41,7 @@ class CombatShiftFlightUpdateRequest extends FormRequest
             ],
             'flight_time' => 'required|date',
             'result' => 'required|string|in:влучання,удар в районі цілі,втрата борту,відпрацювали,відпрацювали (витрата борту),відпрацювали (повернули борт)',
-            'detonation' => 'required_unless:mission,logistics|nullable|in:так,ні,інше',
+            'detonation' => 'required_unless:mission,logistics|nullable|in:так,ні,не відомо',
             'stream' => 'nullable|string|max:255',
             'note' => 'nullable|string',
             'video' => 'nullable|file|mimetypes:video/mp4,video/mpeg,video/quicktime,video/x-msvideo,video/x-flv,video/webm|max:76800',

@@ -100,7 +100,7 @@
                             <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror">
                                 <option value="так" {{ old('detonation', $flight->detonation) == 'так' ? 'selected' : '' }}>Так</option>
                                 <option value="ні" {{ old('detonation', $flight->detonation) == 'ні' ? 'selected' : '' }}>Ні</option>
-                                <option value="інше" {{ old('detonation', $flight->detonation) == 'інше' ? 'selected' : '' }}>Інше</option>
+                                <option value="не відомо" {{ old('detonation', $flight->detonation) == 'не відомо' ? 'selected' : '' }}>Не відомо</option>
                             </select>
                             @error('detonation')
                                 <span class="error invalid-feedback">{{ $message }}</span>
