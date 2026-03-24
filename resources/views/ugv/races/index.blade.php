@@ -38,7 +38,10 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="position_name">Назва позиції / Рейси</label>
-                            <input type="text" name="position_name" id="position_name" class="form-control" placeholder="напр. ПНГ 1" required>
+                            <input type="text" name="position_name" id="position_name" class="form-control @error('position_name') is-invalid @enderror" value="{{ old('position_name') }}" placeholder="напр. ПНГ 1" required>
+                            @error('position_name')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
                     <div class="card-footer">

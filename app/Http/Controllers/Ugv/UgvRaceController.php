@@ -67,7 +67,25 @@ class UgvRaceController extends Controller
     {
         $request->validate([
             'combat_shift_id' => 'required|exists:combat_shifts,id',
-            'position_name' => 'required|string|max:255',
+            'position_name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $patterns = [
+                        '/\d{2}[A-Z]\s[A-Z]{2}\s\d{5}\s\d{5}/', // MGRS
+                        '/-?\d{1,2}\.\d+,\s*-?\d{1,3}\.\d+/', // Decimal
+                        '/\d+°\d+\'\d+\.?\d*\"[NS]\s\d+°\d+\'\d+\.?\d*\"[EW]/', // DMS
+                        '/Zone\s\d{2}[A-Z],\s\d+\smE,\s\d+\smN/', // UTM
+                    ];
+
+                    foreach ($patterns as $pattern) {
+                        if (preg_match($pattern, $value)) {
+                            $fail('Поле "Назва позиції" не повинно містити координати. Будь ласка, використовуйте поле "Координати".');
+                        }
+                    }
+                },
+            ],
         ]);
 
         $lastOrder = UgvRacePlan::where('combat_shift_id', $request->combat_shift_id)
@@ -107,7 +125,25 @@ class UgvRaceController extends Controller
     {
         $plan = UgvRacePlan::findOrFail($id);
         $request->validate([
-            'position_name' => 'required|string|max:255',
+            'position_name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $patterns = [
+                        '/\d{2}[A-Z]\s[A-Z]{2}\s\d{5}\s\d{5}/', // MGRS
+                        '/-?\d{1,2}\.\d+,\s*-?\d{1,3}\.\d+/', // Decimal
+                        '/\d+°\d+\'\d+\.?\d*\"[NS]\s\d+°\d+\'\d+\.?\d*\"[EW]/', // DMS
+                        '/Zone\s\d{2}[A-Z],\s\d+\smE,\s\d+\smN/', // UTM
+                    ];
+
+                    foreach ($patterns as $pattern) {
+                        if (preg_match($pattern, $value)) {
+                            $fail('Поле "Назва позиції" не повинно містити координати. Будь ласка, використовуйте поле "Координати".');
+                        }
+                    }
+                },
+            ],
         ]);
 
         $plan->update($request->only(['position_name']));
