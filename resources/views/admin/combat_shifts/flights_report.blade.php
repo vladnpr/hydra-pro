@@ -71,7 +71,7 @@
                             @endif
                             <p class="m-0">Результат:
                                 @if((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали'))
-                                    <span style="color: #28a745; font-weight: bold;">{{ $flight['result'] }}</span>
+                                    <span style="color: #000; font-weight: bold;">{{ $flight['result'] }}</span>
                                 @else
                                     {{ $flight['result'] }}
                                 @endif
