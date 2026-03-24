@@ -5,6 +5,7 @@ use App\Http\Controllers\FPV\FpvAmmunitionController;
 use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\FPV\FpvCombatShiftController;
 use App\Http\Controllers\FPV\FpvFlightsController;
+use App\Http\Controllers\FPV\FpvFlightOperationsController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes(['verify' => true]);
@@ -152,10 +153,10 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
         Route::post('combat_shifts/{id}/finish', [FpvCombatShiftController::class, 'finish'])->name('combat_shifts.finish')->where('id', '[0-9]+');
         Route::post('combat_shifts/{id}/reopen', [FpvCombatShiftController::class, 'reopen'])->name('combat_shifts.reopen')->where('id', '[0-9]+');
 
-        Route::post('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'store'])->name('flight_operations.store');
-        Route::get('flight-operations/{id}/edit', [App\Http\Controllers\FlightOperationsController::class, 'edit'])->name('flight_operations.edit')->where('id', '[0-9]+');
-        Route::put('flight-operations/{id}', [App\Http\Controllers\FlightOperationsController::class, 'update'])->name('flight_operations.update')->where('id', '[0-9]+');
-        Route::delete('flight-operations/{id}', [App\Http\Controllers\FlightOperationsController::class, 'destroy'])->name('flight_operations.destroy')->where('id', '[0-9]+');
+        Route::post('flight-operations', [FpvFlightOperationsController::class, 'store'])->name('flight_operations.store');
+        Route::get('flight-operations/{id}/edit', [FpvFlightOperationsController::class, 'edit'])->name('flight_operations.edit')->where('id', '[0-9]+');
+        Route::put('flight-operations/{id}', [FpvFlightOperationsController::class, 'update'])->name('flight_operations.update')->where('id', '[0-9]+');
+        Route::delete('flight-operations/{id}', [FpvFlightOperationsController::class, 'destroy'])->name('flight_operations.destroy')->where('id', '[0-9]+');
 
         Route::get('flights/{id}/edit', [FpvFlightsController::class, 'edit'])->name('flights.edit')->where('id', '[0-9]+');
         Route::put('flights/{id}', [FpvFlightsController::class, 'update'])->name('flights.update')->where('id', '[0-9]+');
@@ -164,8 +165,8 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
 
     Route::resource('combat_shifts', FpvCombatShiftController::class);
 
-    Route::get('flight-operations', [App\Http\Controllers\FlightOperationsController::class, 'index'])->name('flight_operations.index');
-    Route::get('flight-operations/{id}/download', [App\Http\Controllers\FlightOperationsController::class, 'downloadVideo'])->name('flight_operations.download')->where('id', '[0-9]+');
+    Route::get('flight-operations', [FpvFlightOperationsController::class, 'index'])->name('flight_operations.index');
+    Route::get('flight-operations/{id}/download', [FpvFlightOperationsController::class, 'downloadVideo'])->name('flight_operations.download')->where('id', '[0-9]+');
 
     Route::group(['middleware' => 'can:manage-users'], function () {
         Route::resource('users', App\Http\Controllers\UsersController::class);

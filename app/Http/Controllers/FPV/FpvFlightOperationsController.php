@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\FPV;
 
+use App\Http\Controllers\Controller;
 use App\Http\Requests\CombatShiftFlightStoreRequest;
 use App\Http\Requests\CombatShiftFlightUpdateRequest;
 use App\Models\CombatShiftFlight;
@@ -14,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
-class FlightOperationsController extends Controller
+class FpvFlightOperationsController extends Controller
 {
     public function __construct(
         private readonly CombatShiftsAdminService $shiftService,
