@@ -27,16 +27,58 @@
                             </div>
                         @endif
                         <div class="form-group">
-                            <label for="ugv_race_plan_id">Рейс з плану</label>
-                            <select name="ugv_race_plan_id" id="ugv_race_plan_id" class="form-control">
-                                <option value="">-- Оберіть рейс (не обов'язково) --</option>
+                            <label for="ugv_race_plan_ids">Маршрут (з плану)</label>
+                            <select name="ugv_race_plan_ids[]" id="ugv_race_plan_ids" class="form-control select2" multiple data-placeholder="Оберіть цілі">
                                 @foreach($plans as $plan)
-                                    <option value="{{ $plan['id'] }}" {{ old('ugv_race_plan_id', $race->ugv_race_plan_id) == $plan['id'] ? 'selected' : '' }}>
+                                    @php
+                                        $selected = false;
+                                        if (is_array(old('ugv_race_plan_ids'))) {
+                                            $selected = in_array($plan['id'], old('ugv_race_plan_ids'));
+                                        } elseif (!empty($race->checkpoints)) {
+                                            $selected = in_array($plan['id'], array_column($race->checkpoints, 'id'));
+                                        } elseif ($race->ugv_race_plan_id == $plan['id']) {
+                                            $selected = true;
+                                        }
+                                    @endphp
+                                    <option value="{{ $plan['id'] }}" {{ $selected ? 'selected' : '' }}>
                                         {{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}
                                     </option>
                                 @endforeach
                             </select>
                         </div>
+
+                        @if(!empty($race->checkpoints))
+                            <div class="form-group">
+                                <label>Результат по точках маршруту</label>
+                                <div class="table-responsive">
+                                    <table class="table table-sm table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>Позиція</th>
+                                                <th>Результат</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach($race->checkpoints as $index => $checkpoint)
+                                                <tr>
+                                                    <td>
+                                                        {{ $checkpoint['position_name'] }}
+                                                        <input type="hidden" name="checkpoints[{{ $index }}][id]" value="{{ $checkpoint['id'] }}">
+                                                        <input type="hidden" name="checkpoints[{{ $index }}][position_name]" value="{{ $checkpoint['position_name'] }}">
+                                                    </td>
+                                                    <td>
+                                                        <select name="checkpoints[{{ $index }}][status]" class="form-control form-control-sm">
+                                                            <option value="worked" {{ $checkpoint['status'] === 'worked' ? 'selected' : '' }}>Відпрацьовано</option>
+                                                            <option value="not_worked" {{ $checkpoint['status'] === 'not_worked' ? 'selected' : '' }}>Не відпрацьовано</option>
+                                                        </select>
+                                                    </td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        @endif
                         <div class="form-group">
                             <label for="ugv_drone_id">НРК</label>
                             <select name="ugv_drone_id" id="ugv_drone_id" class="form-control" required>

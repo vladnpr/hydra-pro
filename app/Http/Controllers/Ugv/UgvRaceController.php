@@ -67,7 +67,25 @@ class UgvRaceController extends Controller
     {
         $request->validate([
             'combat_shift_id' => 'required|exists:combat_shifts,id',
-            'position_name' => 'required|string|max:255',
+            'position_name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $patterns = [
+                        '/\d{2}[A-Z]\s[A-Z]{2}\s\d{5}\s\d{5}/', // MGRS
+                        '/-?\d{1,2}\.\d+,\s*-?\d{1,3}\.\d+/', // Decimal
+                        '/\d+°\d+\'\d+\.?\d*\"[NS]\s\d+°\d+\'\d+\.?\d*\"[EW]/', // DMS
+                        '/Zone\s\d{2}[A-Z],\s\d+\smE,\s\d+\smN/', // UTM
+                    ];
+
+                    foreach ($patterns as $pattern) {
+                        if (preg_match($pattern, $value)) {
+                            $fail('Поле "Назва позиції" не повинно містити координати. Будь ласка, використовуйте поле "Координати".');
+                        }
+                    }
+                },
+            ],
         ]);
 
         $lastOrder = UgvRacePlan::where('combat_shift_id', $request->combat_shift_id)
@@ -107,7 +125,25 @@ class UgvRaceController extends Controller
     {
         $plan = UgvRacePlan::findOrFail($id);
         $request->validate([
-            'position_name' => 'required|string|max:255',
+            'position_name' => [
+                'required',
+                'string',
+                'max:255',
+                function ($attribute, $value, $fail) {
+                    $patterns = [
+                        '/\d{2}[A-Z]\s[A-Z]{2}\s\d{5}\s\d{5}/', // MGRS
+                        '/-?\d{1,2}\.\d+,\s*-?\d{1,3}\.\d+/', // Decimal
+                        '/\d+°\d+\'\d+\.?\d*\"[NS]\s\d+°\d+\'\d+\.?\d*\"[EW]/', // DMS
+                        '/Zone\s\d{2}[A-Z],\s\d+\smE,\s\d+\smN/', // UTM
+                    ];
+
+                    foreach ($patterns as $pattern) {
+                        if (preg_match($pattern, $value)) {
+                            $fail('Поле "Назва позиції" не повинно містити координати. Будь ласка, використовуйте поле "Координати".');
+                        }
+                    }
+                },
+            ],
         ]);
 
         $plan->update($request->only(['position_name']));
@@ -119,7 +155,8 @@ class UgvRaceController extends Controller
     {
         $request->validate([
             'combat_shift_id' => 'required|exists:combat_shifts,id',
-            'ugv_race_plan_id' => 'nullable|exists:ugv_race_plans,id',
+            'ugv_race_plan_ids' => 'nullable|array',
+            'ugv_race_plan_ids.*' => 'exists:ugv_race_plans,id',
             'coordinates' => 'nullable|string|max:255',
             'ugv_drone_id' => 'required|exists:ugv_drones,id',
             'start_time' => 'required|date',
@@ -151,6 +188,21 @@ class UgvRaceController extends Controller
 
         try {
             $race = \Illuminate\Support\Facades\DB::transaction(function () use ($data, $request) {
+                if (!empty($request->ugv_race_plan_ids)) {
+                    $plans = \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)->get();
+                    $checkpoints = $plans->map(function ($plan) {
+                        return [
+                            'id' => $plan->id,
+                            'position_name' => $plan->position_name,
+                            'status' => 'worked', // По замовчуванню відпрацьовано
+                        ];
+                    })->toArray();
+                    $data['checkpoints'] = $checkpoints;
+
+                    // Перший план для сумісності
+                    $data['ugv_race_plan_id'] = $request->ugv_race_plan_ids[0];
+                }
+
                 $race = UgvRace::create($data);
                 if ($request->result === 'loss') {
                     $drone = \App\Models\UgvDrone::find($request->ugv_drone_id);
@@ -162,12 +214,9 @@ class UgvRaceController extends Controller
                     }
                 }
 
-                if ($request->ugv_race_plan_id) {
-                    $plan = \App\Models\UgvRacePlan::find($request->ugv_race_plan_id);
-                    if ($plan) {
-                        // План вважається виконаним при будь-якому результаті рейсу (прибирається з плану)
-                        $plan->update(['status' => 'completed']);
-                    }
+                if (!empty($request->ugv_race_plan_ids)) {
+                    \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)
+                        ->update(['status' => 'completed']);
                 }
 
                 // Списання БК
@@ -225,8 +274,11 @@ class UgvRaceController extends Controller
                     ->increment('quantity', $ammo->pivot->quantity);
             }
 
-            // Якщо рейс був прив'язаний до плану, повертаємо плану статус 'planned'
-            if ($race->ugv_race_plan_id) {
+            // Якщо рейс був прив'язаний до планів, повертаємо планам статус 'planned'
+            if (!empty($race->checkpoints)) {
+                $planIds = array_column($race->checkpoints, 'id');
+                \App\Models\UgvRacePlan::whereIn('id', $planIds)->update(['status' => 'planned']);
+            } elseif ($race->ugv_race_plan_id) {
                 $plan = \App\Models\UgvRacePlan::find($race->ugv_race_plan_id);
                 if ($plan) {
                     $plan->update(['status' => 'planned']);
@@ -287,7 +339,9 @@ class UgvRaceController extends Controller
     {
         $race = UgvRace::with('ammunition')->findOrFail($id);
         $request->validate([
-            'ugv_race_plan_id' => 'nullable|exists:ugv_race_plans,id',
+            'ugv_race_plan_ids' => 'nullable|array',
+            'ugv_race_plan_ids.*' => 'exists:ugv_race_plans,id',
+            'checkpoints' => 'nullable|array',
             'coordinates' => 'nullable|string|max:255',
             'ugv_drone_id' => 'required|exists:ugv_drones,id',
             'start_time' => 'required|date',
@@ -343,23 +397,37 @@ class UgvRaceController extends Controller
                 }
 
                 // 2. Обробка зміни плану
-                if ($race->ugv_race_plan_id != $request->ugv_race_plan_id) {
-                    // Повертаємо старий план у статус planned
-                    if ($race->ugv_race_plan_id) {
-                        $oldPlan = \App\Models\UgvRacePlan::find($race->ugv_race_plan_id);
-                        if ($oldPlan) {
-                            $oldPlan->update(['status' => 'planned']);
-                        }
-                    }
+                if (!empty($race->checkpoints)) {
+                    $oldPlanIds = array_column($race->checkpoints, 'id');
+                    \App\Models\UgvRacePlan::whereIn('id', $oldPlanIds)->update(['status' => 'planned']);
                 }
 
-                // Оновлюємо статус плану (поточного або нового)
-                if ($request->ugv_race_plan_id) {
-                    $plan = \App\Models\UgvRacePlan::find($request->ugv_race_plan_id);
-                    if ($plan) {
-                        // План вважається виконаним при будь-якому результаті рейсу (прибирається з плану)
-                        $plan->update(['status' => 'completed']);
-                    }
+                if (!empty($request->ugv_race_plan_ids)) {
+                    $plans = \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)->get();
+                    $checkpoints = $plans->map(function ($plan) use ($request) {
+                        $status = 'worked';
+                        if (isset($request->checkpoints) && is_array($request->checkpoints)) {
+                            foreach ($request->checkpoints as $cp) {
+                                if ($cp['id'] == $plan->id) {
+                                    $status = $cp['status'] ?? 'worked';
+                                    break;
+                                }
+                            }
+                        }
+                        return [
+                            'id' => $plan->id,
+                            'position_name' => $plan->position_name,
+                            'status' => $status,
+                        ];
+                    })->toArray();
+                    $data['checkpoints'] = $checkpoints;
+                    $data['ugv_race_plan_id'] = $request->ugv_race_plan_ids[0];
+
+                    \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)
+                        ->update(['status' => 'completed']);
+                } else {
+                    $data['checkpoints'] = null;
+                    $data['ugv_race_plan_id'] = null;
                 }
 
                 // 3. Повернення старого БК

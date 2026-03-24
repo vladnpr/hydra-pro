@@ -23,6 +23,7 @@ class UgvRace extends Model
         'comment',
         'shift_type',
         'video_path',
+        'checkpoints',
     ];
 
     protected $casts = [
@@ -30,6 +31,7 @@ class UgvRace extends Model
         'end_time' => 'datetime',
         'stream_status' => 'boolean',
         'shift_type' => \App\Enums\ShiftTypeEnum::class,
+        'checkpoints' => 'array',
     ];
 
     public function combatShift(): BelongsTo
