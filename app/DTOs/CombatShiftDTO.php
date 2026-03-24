@@ -184,8 +184,8 @@ class CombatShiftDTO
                 'result' => $f->result,
                 'result_label' => match($f->result) {
                     'worked' => 'відпрацювали',
-                    'loss' => 'втрата борту',
                     'not_worked' => 'не відпрацювали',
+                    'loss' => 'втрата борту',
                     default => $f->result,
                 },
                 'stream_status' => $f->stream_status,

@@ -330,6 +330,8 @@
                                             <td>
                                                 @if($race->result === 'worked')
                                                     <span class="badge badge-success">відпрацювали</span>
+                                                @elseif($race->result === 'not_worked')
+                                                    <span class="badge badge-warning">не відпрацювали</span>
                                                 @else
                                                     <span class="badge badge-danger">втрата</span>
                                                 @endif
