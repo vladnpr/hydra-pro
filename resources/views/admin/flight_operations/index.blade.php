@@ -47,9 +47,9 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="ammunition-group">
                             <label for="ammunition_id">Боєприпас</label>
-                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
+                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror">
                                 <option value="">Оберіть БК</option>
                                 @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id') == $item['id'] ? 'selected' : '' }}>
@@ -75,7 +75,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="coordinates">Координати</label>
+                            <label for="coordinates" id="coordinates-label">Координати</label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000" required>
                             @error('coordinates')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -103,9 +103,9 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="detonation-group">
                             <label for="detonation">Детонація</label>
-                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror" required>
+                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror">
                                 <option value="так" {{ old('detonation') == 'так' ? 'selected' : '' }}>Так</option>
                                 <option value="ні" {{ old('detonation') == 'ні' || !old('detonation') ? 'selected' : '' }}>Ні</option>
                                 <option value="інше" {{ old('detonation') == 'інше' ? 'selected' : '' }}>Інше</option>
@@ -203,10 +203,27 @@
                                                         @endif
                                                     </td>
                                                     <td>{{ $flight['drone_name'] }}</td>
-                                                    <td>{{ $flight['ammunition_name'] }}</td>
-                                                    <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
+                                                    <td>
+                                                        @if(($flight['mission'] ?? '') === 'logistics')
+                                                            -
+                                                        @else
+                                                            {{ $flight['ammunition_name'] }}
+                                                        @endif
+                                                    </td>
+                                                    <td class="d-none d-lg-table-cell">
+                                                        @if(($flight['mission'] ?? '') === 'logistics')
+                                                            <span class="text-muted">Ціль:</span>
+                                                        @endif
+                                                        {{ $flight['coordinates'] }}
+                                                    </td>
                                                     <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
-                                                    <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                    <td class="d-none d-md-table-cell">
+                                                        @if(($flight['mission'] ?? '') === 'logistics')
+                                                            -
+                                                        @else
+                                                            {{ $flight['detonation'] ?? 'ні' }}
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         @if(!empty($flight['video_path']))
                                                             <div class="btn-group">
@@ -324,6 +341,18 @@
                     }
                 } else {
                     $('#result-worked').show();
+                }
+
+                if (mission === 'logistics') {
+                    $('#ammunition-group').hide();
+                    $('#detonation-group').hide();
+                    $('#coordinates-label').text('Назва Цілі/Позиції');
+                    $('#coordinates').attr('placeholder', 'Назва цілі або позиції');
+                } else {
+                    $('#ammunition-group').show();
+                    $('#detonation-group').show();
+                    $('#coordinates-label').text('Координати');
+                    $('#coordinates').attr('placeholder', '00.0000, 00.0000');
                 }
             }
 

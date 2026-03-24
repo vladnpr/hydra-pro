@@ -31,9 +31,9 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="ammunition-group">
                             <label for="ammunition_id">Боєприпас</label>
-                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
+                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror">
                                 @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id', $flight->ammunition_id) == $item['id'] ? 'selected' : '' }}>
                                         {{ $item['name'] }} (Фактично: {{ $item['quantity'] }})
@@ -58,7 +58,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="coordinates">Координати</label>
+                            <label for="coordinates" id="coordinates-label">Координати</label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}" required>
                             @error('coordinates')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -86,9 +86,9 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="detonation-group">
                             <label for="detonation">Детонація</label>
-                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror" required>
+                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror">
                                 <option value="так" {{ old('detonation', $flight->detonation) == 'так' ? 'selected' : '' }}>Так</option>
                                 <option value="ні" {{ old('detonation', $flight->detonation) == 'ні' ? 'selected' : '' }}>Ні</option>
                                 <option value="інше" {{ old('detonation', $flight->detonation) == 'інше' ? 'selected' : '' }}>Інше</option>
@@ -172,6 +172,16 @@
                 } else {
                     // Show it back for other missions
                     $('#result-worked').show();
+                }
+
+                if (mission === 'logistics') {
+                    $('#ammunition-group').hide();
+                    $('#detonation-group').hide();
+                    $('#coordinates-label').text('Назва Цілі/Позиції');
+                } else {
+                    $('#ammunition-group').show();
+                    $('#detonation-group').show();
+                    $('#coordinates-label').text('Координати');
                 }
             }
 

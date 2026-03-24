@@ -15,10 +15,11 @@ return new class extends Migration
             $table->id();
             $table->foreignId('combat_shift_id')->constrained('combat_shifts')->onDelete('cascade');
             $table->foreignId('drone_id')->constrained('drones')->onDelete('cascade');
-            $table->foreignId('ammunition_id')->constrained('ammunition')->onDelete('cascade');
+            $table->foreignId('ammunition_id')->nullable()->constrained('ammunition')->onDelete('cascade');
             $table->string('coordinates');
             $table->timestamp('flight_time');
             $table->string('result'); // влучання, удар в районі цілі, втрата борту
+            $table->string('detonation')->nullable();
             $table->text('note')->nullable();
             $table->timestamps();
         });
