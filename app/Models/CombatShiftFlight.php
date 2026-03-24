@@ -15,6 +15,7 @@ class CombatShiftFlight extends Model
         'combat_shift_id',
         'drone_id',
         'ammunition_id',
+        'mission',
         'coordinates',
         'flight_time',
         'result',

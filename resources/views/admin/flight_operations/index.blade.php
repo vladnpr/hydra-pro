@@ -63,6 +63,18 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="mission">Місія</label>
+                            <select name="mission" id="mission" class="form-control @error('mission') is-invalid @enderror" required>
+                                <option value="strike" {{ old('mission', 'strike') == 'strike' ? 'selected' : '' }}>Ударна</option>
+                                <option value="patrol" {{ old('mission') == 'patrol' ? 'selected' : '' }}>Патруль</option>
+                                <option value="logistics" {{ old('mission') == 'logistics' ? 'selected' : '' }}>Логістика</option>
+                            </select>
+                            @error('mission')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="coordinates">Координати</label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000" required>
                             @error('coordinates')
@@ -167,6 +179,7 @@
                                         <thead>
                                             <tr>
                                                 <th class="pl-3 text-nowrap">Час</th>
+                                                <th>Місія</th>
                                                 <th>Дрон</th>
                                                 <th>БК</th>
                                                 <th class="d-none d-lg-table-cell">Координати</th>
@@ -181,6 +194,13 @@
                                             @foreach($flights as $flight)
                                                 <tr>
                                                     <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td>
+                                                        @if(($flight['mission'] ?? '') === 'strike') Ударна
+                                                        @elseif(($flight['mission'] ?? '') === 'patrol') Патруль
+                                                        @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
+                                                        @else {{ $flight['mission'] ?? '-' }}
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $flight['drone_name'] }}</td>
                                                     <td>{{ $flight['ammunition_name'] }}</td>
                                                     <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>

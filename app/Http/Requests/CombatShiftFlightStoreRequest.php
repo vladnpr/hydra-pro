@@ -17,6 +17,7 @@ class CombatShiftFlightStoreRequest extends FormRequest
             'combat_shift_id' => 'required|exists:combat_shifts,id',
             'drone_id' => 'required|exists:drones,id',
             'ammunition_id' => 'required|exists:ammunition,id',
+            'mission' => 'required|in:strike,patrol,logistics',
             'coordinates' => 'required|string|max:255',
             'flight_time' => 'required|date',
             'result' => 'required|string|max:255',

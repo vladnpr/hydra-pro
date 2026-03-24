@@ -16,6 +16,7 @@ class CombatShiftFlightUpdateRequest extends FormRequest
         return [
             'drone_id' => 'required|exists:drones,id',
             'ammunition_id' => 'required|exists:ammunition,id',
+            'mission' => 'required|in:strike,patrol,logistics',
             'coordinates' => 'required|string|max:255',
             'flight_time' => 'required|date',
             'result' => 'required|string|max:255',

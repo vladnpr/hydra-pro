@@ -46,6 +46,18 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="mission">Місія</label>
+                            <select name="mission" id="mission" class="form-control @error('mission') is-invalid @enderror" required>
+                                <option value="strike" {{ old('mission', $flight->mission) == 'strike' ? 'selected' : '' }}>Ударна</option>
+                                <option value="patrol" {{ old('mission', $flight->mission) == 'patrol' ? 'selected' : '' }}>Патруль</option>
+                                <option value="logistics" {{ old('mission', $flight->mission) == 'logistics' ? 'selected' : '' }}>Логістика</option>
+                            </select>
+                            @error('mission')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
                             <label for="coordinates">Координати</label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}" required>
                             @error('coordinates')

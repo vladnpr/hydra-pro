@@ -277,6 +277,7 @@ class CombatShiftDTO
                 'drone_model' => $f->drone?->model,
                 'ammunition_id' => $f->ammunition_id,
                 'ammunition_name' => $f->ammunition->name,
+                'mission' => $f->mission,
                 'coordinates' => $f->coordinates,
                 'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
                 'result' => $f->result,
