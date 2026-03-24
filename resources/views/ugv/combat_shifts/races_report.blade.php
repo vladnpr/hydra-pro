@@ -86,7 +86,16 @@
                                 <p class="font-weight-bold">Відпрацювали:</p>
                                 @php $i = 1; @endphp
                                 @foreach($workedRaces as $race)
-                                    <p class="m-0">{{ $i++ }}) {{ $race['position_name'] }} ({{ $race['mission_type_label'] }})</p>
+                                    <p class="m-0">{{ $i++ }})
+                                        @if(!empty($race['checkpoints']))
+                                            @foreach($race['checkpoints'] as $checkpoint)
+                                                <span class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $checkpoint['position_name'] }}</span>{{ !$loop->last ? ', ' : '' }}
+                                            @endforeach
+                                        @else
+                                            {{ $race['position_name'] }}
+                                        @endif
+                                        ({{ $race['mission_type_label'] }})
+                                    </p>
                                     <p class="m-0">Час: {{ \Carbon\Carbon::parse($race['start_time'])->format('H:i') }} - {{ $race['end_time'] ? \Carbon\Carbon::parse($race['end_time'])->format('H:i') : '...' }}</p>
                                     <p class="m-0">Стрім: {{ $race['stream_status'] ? 'Так' : 'Ні' }}</p>
                                     @if($race['coordinates'] && $race['coordinates'] !== '-')
@@ -98,7 +107,16 @@
                                 <p class="font-weight-bold">Не відпрацювали:</p>
                                 @php $j = 1; @endphp
                                 @foreach($notWorkedRaces as $race)
-                                    <p class="m-0">{{ $j++ }}) {{ $race['position_name'] }} ({{ $race['mission_type_label'] }})</p>
+                                    <p class="m-0">{{ $j++ }})
+                                        @if(!empty($race['checkpoints']))
+                                            @foreach($race['checkpoints'] as $checkpoint)
+                                                <span class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $checkpoint['position_name'] }}</span>{{ !$loop->last ? ', ' : '' }}
+                                            @endforeach
+                                        @else
+                                            {{ $race['position_name'] }}
+                                        @endif
+                                        ({{ $race['mission_type_label'] }})
+                                    </p>
                                     <p class="m-0">Час: {{ \Carbon\Carbon::parse($race['start_time'])->format('H:i') }} - {{ $race['end_time'] ? \Carbon\Carbon::parse($race['end_time'])->format('H:i') : '...' }}</p>
                                     <p class="m-0">Стрім: {{ $race['stream_status'] ? 'Так' : 'Ні' }}</p>
                                     @if($race['coordinates'] && $race['coordinates'] !== '-')
@@ -234,6 +252,9 @@
 
 @section('css')
 <style>
+    .text-strikethrough {
+        text-decoration: line-through;
+    }
     #report-content-standard, #report-content-list {
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;

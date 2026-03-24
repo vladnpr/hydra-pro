@@ -66,11 +66,10 @@
                         @endif
 
                         <div class="form-group">
-                            <label for="ugv_race_plan_id">Рейс з плану</label>
-                            <select name="ugv_race_plan_id" id="ugv_race_plan_id" class="form-control">
-                                <option value="">-- Оберіть рейс (не обов'язково) --</option>
+                            <label for="ugv_race_plan_ids">Маршрут (з плану)</label>
+                            <select name="ugv_race_plan_ids[]" id="ugv_race_plan_ids" class="form-control select2" multiple data-placeholder="Оберіть цілі">
                                 @foreach($plans as $plan)
-                                    <option value="{{ $plan['id'] }}" {{ old('ugv_race_plan_id') == $plan['id'] ? 'selected' : '' }}>{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
+                                    <option value="{{ $plan['id'] }}" {{ (is_array(old('ugv_race_plan_ids')) && in_array($plan['id'], old('ugv_race_plan_ids'))) ? 'selected' : '' }}>{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
                                 @endforeach
                             </select>
                         </div>

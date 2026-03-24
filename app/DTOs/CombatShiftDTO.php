@@ -189,6 +189,7 @@ class CombatShiftDTO
                     default => $f->result,
                 },
                 'stream_status' => $f->stream_status,
+                'checkpoints' => $f->checkpoints,
                 'comment' => $f->comment,
                 'video_path' => $f->video_path,
             ]))->toArray();
