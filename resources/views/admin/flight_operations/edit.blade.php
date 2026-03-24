@@ -49,7 +49,7 @@
                             <label for="mission">Місія</label>
                             <select name="mission" id="mission" class="form-control @error('mission') is-invalid @enderror" required>
                                 <option value="strike" {{ old('mission', $flight->mission) == 'strike' ? 'selected' : '' }}>Ударна</option>
-                                <option value="patrol" {{ old('mission', $flight->mission) == 'patrol' ? 'selected' : '' }}>Патруль</option>
+                                <option value="patrol" {{ old('mission', $flight->mission) == 'patrol' ? 'selected' : '' }}>Патруль/Ждун</option>
                                 <option value="logistics" {{ old('mission', $flight->mission) == 'logistics' ? 'selected' : '' }}>Логістика</option>
                             </select>
                             @error('mission')

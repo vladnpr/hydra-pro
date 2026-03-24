@@ -59,7 +59,7 @@
                             <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
                             <p class="m-0">Місія:
                                 @if(($flight['mission'] ?? '') === 'strike') Ударна
-                                @elseif(($flight['mission'] ?? '') === 'patrol') Патруль
+                                @elseif(($flight['mission'] ?? '') === 'patrol') Патруль/Ждун
                                 @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
                                 @else {{ $flight['mission'] ?? '-' }}
                                 @endif

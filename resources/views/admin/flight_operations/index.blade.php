@@ -66,7 +66,7 @@
                             <label for="mission">Місія</label>
                             <select name="mission" id="mission" class="form-control @error('mission') is-invalid @enderror" required>
                                 <option value="strike" {{ old('mission', 'strike') == 'strike' ? 'selected' : '' }}>Ударна</option>
-                                <option value="patrol" {{ old('mission') == 'patrol' ? 'selected' : '' }}>Патруль</option>
+                                <option value="patrol" {{ old('mission') == 'patrol' ? 'selected' : '' }}>Патруль/Ждун</option>
                                 <option value="logistics" {{ old('mission') == 'logistics' ? 'selected' : '' }}>Логістика</option>
                             </select>
                             @error('mission')
@@ -199,7 +199,7 @@
                                                     <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
                                                     <td>
                                                         @if(($flight['mission'] ?? '') === 'strike') Ударна
-                                                        @elseif(($flight['mission'] ?? '') === 'patrol') Патруль
+                                                        @elseif(($flight['mission'] ?? '') === 'patrol') Патруль/Ждун
                                                         @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
                                                         @else {{ $flight['mission'] ?? '-' }}
                                                         @endif
