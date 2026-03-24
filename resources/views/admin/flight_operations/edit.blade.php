@@ -67,9 +67,16 @@
 
                         <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                            <div class="input-group">
+                                <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('flight_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                             @error('flight_time')
-                                <span class="error invalid-feedback">{{ $message }}</span>
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
                             @enderror
                         </div>
 
@@ -158,6 +165,13 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function () {
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();
