@@ -31,9 +31,9 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="ammunition-group">
                             <label for="ammunition_id">Боєприпас</label>
-                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
+                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror">
                                 @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id', $flight->ammunition_id) == $item['id'] ? 'selected' : '' }}>
                                         {{ $item['name'] }} (Фактично: {{ $item['quantity'] }})
@@ -46,7 +46,19 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="coordinates">Координати</label>
+                            <label for="mission">Місія</label>
+                            <select name="mission" id="mission" class="form-control @error('mission') is-invalid @enderror" required>
+                                <option value="strike" {{ old('mission', $flight->mission) == 'strike' ? 'selected' : '' }}>Ударна</option>
+                                <option value="patrol" {{ old('mission', $flight->mission) == 'patrol' ? 'selected' : '' }}>Патруль/Ждун</option>
+                                <option value="logistics" {{ old('mission', $flight->mission) == 'logistics' ? 'selected' : '' }}>Логістика</option>
+                            </select>
+                            @error('mission')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="coordinates" id="coordinates-label">Координати</label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates', $flight->coordinates) }}" required>
                             @error('coordinates')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -55,30 +67,40 @@
 
                         <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                            <div class="input-group">
+                                <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', $flight->flight_time->format('Y-m-d\TH:i')) }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('flight_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                             @error('flight_time')
-                                <span class="error invalid-feedback">{{ $message }}</span>
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
-                                <option value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
-                                <option value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                <option value="втрата борту" {{ old('result', $flight->result) == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
+                                <option id="result-hit" value="влучання" {{ old('result', $flight->result) == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option id="result-worked" value="відпрацювали" {{ old('result', $flight->result) == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
+                                <option id="result-logistics-spent" value="відпрацювали (витрата борту)" {{ old('result', $flight->result) == 'відпрацювали (витрата борту)' ? 'selected' : '' }}>Відпрацювали (витрата борту)</option>
+                                <option id="result-logistics-returned" value="відпрацювали (повернули борт)" {{ old('result', $flight->result) == 'відпрацювали (повернули борт)' ? 'selected' : '' }}>Відпрацювали (повернули борт)</option>
+                                <option id="result-near-hit" value="удар в районі цілі" {{ old('result', $flight->result) == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                <option id="result-loss" value="втрата борту" {{ old('result', $flight->result) == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
                             @error('result')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="detonation-group">
                             <label for="detonation">Детонація</label>
-                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror" required>
+                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror">
                                 <option value="так" {{ old('detonation', $flight->detonation) == 'так' ? 'selected' : '' }}>Так</option>
                                 <option value="ні" {{ old('detonation', $flight->detonation) == 'ні' ? 'selected' : '' }}>Ні</option>
-                                <option value="інше" {{ old('detonation', $flight->detonation) == 'інше' ? 'selected' : '' }}>Інше</option>
+                                <option value="не відомо" {{ old('detonation', $flight->detonation) == 'не відомо' ? 'selected' : '' }}>Не відомо</option>
                             </select>
                             @error('detonation')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -143,11 +165,72 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function () {
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
+
+            function toggleWorkedOption() {
+                const mission = $('#mission').val();
+                if (mission === 'strike') {
+                    $('#result-hit').show();
+                    $('#result-worked').hide();
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
+                    if (['відпрацювали', 'відпрацювали (витрата борту)', 'відпрацювали (повернули борт)'].includes($('#result').val())) {
+                        $('#result').val('влучання');
+                    }
+                } else if (mission === 'logistics') {
+                    $('#result-hit').hide();
+                    $('#result-worked').hide();
+                    $('#result-logistics-spent').show();
+                    $('#result-logistics-returned').show();
+                    $('#result-near-hit').hide();
+                    $('#result-loss').show();
+                    if (['влучання', 'відпрацювали', 'удар в районі цілі'].includes($('#result').val())) {
+                        $('#result').val('відпрацювали (витрата борту)');
+                    }
+                } else {
+                    $('#result-hit').show();
+                    $('#result-worked').show();
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
+                }
+
+                if (mission === 'logistics') {
+                    $('#ammunition-group').hide();
+                    $('#detonation-group').hide();
+                    $('#detonation').prop('disabled', true);
+                    $('#coordinates-label').text('Назва Цілі/Позиції');
+                } else {
+                    $('#ammunition-group').show();
+                    $('#detonation-group').show();
+                    $('#detonation').prop('disabled', false);
+                    $('#coordinates-label').text('Координати');
+                }
+            }
+
+            $('#mission').on('change', function() {
+                toggleWorkedOption();
+                if ($(this).val() === 'patrol') {
+                    $('#result').val('відпрацювали');
+                }
+            });
+
+            // Initial check
+            toggleWorkedOption();
         });
     </script>
 @endsection

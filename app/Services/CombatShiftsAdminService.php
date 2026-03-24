@@ -379,23 +379,40 @@ readonly class CombatShiftsAdminService
     private function calculateFpvStats(\Illuminate\Support\Collection $flights): array
     {
         $totalFlights = $flights->count();
+
+        // По місіях
+        $strikeFlights = $flights->where('mission', 'strike');
+        $patrolFlights = $flights->where('mission', 'patrol');
+        $logisticsFlights = $flights->where('mission', 'logistics');
+
+        // Основні результати (Strike)
         $hits = $flights->where('result', 'влучання')->count();
         $areaHits = $flights->where('result', 'удар в районі цілі')->count();
+
+        // Нові результати (Patrol / Logistics)
+        $worked = $flights->where('result', 'відпрацювали')->count();
+        $logisticsSpent = $flights->where('result', 'відпрацювали (витрата борту)')->count();
+        $logisticsReturned = $flights->where('result', 'відпрацювали (повернули борт)')->count();
+
         $misses = $flights->where('result', 'втрата борту')->count();
 
         $detonations = $flights->where('detonation', 'так')->count();
-        // При підрахунку тих, що не розірвалися, не враховуємо ті, де була втрата борту
-        $nonDetonations = $flights->where('detonation', 'ні')->where('result', '!=', 'втрата борту')->count();
+        // При підрахунку тих, що не розірвалися, не враховуємо ті, де була втрата борту або логістика (де детонація не обов'язкова)
+        $nonDetonations = $flights->where('detonation', 'ні')
+            ->where('result', '!=', 'втрата борту')
+            ->where('mission', '!=', 'logistics')
+            ->count();
 
-        // Ефективність влучань: (Влучання + 0.5 * В районі цілі) / (Влучання + В районі цілі + Втрати)
+        // Ефективність влучань: (Влучання + 0.5 * В районі цілі + Відпрацювали + Логістика) / (Влучання + В районі цілі + Відпрацювали + Логістика + Втрати)
         // Втрати бортів негативно впливають, оскільки вони в знаменнику.
-        $divisorHit = $hits + $areaHits + $misses;
-        $positivePoints = $hits + ($areaHits * 0.5);
+        $successActions = $hits + $worked + $logisticsSpent + $logisticsReturned;
+        $divisorHit = $successActions + $areaHits + $misses;
+        $positivePoints = $successActions + ($areaHits * 0.5);
         $hitRate = $divisorHit > 0 ? round(($positivePoints / $divisorHit) * 100, 1) : 0;
         $hitRate = min(100, max(0, $hitRate));
 
         // Надійність БК: (Детонації) / (Детонації + Не розірвався)
-        // Враховуємо тільки ті вильоти, де точно відомо (так/ні), ігноруючи 'інше'
+        // Враховуємо тільки ті вильоти, де точно відомо (так/ні), ігноруючи 'не відомо'
         $divisorDetonation = $detonations + $nonDetonations;
         $detonationRate = $divisorDetonation > 0 ? round(($detonations / $divisorDetonation) * 100, 1) : 0;
         $detonationRate = min(100, max(0, $detonationRate));
@@ -405,12 +422,38 @@ readonly class CombatShiftsAdminService
             'total_hits' => $hits,
             'total_area_hits' => $areaHits,
             'total_misses' => $misses,
+            'total_worked' => $worked,
+            'total_logistics_spent' => $logisticsSpent,
+            'total_logistics_returned' => $logisticsReturned,
             'total_detonations' => $detonations,
             'total_non_detonations' => $nonDetonations,
             'hit_rate' => $hitRate,
             'detonation_rate' => $detonationRate,
             'combat_flights_for_hit' => $divisorHit,
             'combat_flights_for_detonation' => $divisorDetonation,
+
+            // Статистика по місіях для деталізації
+            'missions' => [
+                'strike' => [
+                    'total' => $strikeFlights->count(),
+                    'hits' => $strikeFlights->where('result', 'влучання')->count(),
+                    'area_hits' => $strikeFlights->where('result', 'удар в районі цілі')->count(),
+                    'misses' => $strikeFlights->where('result', 'втрата борту')->count(),
+                ],
+                'patrol' => [
+                    'total' => $patrolFlights->count(),
+                    'worked' => $patrolFlights->where('result', 'відпрацювали')->count(),
+                    'hits' => $patrolFlights->where('result', 'влучання')->count(),
+                    'area_hits' => $patrolFlights->where('result', 'удар в районі цілі')->count(),
+                    'misses' => $patrolFlights->where('result', 'втрата борту')->count(),
+                ],
+                'logistics' => [
+                    'total' => $logisticsFlights->count(),
+                    'spent' => $logisticsFlights->where('result', 'відпрацювали (витрата борту)')->count(),
+                    'returned' => $logisticsFlights->where('result', 'відпрацювали (повернули борт)')->count(),
+                    'misses' => $logisticsFlights->where('result', 'втрата борту')->count(),
+                ]
+            ]
         ];
     }
 

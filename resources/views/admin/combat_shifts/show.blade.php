@@ -174,191 +174,247 @@
                     </div>
                 </div>
             @endif
-            <div class="card card-success">
-                <div class="card-header">
-                    <h3 class="card-title">Вильоти</h3>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card card-primary card-outline card-tabs">
+                <div class="card-header p-0 pt-1 border-bottom-0">
+                    <ul class="nav nav-tabs" id="shift-tabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="flights-tab" data-toggle="pill" href="#flights-content" role="tab" aria-controls="flights-content" aria-selected="true">
+                                <i class="fas fa-paper-plane mr-1"></i> Журнал польотів
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="resources-tab" data-toggle="pill" href="#resources-content" role="tab" aria-controls="resources-content" aria-selected="false">
+                                <i class="fas fa-box mr-1"></i> Ресурси
+                            </a>
+                        </li>
+                    </ul>
                 </div>
                 <div class="card-body p-0">
-                    @php
-                        $today = now()->format('Y-m-d');
-                    @endphp
-                    @forelse($shift->flights as $date => $flights)
-                        <div class="card mb-0 shadow-none border-bottom">
-                            <div class="card-header p-2">
-                                <h3 class="card-title small">
-                                    <strong>{{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}</strong>
-                                    @if($date == $today)
-                                        <span class="badge badge-primary ml-2">Сьогодні</span>
-                                    @endif
-                                    <span class="ml-2 text-muted">({{ count($flights) }})</span>
-                                </h3>
-                                <div class="card-tools">
-                                    <button type="button" class="btn btn-tool" data-card-widget="collapse">
-                                        <i class="fas {{ $date == $today ? 'fa-minus' : 'fa-plus' }}"></i>
-                                    </button>
+                    <div class="tab-content" id="shift-tabs-content">
+                        <!-- Журнал польотів -->
+                        <div class="tab-pane fade show active" id="flights-content" role="tabpanel" aria-labelledby="flights-tab">
+                            @php
+                                $today = now()->format('Y-m-d');
+                            @endphp
+                            @forelse($shift->flights as $date => $flights)
+                                <div class="card mb-0 shadow-none border-bottom">
+                                    <div class="card-header p-2">
+                                        <h3 class="card-title small">
+                                            <strong>{{ \Carbon\Carbon::parse($date)->format('d.m.Y') }}</strong>
+                                            @if($date == $today)
+                                                <span class="badge badge-primary ml-2">Сьогодні</span>
+                                            @endif
+                                            <span class="ml-2 text-muted">({{ count($flights) }})</span>
+                                        </h3>
+                                        <div class="card-tools">
+                                            <button type="button" class="btn btn-tool" data-card-widget="collapse">
+                                                <i class="fas {{ $date == $today ? 'fa-minus' : 'fa-plus' }}"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="card-body p-0" style="{{ $date == $today ? '' : 'display: none;' }}">
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-striped mb-0">
+                                                <thead>
+                                                    <tr>
+                                                        <th class="pl-3 text-nowrap">Час</th>
+                                                        <th>Місія</th>
+                                                        <th>Дрон</th>
+                                                        <th>БК</th>
+                                                        <th class="d-none d-lg-table-cell">Координати</th>
+                                                        <th class="d-none d-xl-table-cell">Стрім</th>
+                                                        <th class="d-none d-md-table-cell">Дет.</th>
+                                                        <th>Відео</th>
+                                                        <th>Рез.</th>
+                                                        <th class="d-none d-lg-table-cell">Примітка</th>
+                                                        <th>Дії</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    @foreach($flights as $flight)
+                                                        <tr>
+                                                            <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                            <td>
+                                                                @if(($flight['mission'] ?? '') === 'strike') Ударна
+                                                                @elseif(($flight['mission'] ?? '') === 'patrol') Патруль/Ждун
+                                                                @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
+                                                                @else {{ $flight['mission'] ?? '-' }}
+                                                                @endif
+                                                            </td>
+                                                            <td>{{ $flight['drone_name'] }}</td>
+                                                            <td>
+                                                                @if(($flight['mission'] ?? '') === 'logistics')
+                                                                    -
+                                                                @else
+                                                                    {{ $flight['ammunition_name'] }}
+                                                                @endif
+                                                            </td>
+                                                            <td class="d-none d-lg-table-cell">
+                                                                @if(($flight['mission'] ?? '') === 'logistics')
+                                                                    <span class="text-muted">Ціль:</span>
+                                                                @endif
+                                                                {{ $flight['coordinates'] }}
+                                                            </td>
+                                                            <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
+                                                            <td class="d-none d-md-table-cell">
+                                                                @if(($flight['mission'] ?? '') === 'logistics')
+                                                                    -
+                                                                @else
+                                                                    {{ $flight['detonation'] ?? 'ні' }}
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @if(!empty($flight['video_path']))
+                                                                    <div class="btn-group">
+                                                                        <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
+                                                                            <i class="fas fa-video"></i>
+                                                                        </button>
+                                                                        <a href="{{ route('flight_operations.download', $flight['id']) }}" class="btn btn-xs btn-success" title="Скачати">
+                                                                            <i class="fas fa-download"></i>
+                                                                        </a>
+                                                                    </div>
+
+                                                                    <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
+                                                                        <div class="modal-dialog modal-lg" role="document">
+                                                                            <div class="modal-content">
+                                                                                <div class="modal-header">
+                                                                                    <h5 class="modal-title">Відео вильоту ({{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }})</h5>
+                                                                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                        <span aria-hidden="true">&times;</span>
+                                                                                    </button>
+                                                                                </div>
+                                                                                <div class="modal-body text-center bg-black">
+                                                                                    <video width="100%" controls>
+                                                                                        <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
+                                                                                        Ваш браузер не підтримує відео.
+                                                                                    </video>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                @else
+                                                                    -
+                                                                @endif
+                                                            </td>
+                                                            <td>
+                                                                @php
+                                                                    $badgeClass = match($flight['result']) {
+                                                                        'влучання' => 'success',
+                                                                        'відпрацювали' => 'success',
+                                                                        'відпрацювали (витрата борту)' => 'success',
+                                                                        'відпрацювали (повернули борт)' => 'success',
+                                                                        'удар в районі цілі' => 'warning',
+                                                                        'втрата борту' => 'danger',
+                                                                        default => 'secondary'
+                                                                    };
+
+                                                                    $badgeStyle = '';
+                                                                    if ((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали')) {
+                                                                        $badgeStyle = 'background-color: #28a745 !important; color: white;';
+                                                                    }
+
+                                                                    $shortResult = match($flight['result']) {
+                                                                        'влучання' => 'вл.',
+                                                                        'відпрацювали' => 'відпр.',
+                                                                        'відпрацювали (витрата борту)' => 'відпр.',
+                                                                        'відпрацювали (повернули борт)' => 'відпр.',
+                                                                        'удар в районі цілі' => 'уд.',
+                                                                        'втрата борту' => 'втрата',
+                                                                        default => $flight['result']
+                                                                    };
+                                                                @endphp
+                                                                <span class="badge badge-{{ $badgeClass }} d-none d-md-inline" style="{{ $badgeStyle }}">{{ $flight['result'] }}</span>
+                                                                <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" title="{{ $flight['result'] }}" style="{{ $badgeStyle }}">{{ $shortResult }}</span>
+                                                            </td>
+                                                            <td class="small d-none d-lg-table-cell">{{ $flight['note'] }}</td>
+                                                            <td>
+                                                                @can('manage-combat')
+                                                                    <div class="btn-group">
+                                                                        <a href="{{ route('flights.edit', $flight['id']) }}" class="btn btn-xs btn-info">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </a>
+                                                                        <form action="{{ route('flights.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
+                                                                            @csrf
+                                                                            @method('DELETE')
+                                                                            <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
+                                                                                <i class="fas fa-trash"></i>
+                                                                            </button>
+                                                                        </form>
+                                                                    </div>
+                                                                @else
+                                                                    -
+                                                                @endcan
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="card-body p-0" style="{{ $date == $today ? '' : 'display: none;' }}">
+                            @empty
+                                <div class="p-3 text-center">
+                                    <span class="text-muted">Вильотів не зафіксовано</span>
+                                </div>
+                            @endforelse
+                        </div>
+
+                        <!-- Ресурси -->
+                        <div class="tab-pane fade" id="resources-content" role="tabpanel" aria-labelledby="resources-tab">
+                            <div class="p-3">
+                                <h5>Дрони</h5>
                                 <div class="table-responsive">
-                                    <table class="table table-sm table-striped mb-0">
+                                    <table class="table table-sm text-nowrap">
                                         <thead>
                                             <tr>
-                                                <th class="pl-3 text-nowrap">Час</th>
-                                                <th>Дрон</th>
-                                                <th>БК</th>
-                                                <th class="d-none d-lg-table-cell">Координати</th>
-                                                <th class="d-none d-xl-table-cell">Стрім</th>
-                                                <th class="d-none d-md-table-cell">Дет.</th>
-                                                <th>Відео</th>
-                                                <th>Рез.</th>
-                                                <th class="d-none d-lg-table-cell">Примітка</th>
-                                                <th>Дії</th>
+                                                <th>Назва</th>
+                                                <th>Фактична кількість</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            @foreach($flights as $flight)
+                                            @forelse($shift->drones as $drone)
                                                 <tr>
-                                                    <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
-                                                    <td>{{ $flight['drone_name'] }}</td>
-                                                    <td>{{ $flight['ammunition_name'] }}</td>
-                                                    <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
-                                                    <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
-                                                    <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
-                                                    <td>
-                                                        @if(!empty($flight['video_path']))
-                                                            <div class="btn-group">
-                                                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
-                                                                    <i class="fas fa-video"></i>
-                                                                </button>
-                                                                <a href="{{ route('flight_operations.download', $flight['id']) }}" class="btn btn-xs btn-success" title="Скачати">
-                                                                    <i class="fas fa-download"></i>
-                                                                </a>
-                                                            </div>
-
-                                                            <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                                                <div class="modal-dialog modal-lg" role="document">
-                                                                    <div class="modal-content">
-                                                                        <div class="modal-header">
-                                                                            <h5 class="modal-title">Відео вильоту ({{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }})</h5>
-                                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                                <span aria-hidden="true">&times;</span>
-                                                                            </button>
-                                                                        </div>
-                                                                        <div class="modal-body text-center bg-black">
-                                                                            <video width="100%" controls>
-                                                                                <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
-                                                                                Ваш браузер не підтримує відео.
-                                                                            </video>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        @else
-                                                            -
-                                                        @endif
-                                                    </td>
-                                                    <td>
-                                                        @php
-                                                            $badgeClass = match($flight['result']) {
-                                                                'влучання' => 'success',
-                                                                'удар в районі цілі' => 'warning',
-                                                                'втрата борту' => 'danger',
-                                                                default => 'secondary'
-                                                            };
-                                                            $shortResult = match($flight['result']) {
-                                                                'влучання' => 'вл.',
-                                                                'удар в районі цілі' => 'уд.',
-                                                                'втрата борту' => 'втрата',
-                                                                default => $flight['result']
-                                                            };
-                                                        @endphp
-                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline">{{ $flight['result'] }}</span>
-                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" title="{{ $flight['result'] }}">{{ $shortResult }}</span>
-                                                    </td>
-                                                    <td class="small d-none d-lg-table-cell">{{ $flight['note'] }}</td>
-                                                    <td>
-                                                        @can('manage-combat')
-                                                            <div class="btn-group">
-                                                                <a href="{{ route('flights.edit', $flight['id']) }}" class="btn btn-xs btn-info">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </a>
-                                                                <form action="{{ route('flights.destroy', $flight['id']) }}" method="POST" style="display:inline-block;">
-                                                                    @csrf
-                                                                    @method('DELETE')
-                                                                    <button type="submit" class="btn btn-xs btn-danger" onclick="return confirm('Ви впевнені?')">
-                                                                        <i class="fas fa-trash"></i>
-                                                                    </button>
-                                                                </form>
-                                                            </div>
-                                                        @else
-                                                            -
-                                                        @endcan
-                                                    </td>
+                                                    <td>{{ $drone['name'] }}</td>
+                                                    <td>{{ $drone['quantity'] }}</td>
                                                 </tr>
-                                            @endforeach
+                                            @empty
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Дрони не вказані</td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <h5 class="mt-4">Боєприпаси</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-sm text-nowrap">
+                                        <thead>
+                                            <tr>
+                                                <th>Назва</th>
+                                                <th>Фактична кількість</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($shift->ammunition as $item)
+                                                <tr>
+                                                    <td>{{ $item['name'] }}</td>
+                                                    <td>{{ $item['quantity'] }}</td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="2" class="text-center">Боєприпаси не вказані</td>
+                                                </tr>
+                                            @endforelse
                                         </tbody>
                                     </table>
                                 </div>
                             </div>
                         </div>
-                    @empty
-                        <div class="p-3 text-center">
-                            <span class="text-muted">Вильотів не зафіксовано</span>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-6">
-            <div class="card card-info">
-                <div class="card-header">
-                    <h3 class="card-title">Ресурси на чергуванні</h3>
-                </div>
-                <div class="card-body table-responsive">
-                    <h5>Дрони</h5>
-                    <table class="table table-sm text-nowrap">
-                        <thead>
-                            <tr>
-                                <th>Назва</th>
-                                <th>Фактична кількість</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($shift->drones as $drone)
-                                <tr>
-                                    <td>{{ $drone['name'] }}</td>
-                                    <td>{{ $drone['quantity'] }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="2" class="text-center">Дрони не вказані</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
-
-                    <h5 class="mt-4">Боєприпаси</h5>
-                    <table class="table table-sm text-nowrap">
-                        <thead>
-                            <tr>
-                                <th>Назва</th>
-                                <th>Фактична кількість</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @forelse($shift->ammunition as $item)
-                                <tr>
-                                    <td>{{ $item['name'] }}</td>
-                                    <td>{{ $item['quantity'] }}</td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="2" class="text-center">Боєприпаси не вказані</td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    </div>
                 </div>
             </div>
         </div>

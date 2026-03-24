@@ -38,7 +38,10 @@
                     <div class="card-body">
                         <div class="form-group">
                             <label for="position_name">Назва позиції / Рейси</label>
-                            <input type="text" name="position_name" id="position_name" class="form-control" placeholder="напр. ПНГ 1" required>
+                            <input type="text" name="position_name" id="position_name" class="form-control @error('position_name') is-invalid @enderror" value="{{ old('position_name') }}" placeholder="напр. ПНГ 1" required>
+                            @error('position_name')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
                         </div>
                     </div>
                     <div class="card-footer">
@@ -66,11 +69,10 @@
                         @endif
 
                         <div class="form-group">
-                            <label for="ugv_race_plan_id">Рейс з плану</label>
-                            <select name="ugv_race_plan_id" id="ugv_race_plan_id" class="form-control">
-                                <option value="">-- Оберіть рейс (не обов'язково) --</option>
+                            <label for="ugv_race_plan_ids">Маршрут (з плану)</label>
+                            <select name="ugv_race_plan_ids[]" id="ugv_race_plan_ids" class="form-control select2" multiple data-placeholder="Оберіть цілі">
                                 @foreach($plans as $plan)
-                                    <option value="{{ $plan['id'] }}" {{ old('ugv_race_plan_id') == $plan['id'] ? 'selected' : '' }}>{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
+                                    <option value="{{ $plan['id'] }}" {{ (is_array(old('ugv_race_plan_ids')) && in_array($plan['id'], old('ugv_race_plan_ids'))) ? 'selected' : '' }}>{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -328,6 +330,8 @@
                                             <td>
                                                 @if($race->result === 'worked')
                                                     <span class="badge badge-success">відпрацювали</span>
+                                                @elseif($race->result === 'not_worked')
+                                                    <span class="badge badge-warning">не відпрацювали</span>
                                                 @else
                                                     <span class="badge badge-danger">втрата</span>
                                                 @endif

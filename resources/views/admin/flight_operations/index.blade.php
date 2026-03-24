@@ -47,9 +47,9 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="ammunition-group">
                             <label for="ammunition_id">Боєприпас</label>
-                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror" required>
+                            <select name="ammunition_id" id="ammunition_id" class="form-control @error('ammunition_id') is-invalid @enderror">
                                 <option value="">Оберіть БК</option>
                                 @foreach($userActiveShift->ammunition as $item)
                                     <option value="{{ $item['id'] }}" {{ old('ammunition_id') == $item['id'] ? 'selected' : '' }}>
@@ -63,7 +63,19 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="coordinates">Координати</label>
+                            <label for="mission">Місія</label>
+                            <select name="mission" id="mission" class="form-control @error('mission') is-invalid @enderror" required>
+                                <option value="strike" {{ old('mission', 'strike') == 'strike' ? 'selected' : '' }}>Ударна</option>
+                                <option value="patrol" {{ old('mission') == 'patrol' ? 'selected' : '' }}>Патруль/Ждун</option>
+                                <option value="logistics" {{ old('mission') == 'logistics' ? 'selected' : '' }}>Логістика</option>
+                            </select>
+                            @error('mission')
+                                <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="coordinates" id="coordinates-label">Координати</label>
                             <input type="text" name="coordinates" id="coordinates" class="form-control @error('coordinates') is-invalid @enderror" value="{{ old('coordinates') }}" placeholder="00.0000, 00.0000" required>
                             @error('coordinates')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -72,30 +84,40 @@
 
                         <div class="form-group">
                             <label for="flight_time">Час вильоту</label>
-                            <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                            <div class="input-group">
+                                <input type="datetime-local" name="flight_time" id="flight_time" class="form-control @error('flight_time') is-invalid @enderror" value="{{ old('flight_time', now()->format('Y-m-d\TH:i')) }}" required>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-outline-secondary" onclick="setCurrentTime('flight_time')" title="Зараз">
+                                        <i class="fas fa-clock"></i>
+                                    </button>
+                                </div>
+                            </div>
                             @error('flight_time')
-                                <span class="error invalid-feedback">{{ $message }}</span>
+                                <span class="error invalid-feedback" style="display: block;">{{ $message }}</span>
                             @enderror
                         </div>
 
                         <div class="form-group">
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
-                                <option value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
-                                <option value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
-                                <option value="втрата борту" {{ old('result') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
+                                <option id="result-hit" value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option id="result-worked" value="відпрацювали" {{ old('result') == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
+                                <option id="result-logistics-spent" value="відпрацювали (витрата борту)" {{ old('result') == 'відпрацювали (витрата борту)' ? 'selected' : '' }}>Відпрацювали (витрата борту)</option>
+                                <option id="result-logistics-returned" value="відпрацювали (повернули борт)" {{ old('result') == 'відпрацювали (повернули борт)' ? 'selected' : '' }}>Відпрацювали (повернули борт)</option>
+                                <option id="result-near-hit" value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
+                                <option id="result-loss" value="втрата борту" {{ old('result') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
                             @error('result')
                                 <span class="error invalid-feedback">{{ $message }}</span>
                             @enderror
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group" id="detonation-group">
                             <label for="detonation">Детонація</label>
-                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror" required>
+                            <select name="detonation" id="detonation" class="form-control @error('detonation') is-invalid @enderror">
                                 <option value="так" {{ old('detonation') == 'так' ? 'selected' : '' }}>Так</option>
                                 <option value="ні" {{ old('detonation') == 'ні' || !old('detonation') ? 'selected' : '' }}>Ні</option>
-                                <option value="інше" {{ old('detonation') == 'інше' ? 'selected' : '' }}>Інше</option>
+                                <option value="не відомо" {{ old('detonation') == 'не відомо' ? 'selected' : '' }}>Не відомо</option>
                             </select>
                             @error('detonation')
                                 <span class="error invalid-feedback">{{ $message }}</span>
@@ -167,6 +189,7 @@
                                         <thead>
                                             <tr>
                                                 <th class="pl-3 text-nowrap">Час</th>
+                                                <th>Місія</th>
                                                 <th>Дрон</th>
                                                 <th>БК</th>
                                                 <th class="d-none d-lg-table-cell">Координати</th>
@@ -181,11 +204,35 @@
                                             @foreach($flights as $flight)
                                                 <tr>
                                                     <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                    <td>
+                                                        @if(($flight['mission'] ?? '') === 'strike') Ударна
+                                                        @elseif(($flight['mission'] ?? '') === 'patrol') Патруль/Ждун
+                                                        @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
+                                                        @else {{ $flight['mission'] ?? '-' }}
+                                                        @endif
+                                                    </td>
                                                     <td>{{ $flight['drone_name'] }}</td>
-                                                    <td>{{ $flight['ammunition_name'] }}</td>
-                                                    <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
+                                                    <td>
+                                                        @if(($flight['mission'] ?? '') === 'logistics')
+                                                            -
+                                                        @else
+                                                            {{ $flight['ammunition_name'] }}
+                                                        @endif
+                                                    </td>
+                                                    <td class="d-none d-lg-table-cell">
+                                                        @if(($flight['mission'] ?? '') === 'logistics')
+                                                            <span class="text-muted">Ціль:</span>
+                                                        @endif
+                                                        {{ $flight['coordinates'] }}
+                                                    </td>
                                                     <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
-                                                    <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                    <td class="d-none d-md-table-cell">
+                                                        @if(($flight['mission'] ?? '') === 'logistics')
+                                                            -
+                                                        @else
+                                                            {{ $flight['detonation'] ?? 'ні' }}
+                                                        @endif
+                                                    </td>
                                                     <td>
                                                         @if(!empty($flight['video_path']))
                                                             <div class="btn-group">
@@ -223,19 +270,31 @@
                                                         @php
                                                             $badgeClass = match($flight['result']) {
                                                                 'влучання' => 'success',
+                                                                'відпрацювали' => 'success',
+                                                                'відпрацювали (витрата борту)' => 'success',
+                                                                'відпрацювали (повернули борт)' => 'success',
                                                                 'удар в районі цілі' => 'warning',
                                                                 'втрата борту' => 'danger',
                                                                 default => 'secondary'
                                                             };
+
+                                                            $badgeStyle = '';
+                                                            if ((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали')) {
+                                                                $badgeStyle = 'background-color: #28a745 !important; color: white;';
+                                                            }
+
                                                             $shortResult = match($flight['result']) {
                                                                 'влучання' => 'влуч.',
+                                                                'відпрацювали' => 'відпр.',
+                                                                'відпрацювали (витрата борту)' => 'відпр.',
+                                                                'відпрацювали (повернули борт)' => 'відпр.',
                                                                 'удар в районі цілі' => 'удар',
                                                                 'втрата борту' => 'втрата',
                                                                 default => $flight['result']
                                                             };
                                                         @endphp
-                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline">{{ $flight['result'] }}</span>
-                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none">{{ $shortResult }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline" style="{{ $badgeStyle }}">{{ $flight['result'] }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" style="{{ $badgeStyle }}">{{ $shortResult }}</span>
                                                     </td>
                                                     <td>
                                                         @can('manage-combat')
@@ -275,6 +334,13 @@
 
 @section('js')
     <script>
+        function setCurrentTime(fieldId) {
+            const now = new Date();
+            const offset = now.getTimezoneOffset() * 60000;
+            const localISOTime = (new Date(now - offset)).toISOString().slice(0, 16);
+            document.getElementById(fieldId).value = localISOTime;
+        }
+
         $(document).ready(function () {
             $('.custom-file-input').on('change', function () {
                 let fileName = $(this).val().split('\\').pop();
@@ -285,6 +351,62 @@
                 let video = $(this).find('video')[0];
                 if (video) video.pause();
             });
+
+            function toggleWorkedOption() {
+                const mission = $('#mission').val();
+                if (mission === 'strike') {
+                    $('#result-hit').show();
+                    $('#result-worked').hide();
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
+                    if (['відпрацювали', 'відпрацювали (витрата борту)', 'відпрацювали (повернули борт)'].includes($('#result').val())) {
+                        $('#result').val('влучання');
+                    }
+                } else if (mission === 'logistics') {
+                    $('#result-hit').hide();
+                    $('#result-worked').hide();
+                    $('#result-logistics-spent').show();
+                    $('#result-logistics-returned').show();
+                    $('#result-near-hit').hide();
+                    $('#result-loss').show();
+                    if (['влучання', 'відпрацювали', 'удар в районі цілі'].includes($('#result').val())) {
+                        $('#result').val('відпрацювали (витрата борту)');
+                    }
+                } else {
+                    $('#result-hit').show();
+                    $('#result-worked').show();
+                    $('#result-logistics-spent').hide();
+                    $('#result-logistics-returned').hide();
+                    $('#result-near-hit').show();
+                    $('#result-loss').show();
+                }
+
+                if (mission === 'logistics') {
+                    $('#ammunition-group').hide();
+                    $('#detonation-group').hide();
+                    $('#detonation').prop('disabled', true);
+                    $('#coordinates-label').text('Назва Цілі/Позиції');
+                    $('#coordinates').attr('placeholder', 'Назва цілі або позиції');
+                } else {
+                    $('#ammunition-group').show();
+                    $('#detonation-group').show();
+                    $('#detonation').prop('disabled', false);
+                    $('#coordinates-label').text('Координати');
+                    $('#coordinates').attr('placeholder', '00.0000, 00.0000');
+                }
+            }
+
+            $('#mission').on('change', function() {
+                toggleWorkedOption();
+                if ($(this).val() === 'patrol') {
+                    $('#result').val('відпрацювали');
+                }
+            });
+
+            // Initial check
+            toggleWorkedOption();
         });
     </script>
 @endsection

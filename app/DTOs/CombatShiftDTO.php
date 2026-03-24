@@ -184,11 +184,12 @@ class CombatShiftDTO
                 'result' => $f->result,
                 'result_label' => match($f->result) {
                     'worked' => 'відпрацювали',
-                    'loss' => 'втрата борту',
                     'not_worked' => 'не відпрацювали',
+                    'loss' => 'втрата борту',
                     default => $f->result,
                 },
                 'stream_status' => $f->stream_status,
+                'checkpoints' => $f->checkpoints,
                 'comment' => $f->comment,
                 'video_path' => $f->video_path,
             ]))->toArray();
@@ -275,7 +276,8 @@ class CombatShiftDTO
                 'drone_name' => $f->drone?->name,
                 'drone_model' => $f->drone?->model,
                 'ammunition_id' => $f->ammunition_id,
-                'ammunition_name' => $f->ammunition->name,
+                'ammunition_name' => $f->ammunition?->name,
+                'mission' => $f->mission,
                 'coordinates' => $f->coordinates,
                 'flight_time' => $f->flight_time->format('Y-m-d H:i:s'),
                 'result' => $f->result,

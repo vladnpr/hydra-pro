@@ -1,16 +1,17 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\FPV;
 
 use App\DTOs\CreateAmmunitionDTO;
 use App\DTOs\UpdateAmmunitionDTO;
 use App\Enums\PositionTypesEnum;
+use App\Http\Controllers\Controller;
 use App\Http\Requests\AmmunitionStoreRequest;
 use App\Http\Requests\AmmunitionUpdateRequest;
 use App\Services\AmmunitionAdminService;
 use Illuminate\Support\Facades\Gate;
 
-class AmmunitionController extends Controller
+class FpvAmmunitionController extends Controller
 {
     public function __construct(private readonly AmmunitionAdminService $service)
     {

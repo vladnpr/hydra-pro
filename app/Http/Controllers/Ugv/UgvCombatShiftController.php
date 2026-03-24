@@ -180,7 +180,7 @@ class UgvCombatShiftController extends Controller
         $dayRaces = $shift->ugv_races[$date] ?? [];
 
         $workedRaces = collect($dayRaces)->where('result', 'worked');
-        $notWorkedRaces = collect($dayRaces)->where('result', '!=', 'worked');
+        $notWorkedRaces = collect($dayRaces)->whereIn('result', ['not_worked', 'loss']);
         $allRacesSorted = collect($dayRaces)->sortBy('start_time');
 
         return view('ugv.combat_shifts.races_report', compact('shift', 'date', 'workedRaces', 'notWorkedRaces', 'allRacesSorted'));

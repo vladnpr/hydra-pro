@@ -29,10 +29,11 @@ class CombatShiftFlightsRepository
     {
         return \DB::table('combat_shift_flights as csf')
             ->join('drones as d', 'csf.drone_id', '=', 'd.id')
-            ->join('ammunition as a', 'csf.ammunition_id', '=', 'a.id')
+            ->leftJoin('ammunition as a', 'csf.ammunition_id', '=', 'a.id')
             ->where('combat_shift_id', $shiftID)
             ->whereBetween('flight_time', [$dateFrom, $dateTo])
-            ->selectRaw("CONCAT(d.name, ' (', d.model, ')') as drone_name, a.name as ammunition_name")
+            ->where('csf.result', '!=', 'відпрацювали (повернули борт)')
+            ->selectRaw("CONCAT(d.name, ' (', d.model, ')') as drone_name, IFNULL(a.name, 'Без БК (Логістика)') as ammunition_name")
             ->get();
     }
 }
