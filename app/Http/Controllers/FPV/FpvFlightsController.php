@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\FPV;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\CombatShiftFlight;
 use App\Http\Requests\CombatShiftFlightUpdateRequest;
@@ -9,7 +11,7 @@ use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use App\Enums\PositionTypesEnum;
 use Illuminate\Http\RedirectResponse;
 
-class CombatShiftFlightsController extends Controller
+class FpvFlightsController extends Controller
 {
     public function __construct(
         private readonly DroneRepositoryInterface $droneRepository,

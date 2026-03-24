@@ -111,7 +111,7 @@
                         @can('view-dashboard-stats')
                         <div class="tab-pane fade show active" id="fpv-content" role="tabpanel" aria-labelledby="fpv-tab">
                             <div class="row">
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-2 col-6">
                                     <div class="small-box bg-info">
                                         <div class="inner">
                                             <h3>{{ $fpvStats['total_flights'] }}</h3>
@@ -123,7 +123,7 @@
                                         <a href="{{ route('combat_shifts.index') }}" class="small-box-footer">Детальніше <i class="fas fa-arrow-circle-right"></i></a>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-2 col-6">
                                     <div class="small-box bg-success">
                                         <div class="inner">
                                             <h3>{{ $fpvStats['total_hits'] }}</h3>
@@ -135,7 +135,19 @@
                                         <div class="small-box-footer" style="height: 30px;"></div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-2 col-6">
+                                    <div class="small-box bg-olive">
+                                        <div class="inner">
+                                            <h3>{{ $fpvStats['total_worked'] + $fpvStats['total_logistics_spent'] + $fpvStats['total_logistics_returned'] }}</h3>
+                                            <p>Відпрацювали</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-check-double"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-6">
                                     <div class="small-box bg-warning">
                                         <div class="inner">
                                             <h3>{{ $fpvStats['total_area_hits'] }}</h3>
@@ -147,7 +159,7 @@
                                         <div class="small-box-footer" style="height: 30px;"></div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-2 col-6">
                                     <div class="small-box bg-danger">
                                         <div class="inner">
                                             <h3>{{ $fpvStats['total_misses'] }}</h3>
@@ -162,7 +174,46 @@
                             </div>
 
                             <div class="row mt-4">
-                                <div class="col-md-6">
+                                <div class="col-md-4">
+                                    <div class="card card-outline card-primary">
+                                        <div class="card-header">
+                                            <h3 class="card-title">Статистика по місіях</h3>
+                                        </div>
+                                        <div class="card-body p-0">
+                                            <table class="table table-sm">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Місія</th>
+                                                        <th>Вильотів</th>
+                                                        <th>Успішно</th>
+                                                        <th>Втрати</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Ударна</td>
+                                                        <td>{{ $fpvStats['missions']['strike']['total'] }}</td>
+                                                        <td>{{ $fpvStats['missions']['strike']['hits'] }}</td>
+                                                        <td>{{ $fpvStats['missions']['strike']['misses'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Патруль</td>
+                                                        <td>{{ $fpvStats['missions']['patrol']['total'] }}</td>
+                                                        <td>{{ $fpvStats['missions']['patrol']['worked'] + $fpvStats['missions']['patrol']['hits'] }}</td>
+                                                        <td>{{ $fpvStats['missions']['patrol']['misses'] }}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Логістика</td>
+                                                        <td>{{ $fpvStats['missions']['logistics']['total'] }}</td>
+                                                        <td>{{ $fpvStats['missions']['logistics']['spent'] + $fpvStats['missions']['logistics']['returned'] }}</td>
+                                                        <td>{{ $fpvStats['missions']['logistics']['misses'] }}</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
                                     <div class="card card-outline card-primary">
                                         <div class="card-header">
                                             <h3 class="card-title">Статистика детонацій</h3>
@@ -185,7 +236,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="col-md-6">
+                                <div class="col-md-4">
                                     <div class="card card-outline card-info">
                                         <div class="card-header">
                                             <h3 class="card-title">Ефективність</h3>

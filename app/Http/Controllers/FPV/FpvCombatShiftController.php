@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\FPV;
+
+use App\Http\Controllers\Controller;
 
 use App\DTOs\CreateCombatShiftDTO;
 use App\DTOs\UpdateCombatShiftDTO;
@@ -12,7 +14,7 @@ use App\Repositories\Contracts\DroneRepositoryInterface;
 use App\Repositories\Contracts\AmmunitionRepositoryInterface;
 use App\Enums\PositionTypesEnum;
 
-class CombatShiftsController extends Controller
+class FpvCombatShiftController extends Controller
 {
     public function __construct(
         private readonly CombatShiftsAdminService      $combatShiftsAdminService,

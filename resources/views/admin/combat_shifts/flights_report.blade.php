@@ -50,13 +50,35 @@
                 <div class="card-body p-5" id="report-content">
                     @forelse($flights as $flight)
                         <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                            <p class="m-0 font-weight-bold">{{ $flight['coordinates'] }}</p>
+                            <p class="m-0 font-weight-bold">
+                                @if(($flight['mission'] ?? '') === 'logistics')
+                                    Назва Цілі/Позиції:
+                                @endif
+                                {{ $flight['coordinates'] }}
+                            </p>
                             <p class="m-0">Час: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}</p>
+                            <p class="m-0">Місія:
+                                @if(($flight['mission'] ?? '') === 'strike') Ударна
+                                @elseif(($flight['mission'] ?? '') === 'patrol') Патруль/Ждун
+                                @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
+                                @else {{ $flight['mission'] ?? '-' }}
+                                @endif
+                            </p>
                             <p class="m-0">Стрім: {{ $flight['stream'] ?: 'без стріму' }}</p>
                             <p class="m-0">Дрон: {{ $flight['drone_name'] }} {{ $flight['drone_model'] }}</p>
-                            <p class="m-0">БК: {{ $flight['ammunition_name'] }}</p>
-                            <p class="m-0">Результат: {{ $flight['result'] }}</p>
-                            <p class="m-0">Детонація: {{ $flight['detonation'] ?? 'ні' }}</p>
+                            @if(($flight['mission'] ?? '') !== 'logistics')
+                                <p class="m-0">БК: {{ $flight['ammunition_name'] }}</p>
+                            @endif
+                            <p class="m-0">Результат:
+                                @if((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали'))
+                                    <span style="color: #28a745; font-weight: bold;">{{ $flight['result'] }}</span>
+                                @else
+                                    {{ $flight['result'] }}
+                                @endif
+                            </p>
+                            @if(($flight['mission'] ?? '') !== 'logistics')
+                                <p class="m-0">Детонація: {{ $flight['detonation'] ?? 'ні' }}</p>
+                            @endif
                             <p class="m-0">Коментар: {{ $flight['note'] }}</p>
                             @if(!empty($flight['video_path']))
                                 <p class="m-0 no-print">
