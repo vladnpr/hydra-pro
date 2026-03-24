@@ -94,6 +94,7 @@
                             <label for="result">Результат</label>
                             <select name="result" id="result" class="form-control @error('result') is-invalid @enderror" required>
                                 <option value="влучання" {{ old('result') == 'влучання' ? 'selected' : '' }}>Влучання</option>
+                                <option value="відпрацювали" {{ old('result') == 'відпрацювали' ? 'selected' : '' }}>Відпрацювали</option>
                                 <option value="удар в районі цілі" {{ old('result') == 'удар в районі цілі' ? 'selected' : '' }}>Удар в районі цілі</option>
                                 <option value="втрата борту" {{ old('result') == 'втрата борту' ? 'selected' : '' }}>Втрата борту</option>
                             </select>
@@ -243,19 +244,27 @@
                                                         @php
                                                             $badgeClass = match($flight['result']) {
                                                                 'влучання' => 'success',
+                                                                'відпрацювали' => 'success',
                                                                 'удар в районі цілі' => 'warning',
                                                                 'втрата борту' => 'danger',
                                                                 default => 'secondary'
                                                             };
+
+                                                            $badgeStyle = '';
+                                                            if (($flight['mission'] ?? '') === 'patrol' && $flight['result'] === 'відпрацювали') {
+                                                                $badgeStyle = 'background-color: #28a745 !important; color: white;';
+                                                            }
+
                                                             $shortResult = match($flight['result']) {
                                                                 'влучання' => 'влуч.',
+                                                                'відпрацювали' => 'відпр.',
                                                                 'удар в районі цілі' => 'удар',
                                                                 'втрата борту' => 'втрата',
                                                                 default => $flight['result']
                                                             };
                                                         @endphp
-                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline">{{ $flight['result'] }}</span>
-                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none">{{ $shortResult }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-none d-md-inline" style="{{ $badgeStyle }}">{{ $flight['result'] }}</span>
+                                                        <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" style="{{ $badgeStyle }}">{{ $shortResult }}</span>
                                                     </td>
                                                     <td>
                                                         @can('manage-combat')
@@ -304,6 +313,12 @@
             $('.modal').on('hidden.bs.modal', function () {
                 let video = $(this).find('video')[0];
                 if (video) video.pause();
+            });
+
+            $('#mission').on('change', function() {
+                if ($(this).val() === 'patrol') {
+                    $('#result').val('відпрацювали');
+                }
             });
         });
     </script>

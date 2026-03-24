@@ -62,7 +62,13 @@
                             <p class="m-0">Стрім: {{ $flight['stream'] ?: 'без стріму' }}</p>
                             <p class="m-0">Дрон: {{ $flight['drone_name'] }} {{ $flight['drone_model'] }}</p>
                             <p class="m-0">БК: {{ $flight['ammunition_name'] }}</p>
-                            <p class="m-0">Результат: {{ $flight['result'] }}</p>
+                            <p class="m-0">Результат:
+                                @if(($flight['mission'] ?? '') === 'patrol' && $flight['result'] === 'відпрацювали')
+                                    <span style="color: #28a745; font-weight: bold;">{{ $flight['result'] }}</span>
+                                @else
+                                    {{ $flight['result'] }}
+                                @endif
+                            </p>
                             <p class="m-0">Детонація: {{ $flight['detonation'] ?? 'ні' }}</p>
                             <p class="m-0">Коментар: {{ $flight['note'] }}</p>
                             @if(!empty($flight['video_path']))
