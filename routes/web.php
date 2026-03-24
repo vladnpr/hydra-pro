@@ -115,10 +115,10 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
         Route::get('combat_shifts/{id}', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'show'])->name('combat_shifts.show')->where('id', '[0-9]+');
 
         Route::group(['middleware' => 'can:manage-air-defence-drones'], function () {
-            Route::resource('drones', \App\Http\Controllers\AirDefenceDronesController::class);
+            Route::resource('drones', \App\Http\Controllers\AirDefence\AirDefenceDronesController::class);
         });
         Route::group(['middleware' => 'can:manage-air-defence-ammunition'], function () {
-            Route::resource('ammunition', \App\Http\Controllers\AirDefenceAmmunitionController::class);
+            Route::resource('ammunition', \App\Http\Controllers\AirDefence\AirDefenceAmmunitionController::class);
         });
         Route::group(['middleware' => 'can:manage-air-defence'], function () {
             Route::post('combat_shifts/{id}/join', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'join'])->name('combat_shifts.join')->where('id', '[0-9]+');
@@ -127,8 +127,8 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
             Route::post('combat_shifts/{id}/reopen', [\App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class, 'reopen'])->name('combat_shifts.reopen')->where('id', '[0-9]+');
             Route::resource('combat_shifts', \App\Http\Controllers\AirDefence\AirDefenceCombatShiftController::class)->except(['show']);
 
-            Route::get('flights/{id}/download', [\App\Http\Controllers\AirDefenceFlightsController::class, 'downloadVideo'])->name('flights.download')->where('id', '[0-9]+');
-            Route::resource('flights', \App\Http\Controllers\AirDefenceFlightsController::class);
+            Route::get('flights/{id}/download', [\App\Http\Controllers\AirDefence\AirDefenceFlightsController::class, 'downloadVideo'])->name('flights.download')->where('id', '[0-9]+');
+            Route::resource('flights', \App\Http\Controllers\AirDefence\AirDefenceFlightsController::class);
         });
     });
 
