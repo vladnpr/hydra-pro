@@ -21,6 +21,8 @@ use App\Models\User;
 use App\Services\CombatShiftsAdminService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
+use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -41,8 +43,16 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot(Dispatcher $events): void
     {
+        $events->listen(BuildingMenu::class, function (BuildingMenu $event) {
+            $event->menu->add([
+                'type' => 'darkmode-widget',
+                'topnav_right' => true,
+                'id' => 'dark-mode-switch',
+            ]);
+        });
+
         Gate::define('manage-air-defence', function (User $user) {
             return $user->isAdmin() || $user->isAirDefence();
         });
