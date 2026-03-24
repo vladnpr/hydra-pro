@@ -221,6 +221,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th class="pl-3 text-nowrap">Час</th>
+                                                        <th>Місія</th>
                                                         <th>Дрон</th>
                                                         <th>БК</th>
                                                         <th class="d-none d-lg-table-cell">Координати</th>
@@ -236,11 +237,35 @@
                                                     @foreach($flights as $flight)
                                                         <tr>
                                                             <td class="pl-3 text-nowrap">{{ \Carbon\Carbon::parse($flight['flight_time'])->format('H:i') }}</td>
+                                                            <td>
+                                                                @if(($flight['mission'] ?? '') === 'strike') Ударна
+                                                                @elseif(($flight['mission'] ?? '') === 'patrol') Патруль/Ждун
+                                                                @elseif(($flight['mission'] ?? '') === 'logistics') Логістика
+                                                                @else {{ $flight['mission'] ?? '-' }}
+                                                                @endif
+                                                            </td>
                                                             <td>{{ $flight['drone_name'] }}</td>
-                                                            <td>{{ $flight['ammunition_name'] }}</td>
-                                                            <td class="d-none d-lg-table-cell">{{ $flight['coordinates'] }}</td>
+                                                            <td>
+                                                                @if(($flight['mission'] ?? '') === 'logistics')
+                                                                    -
+                                                                @else
+                                                                    {{ $flight['ammunition_name'] }}
+                                                                @endif
+                                                            </td>
+                                                            <td class="d-none d-lg-table-cell">
+                                                                @if(($flight['mission'] ?? '') === 'logistics')
+                                                                    <span class="text-muted">Ціль:</span>
+                                                                @endif
+                                                                {{ $flight['coordinates'] }}
+                                                            </td>
                                                             <td class="d-none d-xl-table-cell">{{ $flight['stream'] }}</td>
-                                                            <td class="d-none d-md-table-cell">{{ $flight['detonation'] ?? 'ні' }}</td>
+                                                            <td class="d-none d-md-table-cell">
+                                                                @if(($flight['mission'] ?? '') === 'logistics')
+                                                                    -
+                                                                @else
+                                                                    {{ $flight['detonation'] ?? 'ні' }}
+                                                                @endif
+                                                            </td>
                                                             <td>
                                                                 @if(!empty($flight['video_path']))
                                                                     <div class="btn-group">
@@ -278,19 +303,31 @@
                                                                 @php
                                                                     $badgeClass = match($flight['result']) {
                                                                         'влучання' => 'success',
+                                                                        'відпрацювали' => 'success',
+                                                                        'відпрацювали (витрата борту)' => 'success',
+                                                                        'відпрацювали (повернули борт)' => 'success',
                                                                         'удар в районі цілі' => 'warning',
                                                                         'втрата борту' => 'danger',
                                                                         default => 'secondary'
                                                                     };
+
+                                                                    $badgeStyle = '';
+                                                                    if ((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали')) {
+                                                                        $badgeStyle = 'background-color: #28a745 !important; color: white;';
+                                                                    }
+
                                                                     $shortResult = match($flight['result']) {
                                                                         'влучання' => 'вл.',
+                                                                        'відпрацювали' => 'відпр.',
+                                                                        'відпрацювали (витрата борту)' => 'відпр.',
+                                                                        'відпрацювали (повернули борт)' => 'відпр.',
                                                                         'удар в районі цілі' => 'уд.',
                                                                         'втрата борту' => 'втрата',
                                                                         default => $flight['result']
                                                                     };
                                                                 @endphp
-                                                                <span class="badge badge-{{ $badgeClass }} d-none d-md-inline">{{ $flight['result'] }}</span>
-                                                                <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" title="{{ $flight['result'] }}">{{ $shortResult }}</span>
+                                                                <span class="badge badge-{{ $badgeClass }} d-none d-md-inline" style="{{ $badgeStyle }}">{{ $flight['result'] }}</span>
+                                                                <span class="badge badge-{{ $badgeClass }} d-inline d-md-none" title="{{ $flight['result'] }}" style="{{ $badgeStyle }}">{{ $shortResult }}</span>
                                                             </td>
                                                             <td class="small d-none d-lg-table-cell">{{ $flight['note'] }}</td>
                                                             <td>
