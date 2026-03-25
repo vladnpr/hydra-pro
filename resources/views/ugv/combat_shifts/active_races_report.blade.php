@@ -34,7 +34,18 @@
 
                         @forelse($dayRaces as $race)
                             <div class="race-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $race['coordinates'] }}</p>
+                                <p class="m-0 font-weight-bold">Ціль:
+                                    @if(!empty($race['checkpoints']))
+                                        @foreach($race['checkpoints'] as $checkpoint)
+                                            {{ $loop->iteration }}. {{ $checkpoint['position_name'] }}{{ !$loop->last ? ', ' : '' }}
+                                        @endforeach
+                                    @else
+                                        {{ $race['position_name'] ?: ($race['coordinates'] ?: '-') }}
+                                    @endif
+                                </p>
+                                @if(!empty($race['checkpoints']) && $race['coordinates'] && $race['coordinates'] !== '-')
+                                    <p class="m-0 font-weight-bold">{{ $race['coordinates'] }}</p>
+                                @endif
                                 <p class="m-0">Час початку: {{ \Carbon\Carbon::parse($race['start_time'])->format('d.m.y H:i') }}</p>
                                 <p class="m-0">Час кінця: {{ $race['end_time'] ? \Carbon\Carbon::parse($race['end_time'])->format('d.m.y H:i') : '-' }}</p>
                                 <p class="m-0">Стрім: {{ $race['stream_status'] ? '+' : '-' }}</p>

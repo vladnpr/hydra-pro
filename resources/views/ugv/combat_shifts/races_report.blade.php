@@ -134,9 +134,15 @@
                         <div class="tab-pane fade p-4" id="list-report" role="tabpanel" aria-labelledby="list-report-tab">
                             <div id="report-content-list">
                                 @foreach($allRacesSorted as $race)
-                                    @if($race['position_name'] && $race['position_name'] !== '-')
-                                        <p class="m-0">Ціль: {{ $race['position_name'] }}</p>
-                                    @endif
+                                    <p class="m-0">Ціль:
+                                        @if(!empty($race['checkpoints']))
+                                            @foreach($race['checkpoints'] as $checkpoint)
+                                                {{ $loop->iteration }}. {{ $checkpoint['position_name'] }}{{ !$loop->last ? ', ' : '' }}
+                                            @endforeach
+                                        @else
+                                            {{ $race['position_name'] ?: '-' }}
+                                        @endif
+                                    </p>
                                     @if($race['coordinates'] && $race['coordinates'] !== '-')
                                         <p class="m-0">{{ $race['coordinates'] }}</p>
                                     @endif
