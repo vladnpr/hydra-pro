@@ -189,14 +189,22 @@ class UgvRaceController extends Controller
         try {
             $race = \Illuminate\Support\Facades\DB::transaction(function () use ($data, $request) {
                 if (!empty($request->ugv_race_plan_ids)) {
-                    $plans = \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)->get();
-                    $checkpoints = $plans->map(function ($plan) {
-                        return [
-                            'id' => $plan->id,
-                            'position_name' => $plan->position_name,
-                            'status' => 'worked', // По замовчуванню відпрацьовано
-                        ];
-                    })->toArray();
+                    $plans = \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)
+                        ->get()
+                        ->keyBy('id');
+
+                    $checkpoints = [];
+                    foreach ($request->ugv_race_plan_ids as $planId) {
+                        if (isset($plans[$planId])) {
+                            $plan = $plans[$planId];
+                            $checkpoints[] = [
+                                'id' => $plan->id,
+                                'position_name' => $plan->position_name,
+                                'status' => 'worked', // По замовчуванню відпрацьовано
+                            ];
+                        }
+                    }
+
                     $data['checkpoints'] = $checkpoints;
 
                     // Перший план для сумісності
@@ -403,23 +411,30 @@ class UgvRaceController extends Controller
                 }
 
                 if (!empty($request->ugv_race_plan_ids)) {
-                    $plans = \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)->get();
-                    $checkpoints = $plans->map(function ($plan) use ($request) {
-                        $status = 'worked';
-                        if (isset($request->checkpoints) && is_array($request->checkpoints)) {
-                            foreach ($request->checkpoints as $cp) {
-                                if ($cp['id'] == $plan->id) {
-                                    $status = $cp['status'] ?? 'worked';
-                                    break;
+                    $plans = \App\Models\UgvRacePlan::whereIn('id', $request->ugv_race_plan_ids)
+                        ->get()
+                        ->keyBy('id');
+
+                    $checkpoints = [];
+                    foreach ($request->ugv_race_plan_ids as $planId) {
+                        if (isset($plans[$planId])) {
+                            $plan = $plans[$planId];
+                            $status = 'worked';
+                            if (isset($request->checkpoints) && is_array($request->checkpoints)) {
+                                foreach ($request->checkpoints as $cp) {
+                                    if ($cp['id'] == $plan->id) {
+                                        $status = $cp['status'] ?? 'worked';
+                                        break;
+                                    }
                                 }
                             }
+                            $checkpoints[] = [
+                                'id' => $plan->id,
+                                'position_name' => $plan->position_name,
+                                'status' => $status,
+                            ];
                         }
-                        return [
-                            'id' => $plan->id,
-                            'position_name' => $plan->position_name,
-                            'status' => $status,
-                        ];
-                    })->toArray();
+                    }
                     $data['checkpoints'] = $checkpoints;
                     $data['ugv_race_plan_id'] = $request->ugv_race_plan_ids[0];
 

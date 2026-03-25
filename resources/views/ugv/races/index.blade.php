@@ -69,12 +69,35 @@
                         @endif
 
                         <div class="form-group">
-                            <label for="ugv_race_plan_ids">Маршрут (з плану)</label>
-                            <select name="ugv_race_plan_ids[]" id="ugv_race_plan_ids" class="form-control select2" multiple data-placeholder="Оберіть цілі">
+                            <label>Ціль / Маршрут (у порядку проходження)</label>
+                            <div id="route-sequence-container" class="border rounded p-2 bg-light mb-2" style="min-height: 50px;">
+                                <p class="text-muted small mb-0 text-center" id="empty-route-msg">Оберіть цілі нижче, щоб сформувати маршрут</p>
+                                <div id="selected-plans-list" class="list-group list-group-flush"></div>
+                            </div>
+                            <div class="row">
                                 @foreach($plans as $plan)
-                                    <option value="{{ $plan['id'] }}" {{ (is_array(old('ugv_race_plan_ids')) && in_array($plan['id'], old('ugv_race_plan_ids'))) ? 'selected' : '' }}>{{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}</option>
+                                    <div class="col-6 mb-1">
+                                        <div class="custom-control custom-checkbox">
+                                            <input class="custom-control-input plan-checkbox" type="checkbox"
+                                                id="plan_{{ $plan['id'] }}"
+                                                value="{{ $plan['id'] }}"
+                                                data-name="{{ $plan['position_name'] }}"
+                                                data-coords="{{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}"
+                                                {{ (is_array(old('ugv_race_plan_ids')) && in_array($plan['id'], old('ugv_race_plan_ids'))) ? 'checked' : '' }}>
+                                            <label for="plan_{{ $plan['id'] }}" class="custom-control-label font-weight-normal">
+                                                {{ $plan['position_name'] }} {{ $plan['coordinates'] ? "({$plan['coordinates']})" : '' }}
+                                            </label>
+                                        </div>
+                                    </div>
                                 @endforeach
-                            </select>
+                            </div>
+                            <div id="hidden-plan-inputs">
+                                @if(is_array(old('ugv_race_plan_ids')))
+                                    @foreach(old('ugv_race_plan_ids') as $oldId)
+                                        <input type="hidden" name="ugv_race_plan_ids[]" value="{{ $oldId }}" class="hidden-plan-id-input" data-id="{{ $oldId }}">
+                                    @endforeach
+                                @endif
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="ugv_drone_id">НРК</label>
@@ -442,6 +465,120 @@
                 let fileName = $(this).val().split('\\').pop();
                 $(this).next('.custom-file-label').addClass("selected").html(fileName);
             });
+
+            // Route sequence handling
+            function updateRouteSequence() {
+                let selectedList = $('#selected-plans-list');
+                let hiddenContainer = $('#hidden-plan-inputs');
+                let checkboxes = $('.plan-checkbox');
+
+                // Get all current hidden inputs to preserve order if possible
+                let currentOrder = [];
+                hiddenContainer.find('input').each(function() {
+                    currentOrder.push($(this).val());
+                });
+
+                // Clear both
+                selectedList.empty();
+                hiddenContainer.empty();
+
+                // Checkboxes that are checked
+                let checkedIds = [];
+                checkboxes.filter(':checked').each(function() {
+                    checkedIds.push($(this).val());
+                });
+
+                // Sort currentOrder to only include those still checked
+                let newOrder = currentOrder.filter(id => checkedIds.includes(id));
+
+                // Add new checked IDs that aren't in newOrder yet
+                checkedIds.forEach(id => {
+                    if (!newOrder.includes(id)) {
+                        newOrder.push(id);
+                    }
+                });
+
+                if (newOrder.length === 0) {
+                    $('#empty-route-msg').show();
+                } else {
+                    $('#empty-route-msg').hide();
+                    newOrder.forEach((id, index) => {
+                        let cb = $(`#plan_${id}`);
+                        let name = cb.data('name');
+                        let coords = cb.data('coords');
+
+                        selectedList.append(`
+                            <div class="list-group-item p-1 d-flex align-items-center" data-id="${id}">
+                                <span class="badge badge-secondary mr-2">${index + 1}</span>
+                                <span class="flex-grow-1">${name} ${coords}</span>
+                                <div class="btn-group btn-group-sm">
+                                    <button type="button" class="btn btn-link btn-xs text-secondary move-up" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+                                    <button type="button" class="btn btn-link btn-xs text-secondary move-down" ${index === newOrder.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
+                                </div>
+                            </div>
+                        `);
+
+                        hiddenContainer.append(`<input type="hidden" name="ugv_race_plan_ids[]" value="${id}">`);
+                    });
+                }
+            }
+
+            $('.plan-checkbox').on('change', updateRouteSequence);
+
+            $(document).on('click', '.move-up', function() {
+                let item = $(this).closest('.list-group-item');
+                let id = item.data('id');
+                let hiddenInputs = $('#hidden-plan-inputs input');
+                let index = hiddenInputs.filter(`[value="${id}"]`).index();
+
+                if (index > 0) {
+                    let input = hiddenInputs.eq(index);
+                    input.insertBefore(hiddenInputs.eq(index - 1));
+                    updateRouteFromInputs();
+                }
+            });
+
+            $(document).on('click', '.move-down', function() {
+                let item = $(this).closest('.list-group-item');
+                let id = item.data('id');
+                let hiddenInputs = $('#hidden-plan-inputs input');
+                let index = hiddenInputs.filter(`[value="${id}"]`).index();
+
+                if (index < hiddenInputs.length - 1) {
+                    let input = hiddenInputs.eq(index);
+                    input.insertAfter(hiddenInputs.eq(index + 1));
+                    updateRouteFromInputs();
+                }
+            });
+
+            function updateRouteFromInputs() {
+                let selectedList = $('#selected-plans-list');
+                let hiddenInputs = $('#hidden-plan-inputs input');
+
+                selectedList.empty();
+                hiddenInputs.each(function(index) {
+                    let id = $(this).val();
+                    let cb = $(`#plan_${id}`);
+                    let name = cb.data('name');
+                    let coords = cb.data('coords');
+
+                    selectedList.append(`
+                        <div class="list-group-item p-1 d-flex align-items-center" data-id="${id}">
+                            <span class="badge badge-secondary mr-2">${index + 1}</span>
+                            <span class="flex-grow-1">${name} ${coords}</span>
+                            <div class="btn-group btn-group-sm">
+                                <button type="button" class="btn btn-link btn-xs text-secondary move-up" ${index === 0 ? 'disabled' : ''}><i class="fas fa-chevron-up"></i></button>
+                                <button type="button" class="btn btn-link btn-xs text-secondary move-down" ${index === hiddenInputs.length - 1 ? 'disabled' : ''}><i class="fas fa-chevron-down"></i></button>
+                            </div>
+                        </div>
+                    `);
+                });
+            }
+
+            // Initial call if there are old values
+            if ($('.plan-checkbox:checked').length > 0) {
+                updateRouteSequence();
+            }
 
             $('.modal').on('hidden.bs.modal', function () {
                 let video = $(this).find('video')[0];
