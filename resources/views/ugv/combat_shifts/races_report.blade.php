@@ -88,9 +88,11 @@
                                 @foreach($workedRaces as $race)
                                     <p class="m-0">{{ $i++ }})
                                         @if(!empty($race['checkpoints']))
-                                            @foreach($race['checkpoints'] as $checkpoint)
-                                                <span class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $checkpoint['position_name'] }}</span>{{ !$loop->last ? ', ' : '' }}
-                                            @endforeach
+                                            <div class="ml-3 mt-1">
+                                                @foreach($race['checkpoints'] as $checkpoint)
+                                                    <div class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                                @endforeach
+                                            </div>
                                         @else
                                             {{ $race['position_name'] }}
                                         @endif
@@ -109,9 +111,11 @@
                                 @foreach($notWorkedRaces as $race)
                                     <p class="m-0">{{ $j++ }})
                                         @if(!empty($race['checkpoints']))
-                                            @foreach($race['checkpoints'] as $checkpoint)
-                                                <span class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $checkpoint['position_name'] }}</span>{{ !$loop->last ? ', ' : '' }}
-                                            @endforeach
+                                            <div class="ml-3 mt-1">
+                                                @foreach($race['checkpoints'] as $checkpoint)
+                                                    <div class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                                @endforeach
+                                            </div>
                                         @else
                                             {{ $race['position_name'] }}
                                         @endif
@@ -136,9 +140,11 @@
                                 @foreach($allRacesSorted as $race)
                                     <p class="m-0">Ціль:
                                         @if(!empty($race['checkpoints']))
-                                            @foreach($race['checkpoints'] as $checkpoint)
-                                                {{ $loop->iteration }}. {{ $checkpoint['position_name'] }}{{ !$loop->last ? ', ' : '' }}
-                                            @endforeach
+                                            <div class="ml-3 mt-1">
+                                                @foreach($race['checkpoints'] as $checkpoint)
+                                                    <div>{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                                @endforeach
+                                            </div>
                                         @else
                                             {{ $race['position_name'] ?: '-' }}
                                         @endif

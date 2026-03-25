@@ -36,9 +36,11 @@
                             <div class="race-report-item mb-4" style="page-break-inside: avoid;">
                                 <p class="m-0 font-weight-bold">Ціль:
                                     @if(!empty($race['checkpoints']))
-                                        @foreach($race['checkpoints'] as $checkpoint)
-                                            {{ $loop->iteration }}. {{ $checkpoint['position_name'] }}{{ !$loop->last ? ', ' : '' }}
-                                        @endforeach
+                                        <div class="ml-3 mt-1">
+                                            @foreach($race['checkpoints'] as $checkpoint)
+                                                <div>{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                            @endforeach
+                                        </div>
                                     @else
                                         {{ $race['position_name'] ?: ($race['coordinates'] ?: '-') }}
                                     @endif
