@@ -100,7 +100,6 @@
             font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
             font-size: 1.1rem;
             line-height: 1.5;
-            color: #212529;
         }
         @media print {
             .no-print {
@@ -118,6 +117,9 @@
             }
             .p-5 {
                 padding: 0 !important;
+            }
+            .report-content {
+                color: #000 !important;
             }
         }
     </style>

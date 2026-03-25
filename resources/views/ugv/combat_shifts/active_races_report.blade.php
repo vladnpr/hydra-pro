@@ -144,12 +144,14 @@
             body {
                 background-color: white !important;
             }
+            #report-content {
+                color: #000 !important;
+            }
         }
         #report-content {
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.4;
-            color: #000;
         }
         .race-report-item {
             border-bottom: 1px dashed #ccc;

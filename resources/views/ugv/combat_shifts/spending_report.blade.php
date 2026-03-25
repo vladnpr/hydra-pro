@@ -153,7 +153,6 @@
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.4;
-            color: #000;
         }
         .report-header h4, .report-header h5 {
             font-weight: bold;
@@ -168,6 +167,9 @@
             .card {
                 border: none !important;
                 box-shadow: none !important;
+            }
+            #report-content {
+                color: #000 !important;
             }
         }
     </style>

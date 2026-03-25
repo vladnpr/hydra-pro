@@ -127,12 +127,14 @@
             body {
                 background-color: white !important;
             }
+            #report-content {
+                color: #000 !important;
+            }
         }
         #report-content {
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.6;
-            color: #000;
         }
         .report-header h4, .report-header h5 {
             font-weight: bold;
