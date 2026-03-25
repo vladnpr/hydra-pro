@@ -71,7 +71,7 @@
                             @endif
                             <p class="m-0">Результат:
                                 @if((($flight['mission'] ?? '') === 'patrol' || ($flight['mission'] ?? '') === 'logistics') && str_contains($flight['result'], 'відпрацювали'))
-                                    <span style="color: #000; font-weight: bold;">{{ $flight['result'] }}</span>
+                                    <span class="font-weight-bold">{{ $flight['result'] }}</span>
                                 @else
                                     {{ $flight['result'] }}
                                 @endif
@@ -214,12 +214,14 @@
             body {
                 background-color: white !important;
             }
+            #report-content {
+                color: #000 !important;
+            }
         }
         #report-content {
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.4;
-            color: #000;
         }
         .flight-report-item {
             border-bottom: 1px dashed #ccc;

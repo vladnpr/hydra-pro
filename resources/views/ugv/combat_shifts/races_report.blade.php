@@ -88,9 +88,11 @@
                                 @foreach($workedRaces as $race)
                                     <p class="m-0">{{ $i++ }})
                                         @if(!empty($race['checkpoints']))
-                                            @foreach($race['checkpoints'] as $checkpoint)
-                                                <span class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $checkpoint['position_name'] }}</span>{{ !$loop->last ? ', ' : '' }}
-                                            @endforeach
+                                            <div class="ml-3 mt-1">
+                                                @foreach($race['checkpoints'] as $checkpoint)
+                                                    <div class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                                @endforeach
+                                            </div>
                                         @else
                                             {{ $race['position_name'] }}
                                         @endif
@@ -109,9 +111,11 @@
                                 @foreach($notWorkedRaces as $race)
                                     <p class="m-0">{{ $j++ }})
                                         @if(!empty($race['checkpoints']))
-                                            @foreach($race['checkpoints'] as $checkpoint)
-                                                <span class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $checkpoint['position_name'] }}</span>{{ !$loop->last ? ', ' : '' }}
-                                            @endforeach
+                                            <div class="ml-3 mt-1">
+                                                @foreach($race['checkpoints'] as $checkpoint)
+                                                    <div class="{{ $checkpoint['status'] === 'not_worked' ? 'text-strikethrough' : '' }}">{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                                @endforeach
+                                            </div>
                                         @else
                                             {{ $race['position_name'] }}
                                         @endif
@@ -134,9 +138,17 @@
                         <div class="tab-pane fade p-4" id="list-report" role="tabpanel" aria-labelledby="list-report-tab">
                             <div id="report-content-list">
                                 @foreach($allRacesSorted as $race)
-                                    @if($race['position_name'] && $race['position_name'] !== '-')
-                                        <p class="m-0">Ціль: {{ $race['position_name'] }}</p>
-                                    @endif
+                                    <p class="m-0">Ціль:
+                                        @if(!empty($race['checkpoints']))
+                                            <div class="ml-3 mt-1">
+                                                @foreach($race['checkpoints'] as $checkpoint)
+                                                    <div>{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            {{ $race['position_name'] ?: '-' }}
+                                        @endif
+                                    </p>
                                     @if($race['coordinates'] && $race['coordinates'] !== '-')
                                         <p class="m-0">{{ $race['coordinates'] }}</p>
                                     @endif
@@ -259,7 +271,6 @@
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;
         line-height: 1.2;
-        color: #000;
     }
     .bg-black { background-color: #000; }
     @media print {
@@ -272,6 +283,9 @@
         .card {
             border: none !important;
             box-shadow: none !important;
+        }
+        #report-content-standard, #report-content-list {
+            color: #000 !important;
         }
     }
 </style>

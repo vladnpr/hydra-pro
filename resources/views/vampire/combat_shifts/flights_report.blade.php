@@ -238,7 +238,6 @@
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;
         line-height: 1.2;
-        color: #000;
     }
     .bg-black { background-color: #000; }
     @media print {
@@ -251,6 +250,9 @@
         .card {
             border: none !important;
             box-shadow: none !important;
+        }
+        #report-content-standard, #report-content-list {
+            color: #000 !important;
         }
     }
 </style>
