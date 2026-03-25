@@ -258,7 +258,6 @@
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;
         line-height: 1.2;
-        color: #000;
     }
     .flight-report-item {
         margin-bottom: 1.5rem !important;
@@ -277,6 +276,9 @@
         .card {
             border: none !important;
             box-shadow: none !important;
+        }
+        #report-content {
+            color: #000 !important;
         }
     }
 </style>

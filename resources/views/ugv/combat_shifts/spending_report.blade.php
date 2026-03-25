@@ -29,13 +29,14 @@
                         <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
                             @php
                                 $dates = array_keys($shift->ugv_races);
-                                if ($date && !in_array($date, $dates)) {
+                                if (!empty($date) && !in_array($date, $dates)) {
                                     $dates[] = $date;
                                 }
                                 rsort($dates);
+                                $currentDate = $date ?? now()->format('Y-m-d');
                             @endphp
                             @foreach($dates as $raceDate)
-                                <option value="{{ $raceDate }}" {{ $date == $raceDate ? 'selected' : '' }}>
+                                <option value="{{ $raceDate }}" {{ $currentDate == $raceDate ? 'selected' : '' }}>
                                     {{ \Carbon\Carbon::parse($raceDate)->format('d.m.Y') }}
                                 </option>
                             @endforeach
@@ -53,7 +54,8 @@
                 <div class="card-body p-5" id="report-content">
                     <div class="report-header mb-4">
                         <h4 class="mb-3">Позиція "{{ $shift->position_name }}"</h4>
-                        <p class="m-0">Дата: {{ \Carbon\Carbon::parse($date)->format('d.m.Y') }} (08:00) - {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m.Y') }} (08:00)</p>
+                        @php $currentDate = $date ?? now()->format('Y-m-d'); @endphp
+                        <p class="m-0">Дата: {{ \Carbon\Carbon::parse($currentDate)->format('d.m.Y') }} (08:00) - {{ \Carbon\Carbon::parse($currentDate)->addDay()->format('d.m.Y') }} (08:00)</p>
                         <br/>
                         <h5>Витрати</h5>
                     </div>
@@ -153,7 +155,6 @@
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.4;
-            color: #000;
         }
         .report-header h4, .report-header h5 {
             font-weight: bold;
@@ -169,6 +170,9 @@
                 border: none !important;
                 box-shadow: none !important;
             }
+            #report-content {
+                color: #000 !important;
+            }
         }
     </style>
-@endsection
+@stop

@@ -166,10 +166,31 @@ class UgvCombatShiftController extends Controller
         return view('ugv.combat_shifts.report', compact('shift'));
     }
 
-    public function spendingReport(int $id)
+    public function spendingReport(int $id, \Illuminate\Http\Request $request)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
-        return view('ugv.combat_shifts.spending_report', compact('shift'));
+        $date = $request->query('date', now()->format('Y-m-d'));
+
+        $dayRaces = $shift->ugv_races[$date] ?? [];
+
+        $spendingAmmunition = [];
+        $lostDrones = [];
+
+        foreach ($dayRaces as $race) {
+            if (!empty($race['ammunition_name'])) {
+                $spendingAmmunition[$race['ammunition_name']] = ($spendingAmmunition[$race['ammunition_name']] ?? 0) + 1;
+            }
+
+            if ($race['result'] === 'loss') {
+                $lostDrones[] = [
+                    'name' => $race['drone_name'],
+                    'serial' => $race['drone_serial'],
+                    'lost_at' => $race['end_time'] ? \Carbon\Carbon::parse($race['end_time'])->format('H:i') : '-',
+                ];
+            }
+        }
+
+        return view('ugv.combat_shifts.spending_report', compact('shift', 'date', 'spendingAmmunition', 'lostDrones'));
     }
 
     public function racesReport(int $id, \Illuminate\Http\Request $request)

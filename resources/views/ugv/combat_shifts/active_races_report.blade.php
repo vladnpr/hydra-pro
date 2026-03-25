@@ -34,7 +34,20 @@
 
                         @forelse($dayRaces as $race)
                             <div class="race-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $race['coordinates'] }}</p>
+                                <p class="m-0 font-weight-bold">Ціль:
+                                    @if(!empty($race['checkpoints']))
+                                        <div class="ml-3 mt-1">
+                                            @foreach($race['checkpoints'] as $checkpoint)
+                                                <div>{{ $loop->iteration }}. {{ $checkpoint['position_name'] }}</div>
+                                            @endforeach
+                                        </div>
+                                    @else
+                                        {{ $race['position_name'] ?: ($race['coordinates'] ?: '-') }}
+                                    @endif
+                                </p>
+                                @if(!empty($race['checkpoints']) && $race['coordinates'] && $race['coordinates'] !== '-')
+                                    <p class="m-0 font-weight-bold">{{ $race['coordinates'] }}</p>
+                                @endif
                                 <p class="m-0">Час початку: {{ \Carbon\Carbon::parse($race['start_time'])->format('d.m.y H:i') }}</p>
                                 <p class="m-0">Час кінця: {{ $race['end_time'] ? \Carbon\Carbon::parse($race['end_time'])->format('d.m.y H:i') : '-' }}</p>
                                 <p class="m-0">Стрім: {{ $race['stream_status'] ? '+' : '-' }}</p>
@@ -144,12 +157,14 @@
             body {
                 background-color: white !important;
             }
+            #report-content {
+                color: #000 !important;
+            }
         }
         #report-content {
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.4;
-            color: #000;
         }
         .race-report-item {
             border-bottom: 1px dashed #ccc;
