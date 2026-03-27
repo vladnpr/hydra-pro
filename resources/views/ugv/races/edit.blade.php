@@ -119,7 +119,7 @@
                             </select>
                         </div>
                         <div class="form-group">
-                            <label for="start_time">Час зльоту</label>
+                            <label for="start_time">Час виїзду</label>
                             <div class="input-group">
                                 <input type="datetime-local" name="start_time" id="start_time" class="form-control" value="{{ old('start_time', $race->start_time->format('Y-m-d\TH:i')) }}" required>
                                 <div class="input-group-append">
@@ -130,7 +130,7 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="end_time">Час посадки</label>
+                            <label for="end_time">Час повернення</label>
                             <div class="input-group">
                                 <input type="datetime-local" name="end_time" id="end_time" class="form-control" value="{{ old('end_time', $race->end_time?->format('Y-m-d\TH:i')) }}">
                                 <div class="input-group-append">
