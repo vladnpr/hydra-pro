@@ -77,7 +77,7 @@
                 <div class="card-body">
                     <div class="tab-content">
                         <div class="active tab-pane" id="races">
-                            <h5>Журнал вильотів</h5>
+                            <h5>Журнал рейсів</h5>
                             @php
                                 $today = now()->format('Y-m-d');
                             @endphp
