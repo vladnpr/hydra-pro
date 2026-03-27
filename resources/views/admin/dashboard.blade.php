@@ -649,7 +649,7 @@
                                     <div class="small-box bg-info">
                                         <div class="inner">
                                             <h3>{{ $ugvStats['total_flights'] }}</h3>
-                                            <p>Всього вильотів НРК</p>
+                                            <p>Всього рейсів НРК</p>
                                         </div>
                                         <div class="icon">
                                             <i class="fas fa-truck-pickup"></i>
@@ -708,7 +708,7 @@
                                             @endphp
 
                                             <div class="progress-group">
-                                                Відсоток успішних вильотів (Загальний)
+                                                Відсоток успішних рейсів (Загальний)
                                                 <span class="float-right"><b>{{ $ugvStats['worked'] }}</b>/{{ $ugvStats['combat_flights_for_success'] }}</span>
                                                 <div class="progress progress-sm">
                                                     <div class="progress-bar bg-success" style="width: {{ $ugvSuccessRate }}%"></div>
@@ -717,7 +717,7 @@
                                             </div>
 
                                             <div class="progress-group mt-3">
-                                                Відсоток успішних вильотів (Активні зміни)
+                                                Відсоток успішних рейсів (Активні зміни)
                                                 <span class="float-right"><b>{{ $ugvActiveStats['worked'] }}</b>/{{ $ugvActiveStats['combat_flights_for_success'] }}</span>
                                                 <div class="progress progress-sm">
                                                     <div class="progress-bar bg-info" style="width: {{ $activeUgvSuccessRate }}%"></div>
@@ -741,7 +741,7 @@
                                                 <thead>
                                                     <tr>
                                                         <th>Зміна / Екіпаж</th>
-                                                        <th>Всього вильотів</th>
+                                                        <th>Всього рейсів</th>
                                                         <th>Успішні</th>
                                                         <th>Втрати</th>
                                                         <th>Ефективність</th>
