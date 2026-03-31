@@ -206,7 +206,29 @@ class ReconCombatShiftsController extends Controller
         $dayFlights = $filteredFlights->filter(fn($f) => $f['shift_type'] === 'day')->values()->all();
         $nightFlights = $filteredFlights->filter(fn($f) => $f['shift_type'] === 'night')->values()->all();
 
-        return view('recon.combat_shifts.flights_report', compact('shift', 'from', 'to', 'dayFlights', 'nightFlights'));
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        foreach ($filteredFlights as $flight) {
+            if (!empty($flight['ammunition'])) {
+                foreach ($flight['ammunition'] as $ammo) {
+                    $name = $ammo['name'];
+                    $qty = $ammo['quantity'];
+                    $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
+                }
+            }
+        }
+
+        $lostDrones = \App\Models\ReconDrone::where('position_id', $shift->position_id)
+            ->where('status', 'lost')
+            ->whereBetween('updated_at', [$fromDate, $toDate])
+            ->get()
+            ->map(fn($d) => [
+                'name' => $d->name,
+                'serial' => $d->serial_number,
+                'lost_at' => $d->updated_at ? $d->updated_at->format('d.m.y H:i') : '-'
+            ])->toArray();
+
+        return view('recon.combat_shifts.flights_report', compact('shift', 'from', 'to', 'dayFlights', 'nightFlights', 'spendingAmmunition', 'lostDrones'));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)

@@ -207,7 +207,29 @@ class VampireCombatShiftController extends Controller
         $notWorkedFlights = $filteredFlights->filter(fn($f) => $f['result'] !== 'worked')->values()->all();
         $allFlightsSorted = $filteredFlights->values()->all();
 
-        return view('vampire.combat_shifts.flights_report', compact('shift', 'from', 'to', 'workedFlights', 'notWorkedFlights', 'allFlightsSorted'));
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        foreach ($filteredFlights as $flight) {
+            if (!empty($flight['ammunition'])) {
+                foreach ($flight['ammunition'] as $ammo) {
+                    $name = $ammo['name'];
+                    $qty = $ammo['quantity'];
+                    $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
+                }
+            }
+        }
+
+        $lostDrones = \App\Models\VampireDrone::where('position_id', $shift->position_id)
+            ->where('status', 'lost')
+            ->whereBetween('updated_at', [$fromDate, $toDate])
+            ->get()
+            ->map(fn($d) => [
+                'name' => $d->name,
+                'serial' => $d->serial_number,
+                'lost_at' => $d->updated_at ? $d->updated_at->format('d.m.y H:i') : '-'
+            ])->toArray();
+
+        return view('vampire.combat_shifts.flights_report', compact('shift', 'from', 'to', 'workedFlights', 'notWorkedFlights', 'allFlightsSorted', 'spendingAmmunition', 'lostDrones'));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)

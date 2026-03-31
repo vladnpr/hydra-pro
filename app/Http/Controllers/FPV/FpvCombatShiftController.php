@@ -133,7 +133,28 @@ class FpvCombatShiftController extends Controller
             return $flightTime->between($fromDate, $toDate);
         })->sortByDesc('flight_time')->values()->all();
 
-        return view('admin.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights'));
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        $spendingDrones = [];
+        foreach ($flights as $flight) {
+            // Дрони (вважаємо витраченими, якщо результат "втрата борту")
+            if (($flight['result'] ?? '') === 'втрата борту' || ($flight['result'] ?? '') === 'відпрацювали (витрата борту)') {
+                $droneName = ($flight['drone_name'] ?? '') . ' ' . ($flight['drone_model'] ?? '');
+                $spendingDrones[$droneName] = ($spendingDrones[$droneName] ?? 0) + 1;
+            }
+
+            // БК (вважаємо витраченим, якщо місія не логістика і був результат відмінний від "повернули")
+            if (($flight['mission'] ?? '') !== 'logistics' && ($flight['ammunition_name'] ?? '')) {
+                $ammoName = $flight['ammunition_name'];
+                $spendingAmmunition[$ammoName] = ($spendingAmmunition[$ammoName] ?? 0) + 1;
+            }
+        }
+
+        // Номер дня для звіту по залишкам
+        $shiftDate = \Carbon\Carbon::parse($shift->started_at);
+        $dayNumber = (int) $shiftDate->diffInDays(\Carbon\Carbon::now()) + 1;
+
+        return view('admin.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones', 'dayNumber'));
     }
 
     public function activeFlightsReport(\Illuminate\Http\Request $request)

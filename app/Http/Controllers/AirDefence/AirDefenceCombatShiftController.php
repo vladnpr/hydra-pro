@@ -184,7 +184,25 @@ class AirDefenceCombatShiftController extends Controller
             ->orderBy('start_time', 'desc')
             ->get();
 
-        return view('admin.air_defence.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights'));
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        $spendingDrones = [];
+        foreach ($flights as $flight) {
+            // Дрони (якщо результат втрата)
+            if ($flight->result === 'loss') {
+                $droneName = $flight->drone ? $flight->drone->name : 'Unknown';
+                $spendingDrones[$droneName] = ($spendingDrones[$droneName] ?? 0) + 1;
+            }
+
+            // БК
+            foreach ($flight->ammunition as $ammo) {
+                $name = $ammo->name;
+                $qty = $ammo->pivot->quantity;
+                $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
+            }
+        }
+
+        return view('admin.air_defence.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones'));
     }
 
     public function spendingReport(int $id, \Illuminate\Http\Request $request)
