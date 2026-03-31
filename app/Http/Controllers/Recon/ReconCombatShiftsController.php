@@ -180,19 +180,77 @@ class ReconCombatShiftsController extends Controller
         if ($shift->type !== PositionTypesEnum::RECON->value) {
             abort(404);
         }
-        $date = $request->query('date', now()->format('Y-m-d'));
-        $activeShiftType = $request->query('shift_type', 'day');
 
-        // Отримуємо польоти за обрану дату
-        // Завдяки зміні в CombatShiftDTO, у recon_flights[date] вже лежать польоти,
-        // які відбулися з 08:00 обраного дня до 08:00 наступного дня (якщо вони night)
-        $allFlights = $shift->recon_flights[$date] ?? [];
+        $from = $request->query('from');
+        $to = $request->query('to');
 
-        // Фільтруємо за зміною
-        $dayFlights = array_filter($allFlights, fn($f) => $f['shift_type'] === 'day');
-        $nightFlights = array_filter($allFlights, fn($f) => $f['shift_type'] === 'night');
+        if (!$from || !$to) {
+            [$from, $to] = $this->combatShiftsAdminService->getDefaultReportRange();
+        }
 
-        return view('recon.combat_shifts.flights_report', compact('shift', 'date', 'dayFlights', 'nightFlights', 'activeShiftType'));
+        $fromDate = \Carbon\Carbon::parse($from);
+        $toDate = \Carbon\Carbon::parse($to);
+
+        $allFlightsList = [];
+        foreach ($shift->recon_flights as $dateFlights) {
+            foreach ($dateFlights as $flight) {
+                $allFlightsList[] = $flight;
+            }
+        }
+
+        $filteredFlights = collect($allFlightsList)->filter(function ($flight) use ($fromDate, $toDate) {
+            $flightTime = \Carbon\Carbon::parse($flight['flight_time']);
+            return $flightTime->between($fromDate, $toDate);
+        })->sortByDesc('flight_time');
+
+        $dayFlights = $filteredFlights->filter(fn($f) => $f['shift_type'] === 'day')->values()->all();
+        $nightFlights = $filteredFlights->filter(fn($f) => $f['shift_type'] === 'night')->values()->all();
+
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        $strikeCoordinates = [];
+        $totalFlights = $filteredFlights->count();
+        $combatFlights = 0;
+        $logisticsFlights = 0;
+
+        foreach ($filteredFlights as $flight) {
+            $mission = $flight['mission_type'] ?? '';
+            if (in_array($mission, ['combat', 'patrol'])) {
+                $combatFlights++;
+            } elseif ($mission === 'logistics') {
+                $logisticsFlights++;
+            }
+
+            if (!empty($flight['ammunition'])) {
+                foreach ($flight['ammunition'] as $ammo) {
+                    $name = $ammo['name'];
+                    $qty = $ammo['quantity'];
+                    $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
+                }
+            }
+
+            // Координати для ударних вильотів та патрулів
+            if (in_array(($flight['mission_type'] ?? ''), ['combat', 'patrol']) && !empty($flight['coordinates'])) {
+                $strikeCoordinates[] = $flight['coordinates'];
+            }
+        }
+
+        $strikeCoordinates = array_unique($strikeCoordinates);
+
+        $lostDrones = \App\Models\ReconDrone::where('position_id', $shift->position_id)
+            ->where('status', 'lost')
+            ->whereBetween('updated_at', [$fromDate, $toDate])
+            ->get()
+            ->map(fn($d) => [
+                'name' => $d->name,
+                'serial' => $d->serial_number,
+                'lost_at' => $d->updated_at ? $d->updated_at->format('d.m.y H:i') : '-'
+            ])->toArray();
+
+        return view('recon.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'dayFlights', 'nightFlights', 'spendingAmmunition',
+            'lostDrones', 'strikeCoordinates', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)

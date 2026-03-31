@@ -570,6 +570,20 @@ readonly class CombatShiftsAdminService
         }
     }
 
+    public function getDefaultReportRange(): array
+    {
+        $now = now();
+        if ($now->hour < 14) {
+            $from = $now->copy()->subDay()->setTime(14, 0, 0)->format('Y-m-d\TH:i');
+            $to = $now->copy()->setTime(14, 0, 0)->format('Y-m-d\TH:i');
+        } else {
+            $from = $now->copy()->setTime(14, 0, 0)->format('Y-m-d\TH:i');
+            $to = $now->copy()->addDay()->setTime(14, 0, 0)->format('Y-m-d\TH:i');
+        }
+
+        return [$from, $to];
+    }
+
     private function formatPivotData(array $items): array
     {
         $formatted = [];

@@ -25,33 +25,14 @@
             <div class="card">
                 <div class="card-body">
                     <form action="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
-                        <label for="date" class="mr-2">Оберіть дату:</label>
-                        <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
-                            @php
-                                $dates = array_keys($shift->recon_flights);
-                                if (!in_array($date, $dates)) {
-                                    $dates[] = $date;
-                                }
-                                rsort($dates);
-                            @endphp
-                            @foreach($dates as $flightDate)
-                                <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
-                            <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-sun"></i> Денна
-                            </label>
-                            <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-moon"></i> Нічна
-                            </label>
+                        <div class="form-group mr-2">
+                            <label for="from" class="mr-2">З:</label>
+                            <input type="datetime-local" name="from" id="from" class="form-control" value="{{ $from }}">
                         </div>
-
+                        <div class="form-group mr-2">
+                            <label for="to" class="mr-2">По:</label>
+                            <input type="datetime-local" name="to" id="to" class="form-control" value="{{ $to }}">
+                        </div>
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>
@@ -60,119 +41,182 @@
     </div>
 
     <div class="row">
-        <div class="col-md-8 offset-md-2">
-            <div class="card">
-                <div class="card-body p-5" id="report-content">
-                    <h3 class="text-center mb-4">Звіт по польотам розвідки ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
-                    @if($activeShiftType === 'night')
-                        <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
-                            (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})
-                        </p>
-                    @endif
+        <div class="col-md-12">
+            <div class="card card-primary card-outline card-tabs">
+                <div class="card-header p-0 pt-1 border-bottom-0 no-print">
+                    <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="flights-tab" data-toggle="pill" href="#flights-content" role="tab" aria-controls="flights-content" aria-selected="true">Звіт по польотам</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="spending-tab" data-toggle="pill" href="#spending-content" role="tab" aria-controls="spending-content" aria-selected="false">Звіт по витратам</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="remains-tab" data-toggle="pill" href="#remains-content" role="tab" aria-controls="remains-content" aria-selected="false">Звіт по залишку</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="reportTabsContent">
+                        <!-- Вкладка Польоти -->
+                        <div class="tab-pane fade show active" id="flights-content" role="tabpanel" aria-labelledby="flights-tab">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-2">
+                                    <div id="report-content-flights" class="report-printable-area p-5">
+                                        <h3 class="text-center mb-4">Звіт по польотах розвідки</h3>
+                                        <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+                                            (Період: {{ \Carbon\Carbon::parse($from)->format('d.m.Y H:i') }} - {{ \Carbon\Carbon::parse($to)->format('d.m.Y H:i') }})
+                                        </p>
 
-                    @if($activeShiftType === 'day')
-                        <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
-                        @forelse($dayFlights as $flight)
-                            <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
-                                <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
-                                    @if(!empty($flight['landing_time']))
-                                        - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
-                                    @endif
-                                </p>
-                                <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
-                                <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
-                                <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
-                                <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
-                                <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
-                                @if(!empty($flight['video_path']))
-                                    <div class="mt-2 no-print">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
-                                                <i class="fas fa-video"></i> Переглянути
-                                            </button>
-                                            <a href="{{ route('recon.flights.download', $flight['id']) }}" class="btn btn-xs btn-success ml-1" title="Скачати">
-                                                <i class="fas fa-download"></i> Скачати відео
-                                            </a>
+                                        @if(count($dayFlights) > 0)
+                                            <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
+                                            @foreach($dayFlights as $flight)
+                                                <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
+                                                    <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
+                                                    <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
+                                                        @if(!empty($flight['landing_time']))
+                                                            - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
+                                                        @endif
+                                                    </p>
+                                                    <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
+                                                    <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
+                                                    <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
+                                                    <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
+                                                    <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
+                                                </div>
+                                            @endforeach
+                                        @endif
+
+                                        @if(count($nightFlights) > 0)
+                                            <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
+                                            @foreach($nightFlights as $flight)
+                                                <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
+                                                    <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
+                                                    <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
+                                                        @if(!empty($flight['landing_time']))
+                                                            - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
+                                                        @endif
+                                                    </p>
+                                                    <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
+                                                    <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
+                                                    <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
+                                                    <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
+                                                    <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
+                                                </div>
+                                            @endforeach
+                                        @endif
+
+                                        @if(count($dayFlights) == 0 && count($nightFlights) == 0)
+                                            <div class="text-center py-5">
+                                                <p class="text-muted">За обраний період вильотів не знайдено.</p>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка Витрати -->
+                        <div class="tab-pane fade" id="spending-content" role="tabpanel" aria-labelledby="spending-tab">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-2">
+                                    <div id="report-content-spending" class="report-printable-area p-5">
+                                        <div class="report-header mb-4">
+                                            <h4 class="mb-3">Звіт по витратах (Розвідка): {{ $shift->position_name }}</h4>
+                                            <p>Період: {{ \Carbon\Carbon::parse($from)->format('d.m.y H:i') }} - {{ \Carbon\Carbon::parse($to)->format('d.m.y H:i') }}</p>
                                         </div>
 
-                                        <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body text-center bg-black">
-                                                        <video width="100%" controls>
-                                                            <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
-                                                            Ваш браузер не підтримує відео.
-                                                        </video>
-                                                    </div>
-                                                </div>
+                                        <div class="spending-section">
+                                            <h5 class="font-weight-bold mb-3">Статистика вильотів:</h5>
+                                            <ul class="list-unstyled pl-0 mb-4">
+                                                <li class="mb-1">Всього вильотів: {{ $totalFlights }}</li>
+                                                <li class="mb-1">Бойових: {{ $combatFlights }}</li>
+                                                <li class="mb-1">Логістика: {{ $logisticsFlights }}</li>
+                                            </ul>
+
+                                            <h5 class="font-weight-bold mb-3">Витрачено БК:</h5>
+                                            <ul class="list-unstyled pl-0 mb-4">
+                                                @forelse($spendingAmmunition as $name => $qty)
+                                                    <li class="mb-1">{{ $name }} - {{ $qty }} шт</li>
+                                                @empty
+                                                    <li>Витрат БК не зафіксовано</li>
+                                                @endforelse
+                                            </ul>
+
+                                            <h5 class="font-weight-bold mb-3">Втрачено Дронів:</h5>
+                                            <ul class="list-unstyled pl-0">
+                                                @forelse($lostDrones as $drone)
+                                                    <li class="mb-1">{{ $drone['name'] }} ({{ $drone['serial'] }}) - втрачено о {{ $drone['lost_at'] }}</li>
+                                                @empty
+                                                    <li>Втрат дронів не зафіксовано за цей період</li>
+                                                @endforelse
+                                            </ul>
+
+                                            @if(!empty($strikeCoordinates))
+                                                <h5 class="font-weight-bold mb-3 mt-4">Координати ураження/патрулювання:</h5>
+                                                <ul class="list-unstyled pl-0">
+                                                    @foreach($strikeCoordinates as $coord)
+                                                        <li class="mb-1">{{ $coord }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка Залишки -->
+                        <div class="tab-pane fade" id="remains-content" role="tabpanel" aria-labelledby="remains-tab">
+                            <div class="row">
+                                <div class="col-md-8 offset-md-2">
+                                    <div id="report-content-remains" class="report-printable-area p-5">
+                                        <div class="report-header mb-4">
+                                            <h4 class="mb-3">Поточні залишки: {{ $shift->position_name }}</h4>
+                                        </div>
+
+                                        <div class="crew-section mb-4">
+                                            <p class="font-weight-bold mb-2">Екіпаж:</p>
+                                            @foreach($shift->crew as $index => $member)
+                                                <p class="mb-1">{{ $index + 1 }}. {{ $member['callsign'] }}</p>
+                                            @endforeach
+                                        </div>
+
+                                        <div class="remains-section">
+                                            <h5 class="font-weight-bold mb-3">В наявності</h5>
+
+                                            <div class="drones-block mb-4">
+                                                <p class="font-weight-bold mb-2">Дрони:</p>
+                                                <ul class="list-unstyled pl-0">
+                                                    @forelse($shift->recon_drones as $drone)
+                                                        @if($drone['status'] === 'active')
+                                                            <li class="mb-1">{{ $drone['name'] }} ({{ $drone['serial_number'] }})</li>
+                                                        @endif
+                                                    @empty
+                                                        <li>Активні дрони відсутні</li>
+                                                    @endforelse
+                                                </ul>
+                                            </div>
+
+                                            <div class="ammunition-block">
+                                                <p class="font-weight-bold mb-2">БК:</p>
+                                                <ul class="list-unstyled pl-0">
+                                                    @forelse($shift->ammunition as $item)
+                                                        @if($item['quantity'] > 0)
+                                                            <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                                        @endif
+                                                    @empty
+                                                        <li>БК відсутнє</li>
+                                                    @endforelse
+                                                </ul>
                                             </div>
                                         </div>
                                     </div>
-                                @endif
+                                </div>
                             </div>
-                        @empty
-                            <p class="text-muted">Денних польотів не знайдено.</p>
-                        @endforelse
-                    @endif
+                        </div>
 
-                    @if($activeShiftType === 'night')
-                        <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
-                        @forelse($nightFlights as $flight)
-                            <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
-                                <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
-                                <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
-                                    @if(!empty($flight['landing_time']))
-                                        - Час посадки: {{ \Carbon\Carbon::parse($flight['landing_time'])->format('H:i') }}
-                                    @endif
-                                </p>
-                                <p class="m-0">Стрім: {{ $flight['stream_status'] ? '+' : '-' }}</p>
-                                <p class="m-0">Дрон: {{ $flight['drone_name'] }}</p>
-                                <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
-                                <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
-                                <p class="m-0">Коментар: {{ $flight['description'] ?: '-' }}</p>
-                                @if(!empty($flight['video_path']))
-                                    <div class="mt-2 no-print">
-                                        <div class="btn-group">
-                                            <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
-                                                <i class="fas fa-video"></i> Переглянути
-                                            </button>
-                                            <a href="{{ route('recon.flights.download', $flight['id']) }}" class="btn btn-xs btn-success ml-1" title="Скачати">
-                                                <i class="fas fa-download"></i> Скачати відео
-                                            </a>
-                                        </div>
-
-                                        <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg" role="document">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
-                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                            <span aria-hidden="true">&times;</span>
-                                                        </button>
-                                                    </div>
-                                                    <div class="modal-body text-center bg-black">
-                                                        <video width="100%" controls>
-                                                            <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
-                                                            Ваш браузер не підтримує відео.
-                                                        </video>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        @empty
-                            <p class="text-muted">Нічних польотів не знайдено.</p>
-                        @endforelse
-                    @endif
+                    </div>
                 </div>
             </div>
         </div>
@@ -202,27 +246,37 @@
             }
 
             $('#copy-report').click(function() {
-                // Тимчасово приховуємо елементи з класом no-copy перед копіюванням
-                $('.no-copy').hide();
-
-                // Збираємо текст вручну для точного контролю пробілів
+                const activeTab = $('.nav-link.active').attr('href');
                 let reportText = '';
-                const title = $('#report-content h3').text().trim();
-                reportText += title + '\n\n';
 
-                const shiftTitle = $('#report-content h4').text().trim();
-                if (shiftTitle) {
-                    reportText += shiftTitle + '\n\n';
+                if (activeTab === '#flights-content') {
+                    // Тимчасово приховуємо елементи з класом no-copy перед копіюванням
+                    $('.no-copy').hide();
+
+                    // Збираємо текст вручну для точного контролю пробілів
+                    const title = $('#report-content-flights h3').first().text().trim();
+                    if (title) {
+                        reportText += title + '\n\n';
+                    }
+
+                    $('.flight-report-item').each(function(index) {
+                        $(this).find('p').each(function() {
+                            reportText += $(this).text().trim() + '\n';
+                        });
+                        reportText += '\n'; // Додаємо порожній рядок між польотами
+                    });
+
+                    $('.no-copy').show();
+                } else if (activeTab === '#spending-content') {
+                    reportText = $('#report-content-spending').text().trim();
+                } else if (activeTab === '#remains-content') {
+                    reportText = $('#report-content-remains').text().trim();
                 }
 
-                $('.flight-report-item').each(function(index) {
-                    $(this).find('p').each(function() {
-                        reportText += $(this).text().trim() + '\n';
-                    });
-                    reportText += '\n'; // Додаємо порожній рядок між польотами
-                });
-
-                $('.no-copy').show();
+                if (!reportText || reportText.trim() === '') {
+                    // Запасний варіант
+                    reportText = $('.tab-pane.active').text().trim();
+                }
 
                 if (!reportText || reportText.trim() === '') {
                     alert('Немає даних для копіювання');
@@ -254,31 +308,41 @@
 
 @section('css')
 <style>
-    #report-content {
+    .report-printable-area {
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;
         line-height: 1.2;
     }
     .flight-report-item {
         margin-bottom: 1.5rem !important;
+        border-bottom: 1px dashed #ccc;
+        padding-bottom: 10px;
     }
     .flight-report-item p {
         margin-bottom: 0 !important;
     }
     .bg-black { background-color: #000; }
     @media print {
-        .no-print, .no-copy {
+        .no-print, .no-copy, .nav-tabs {
             display: none !important;
         }
         .content-wrapper {
             background: white !important;
+            margin-left: 0 !important;
         }
         .card {
             border: none !important;
             box-shadow: none !important;
         }
-        #report-content {
+        .report-printable-area {
             color: #000 !important;
+            display: block !important;
+        }
+        .tab-pane {
+            display: none !important;
+        }
+        .tab-pane.active {
+            display: block !important;
         }
     }
 </style>

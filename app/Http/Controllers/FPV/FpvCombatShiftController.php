@@ -109,12 +109,74 @@ class FpvCombatShiftController extends Controller
     public function flightsReport(int $id, \Illuminate\Http\Request $request)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
-        $date = $request->query('date', now()->format('Y-m-d'));
 
-        // Отримуємо польоти за обрану дату
-        $flights = $shift->flights[$date] ?? [];
+        $from = $request->query('from');
+        $to = $request->query('to');
 
-        return view('admin.combat_shifts.flights_report', compact('shift', 'date', 'flights'));
+        if (!$from || !$to) {
+            [$from, $to] = $this->combatShiftsAdminService->getDefaultReportRange();
+        }
+
+        $fromDate = \Carbon\Carbon::parse($from);
+        $toDate = \Carbon\Carbon::parse($to);
+
+        // Отримуємо всі польоти та фільтруємо за діапазоном
+        $allFlights = [];
+        foreach ($shift->flights as $dateFlights) {
+            foreach ($dateFlights as $flight) {
+                $allFlights[] = $flight;
+            }
+        }
+
+        $flights = collect($allFlights)->filter(function ($flight) use ($fromDate, $toDate) {
+            $flightTime = \Carbon\Carbon::parse($flight['flight_time']);
+            return $flightTime->between($fromDate, $toDate);
+        })->sortByDesc('flight_time')->values()->all();
+
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        $spendingDrones = [];
+        $strikeCoordinates = [];
+        $totalFlights = count($flights);
+        $combatFlights = 0;
+        $logisticsFlights = 0;
+
+        foreach ($flights as $flight) {
+            $mission = $flight['mission'] ?? '';
+            if (in_array($mission, ['strike', 'patrol'])) {
+                $combatFlights++;
+            } elseif ($mission === 'logistics') {
+                $logisticsFlights++;
+            }
+
+            // Дрони (вважаємо витраченими, якщо результат "втрата борту")
+            if (($flight['result'] ?? '') === 'втрата борту' || ($flight['result'] ?? '') === 'відпрацювали (витрата борту)') {
+                $droneName = ($flight['drone_name'] ?? '') . ' ' . ($flight['drone_model'] ?? '');
+                $spendingDrones[$droneName] = ($spendingDrones[$droneName] ?? 0) + 1;
+            }
+
+            // БК (вважаємо витраченим, якщо місія не логістика і був результат відмінний від "повернули")
+            if (($flight['mission'] ?? '') !== 'logistics' && ($flight['ammunition_name'] ?? '')) {
+                $ammoName = $flight['ammunition_name'];
+                $spendingAmmunition[$ammoName] = ($spendingAmmunition[$ammoName] ?? 0) + 1;
+            }
+
+            // Координати для ударних вильотів та патрулів
+            if (in_array(($flight['mission'] ?? ''), ['strike', 'patrol']) && !empty($flight['coordinates'])) {
+                $strikeCoordinates[] = $flight['coordinates'];
+            }
+        }
+
+        $strikeCoordinates = array_unique($strikeCoordinates);
+
+        // Номер дня для звіту по залишкам
+        $shiftDate = \Carbon\Carbon::parse($shift->started_at);
+        $dayNumber = (int) $shiftDate->diffInDays(\Carbon\Carbon::now()) + 1;
+
+        return view('admin.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones',
+            'strikeCoordinates', 'dayNumber', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function activeFlightsReport(\Illuminate\Http\Request $request)
