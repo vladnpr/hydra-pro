@@ -265,30 +265,51 @@
         }
 
         document.getElementById('copy-report').addEventListener('click', function() {
-            const items = document.querySelectorAll('.flight-report-item');
+            const activeTab = document.querySelector('.nav-link.active').getAttribute('href');
             let content = '';
 
-            items.forEach((item, index) => {
-                // Отримуємо всі параграфи всередині елемента
-                const paragraphs = item.querySelectorAll('p');
-                let itemText = '';
+            if (activeTab === '#flights-content') {
+                const items = document.querySelectorAll('.flight-report-item');
+                let flightsText = '';
 
-                paragraphs.forEach((p, pIndex) => {
-                    itemText += p.innerText.trim();
-                    if (pIndex < paragraphs.length - 1) {
-                        itemText += '\n'; // Одинарний перенос між рядками одного вильоту
+                items.forEach((item, index) => {
+                    const paragraphs = item.querySelectorAll('p');
+                    let itemText = '';
+
+                    paragraphs.forEach((p, pIndex) => {
+                        // Ігноруємо кнопки та інші не-текстові елементи (наприклад, у .no-print)
+                        const cleanText = p.innerText.replace(/Скачати відео|Переглянути/g, '').trim();
+                        if (cleanText) {
+                            itemText += cleanText;
+                            if (pIndex < paragraphs.length - 1) {
+                                itemText += '\n';
+                            }
+                        }
+                    });
+
+                    flightsText += itemText;
+
+                    if (index < items.length - 1) {
+                        flightsText += '\n\n-------------------\n\n';
                     }
                 });
-
-                content += itemText;
-
-                if (index < items.length - 1) {
-                    content += '\n\n-------------------\n\n'; // Подвійний перенос та розділювач між різними вильотами
-                }
-            });
+                content = flightsText;
+            } else if (activeTab === '#spending-content') {
+                content = document.getElementById('report-content-spending').innerText.trim();
+            } else if (activeTab === '#remains-content') {
+                content = document.getElementById('report-content-remains').innerText.trim();
+            }
 
             if (content === '') {
-                content = document.getElementById('report-content').innerText.trim();
+                const reportContent = document.getElementById('report-content');
+                if (reportContent) {
+                    content = reportContent.innerText.trim();
+                }
+            }
+
+            if (content === '') {
+                 // Запасний варіант - якщо нічого не знайдено, спробувати взяти текст з активної панелі
+                 content = document.querySelector('.tab-pane.active').innerText.trim();
             }
 
             copyToClipboard(content).then(() => {

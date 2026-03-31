@@ -230,27 +230,37 @@
             }
 
             $('#copy-report').click(function() {
-                // Тимчасово приховуємо елементи з класом no-copy перед копіюванням
-                $('.no-copy').hide();
-
-                // Збираємо текст вручну для точного контролю пробілів
+                const activeTab = $('.nav-link.active').attr('href');
                 let reportText = '';
-                const title = $('#report-content h3').text().trim();
-                reportText += title + '\n\n';
 
-                const shiftTitle = $('#report-content h4').text().trim();
-                if (shiftTitle) {
-                    reportText += shiftTitle + '\n\n';
+                if (activeTab === '#flights-content') {
+                    // Тимчасово приховуємо елементи з класом no-copy перед копіюванням
+                    $('.no-copy').hide();
+
+                    // Збираємо текст вручну для точного контролю пробілів
+                    const title = $('#report-content-flights h3').first().text().trim();
+                    if (title) {
+                        reportText += title + '\n\n';
+                    }
+
+                    $('.flight-report-item').each(function(index) {
+                        $(this).find('p').each(function() {
+                            reportText += $(this).text().trim() + '\n';
+                        });
+                        reportText += '\n'; // Додаємо порожній рядок між польотами
+                    });
+
+                    $('.no-copy').show();
+                } else if (activeTab === '#spending-content') {
+                    reportText = $('#report-content-spending').text().trim();
+                } else if (activeTab === '#remains-content') {
+                    reportText = $('#report-content-remains').text().trim();
                 }
 
-                $('.flight-report-item').each(function(index) {
-                    $(this).find('p').each(function() {
-                        reportText += $(this).text().trim() + '\n';
-                    });
-                    reportText += '\n'; // Додаємо порожній рядок між польотами
-                });
-
-                $('.no-copy').show();
+                if (!reportText || reportText.trim() === '') {
+                    // Запасний варіант
+                    reportText = $('.tab-pane.active').text().trim();
+                }
 
                 if (!reportText || reportText.trim() === '') {
                     alert('Немає даних для копіювання');

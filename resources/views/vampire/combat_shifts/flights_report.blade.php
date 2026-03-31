@@ -240,17 +240,28 @@
             }
 
             $('#copy-report').click(function() {
+                const activeTab = $('.nav-link.active').attr('href');
                 let reportText = '';
-                let activeTab = $('.nav-tabs .nav-link.active').attr('href');
-                let contentId = activeTab === '#standard-report' ? '#report-content-standard' : '#report-content-list';
 
-                // Збираємо текст з активного контейнера
-                $(contentId + ' p').each(function() {
-                    reportText += $(this).text().trim() + '\n';
-                    if ($(this).hasClass('flight-end')) {
-                        reportText += '\n';
-                    }
-                });
+                if (activeTab === '#standard-report' || activeTab === '#list-report') {
+                    let contentId = activeTab === '#standard-report' ? '#report-content-standard' : '#report-content-list';
+                    // Збираємо текст з активного контейнера
+                    $(contentId + ' p').each(function() {
+                        reportText += $(this).text().trim() + '\n';
+                        if ($(this).hasClass('flight-end')) {
+                            reportText += '\n';
+                        }
+                    });
+                } else if (activeTab === '#spending-content') {
+                    reportText = $('#report-content-spending').text().trim();
+                } else if (activeTab === '#remains-content') {
+                    reportText = $('#report-content-remains').text().trim();
+                }
+
+                if (!reportText || reportText.trim() === '') {
+                    // Запасний варіант
+                    reportText = $('.tab-pane.active').text().trim();
+                }
 
                 if (!reportText || reportText.trim() === '') {
                     alert('Немає даних для копіювання');

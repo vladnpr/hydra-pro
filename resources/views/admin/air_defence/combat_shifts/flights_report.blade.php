@@ -201,16 +201,27 @@
             }
 
             $('#copy-report').click(function() {
+                const activeTab = $('.nav-link.active').attr('href');
                 let reportText = '';
-                let contentId = '#report-content';
 
-                // Збираємо текст з контейнера
-                $(contentId + ' p').each(function() {
-                    reportText += $(this).text().trim() + '\n';
-                    if ($(this).hasClass('flight-end')) {
-                        reportText += '\n';
-                    }
-                });
+                if (activeTab === '#flights-content') {
+                    // Збираємо текст з контейнера польотів
+                    $('#report-content-flights p').each(function() {
+                        reportText += $(this).text().trim() + '\n';
+                        if ($(this).hasClass('flight-end')) {
+                            reportText += '\n';
+                        }
+                    });
+                } else if (activeTab === '#spending-content') {
+                    reportText = $('#report-content-spending').text().trim();
+                } else if (activeTab === '#remains-content') {
+                    reportText = $('#report-content-remains').text().trim();
+                }
+
+                if (!reportText || reportText.trim() === '') {
+                    // Запасний варіант
+                    reportText = $('.tab-pane.active').text().trim();
+                }
 
                 if (!reportText || reportText.trim() === '') {
                     alert('Немає даних для копіювання');
