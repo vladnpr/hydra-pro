@@ -168,25 +168,59 @@ class AirDefenceCombatShiftController extends Controller
             abort(404);
         }
 
-        $date = $request->query('date', now()->format('Y-m-d'));
+        $from = $request->query('from');
+        $to = $request->query('to');
 
-        // Отримуємо польоти для цієї зміни, згруповані по даті
-        $flightsByDate = \App\Models\AirDefenceFlight::with(['drone', 'ammunition'])
+        if (!$from || !$to) {
+            [$from, $to] = $this->combatShiftsAdminService->getDefaultReportRange();
+        }
+
+        $fromDate = \Carbon\Carbon::parse($from);
+        $toDate = \Carbon\Carbon::parse($to);
+
+        $flights = \App\Models\AirDefenceFlight::with(['drone', 'ammunition'])
             ->where('position_id', $shift->position_id)
-            ->whereBetween('start_time', [
-                \Carbon\Carbon::parse($shift->started_at)->startOfDay(),
-                $shift->ended_at ? \Carbon\Carbon::parse($shift->ended_at)->endOfDay() : now()->endOfDay()
-            ])
+            ->whereBetween('start_time', [$fromDate, $toDate])
             ->orderBy('start_time', 'desc')
-            ->get()
-            ->groupBy(function ($flight) {
-                return $flight->start_time->format('Y-m-d');
-            });
+            ->get();
 
-        $flights = $flightsByDate[$date] ?? collect();
-        $availableDates = $flightsByDate->keys()->sortDesc();
+        // Розрахунок витрат
+        $spendingAmmunition = [];
+        $spendingDrones = [];
+        $strikeCoordinates = [];
+        $totalFlights = $flights->count();
+        $combatFlights = 0;
+        $logisticsFlights = 0;
 
-        return view('admin.air_defence.combat_shifts.flights_report', compact('shift', 'date', 'flights', 'availableDates'));
+        foreach ($flights as $flight) {
+            // У ППО всі вильоти вважаються бойовими за замовчуванням
+            $combatFlights++;
+
+            // Дрони (якщо результат втрата)
+            if ($flight->result === 'loss') {
+                $droneName = $flight->drone ? $flight->drone->name : 'Unknown';
+                $spendingDrones[$droneName] = ($spendingDrones[$droneName] ?? 0) + 1;
+            }
+
+            // БК
+            foreach ($flight->ammunition as $ammo) {
+                $name = $ammo->name;
+                $qty = $ammo->pivot->quantity;
+                $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
+            }
+
+            // Координати для бойових вильотів (у ППО вони всі бойові)
+            if (!empty($flight->coordinates)) {
+                $strikeCoordinates[] = $flight->coordinates;
+            }
+        }
+
+        $strikeCoordinates = array_unique($strikeCoordinates);
+
+        return view('admin.air_defence.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones',
+            'strikeCoordinates', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function spendingReport(int $id, \Illuminate\Http\Request $request)

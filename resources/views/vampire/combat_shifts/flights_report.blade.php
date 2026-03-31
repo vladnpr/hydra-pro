@@ -25,21 +25,14 @@
             <div class="card">
                 <div class="card-body">
                     <form action="{{ route('vampire.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
-                        <label for="date" class="mr-2">Оберіть дату:</label>
-                        <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
-                            @php
-                                $dates = array_keys($shift->vampire_flights);
-                                if ($date && !in_array($date, $dates)) {
-                                    $dates[] = $date;
-                                }
-                                rsort($dates);
-                            @endphp
-                            @foreach($dates as $flightDate)
-                                <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="form-group mr-2">
+                            <label for="from" class="mr-2">З:</label>
+                            <input type="datetime-local" name="from" id="from" class="form-control" value="{{ $from }}">
+                        </div>
+                        <div class="form-group mr-2">
+                            <label for="to" class="mr-2">По:</label>
+                            <input type="datetime-local" name="to" id="to" class="form-control" value="{{ $to }}">
+                        </div>
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>
@@ -48,7 +41,7 @@
     </div>
 
     <div class="row">
-        <div class="col-md-8 offset-md-2">
+        <div class="col-md-12">
             <div class="card card-primary card-outline card-tabs">
                 <div class="card-header p-0 pt-1 border-bottom-0 no-print">
                     <ul class="nav nav-tabs" id="reportTabs" role="tablist">
@@ -58,12 +51,19 @@
                         <li class="nav-item">
                             <a class="nav-link" id="list-report-tab" data-toggle="pill" href="#list-report" role="tab" aria-controls="list-report" aria-selected="false">Список</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="spending-tab" data-toggle="pill" href="#spending-content" role="tab" aria-controls="spending-content" aria-selected="false">Звіт по витратам</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="remains-tab" data-toggle="pill" href="#remains-content" role="tab" aria-controls="remains-content" aria-selected="false">Звіт по залишку</a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body">
                     <div class="tab-content" id="reportTabsContent">
+                        <!-- Стандартний звіт Vampire -->
                         <div class="tab-pane fade show active p-4" id="standard-report" role="tabpanel" aria-labelledby="standard-report-tab">
-                            <div id="report-content-standard">
+                            <div id="report-content-standard" class="report-printable-area">
                                 @php
                                     $dronesOnShift = collect($shift->vampire_flights)->flatten(1)->groupBy('drone_id');
                                 @endphp
@@ -113,8 +113,10 @@
                                 @endforeach
                             </div>
                         </div>
+
+                        <!-- Список Vampire -->
                         <div class="tab-pane fade p-4" id="list-report" role="tabpanel" aria-labelledby="list-report-tab">
-                            <div id="report-content-list">
+                            <div id="report-content-list" class="report-printable-area">
                                 @foreach($allFlightsSorted as $flight)
                                     @if($flight['position_name'] && $flight['position_name'] !== '-')
                                         <p class="m-0">Ціль: {{ $flight['position_name'] }}</p>
@@ -127,41 +129,103 @@
                                     <p class="m-0">Дрон: {{ $flight['drone_name'] }} - {{ $flight['drone_serial'] ?? 'N/A' }}</p>
                                     <p class="m-0">Місія: {{ $flight['mission_type_label'] }}</p>
                                     <p class="m-0">Результат: {{ $flight['result_label'] }}</p>
-                                    <p class="@if(empty($flight['video_path'])) mb-3 flight-end @else m-0  @endif">Коментар: {{ $flight['comment'] ?: '-' }}</p>
-                                    @if(!empty($flight['video_path']))
-                                        <div class="mb-3 flight-end no-print">
-                                            <div class="btn-group">
-                                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#videoModal{{ $flight['id'] }}" title="Переглянути">
-                                                    <i class="fas fa-video"></i> Переглянути
-                                                </button>
-                                                <a href="{{ route('vampire.flights.download', $flight['id']) }}" class="btn btn-xs btn-success ml-1" title="Скачати">
-                                                    <i class="fas fa-download"></i> Скачати відео
-                                                </a>
-                                            </div>
-
-                                            <div class="modal fade" id="videoModal{{ $flight['id'] }}" tabindex="-1" role="dialog" aria-hidden="true">
-                                                <div class="modal-dialog modal-lg" role="document">
-                                                    <div class="modal-content">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Відео польоту #{{ $flight['id'] }}</h5>
-                                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                                                <span aria-hidden="true">&times;</span>
-                                                            </button>
-                                                        </div>
-                                                        <div class="modal-body text-center bg-black">
-                                                            <video width="100%" controls>
-                                                                <source src="{{ Storage::url($flight['video_path']) }}" type="video/mp4">
-                                                                Ваш браузер не підтримує відео.
-                                                            </video>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    @endif
+                                    <p class="mb-3 flight-end">Коментар: {{ $flight['comment'] ?: '-' }}</p>
                                 @endforeach
                             </div>
                         </div>
+
+                        <!-- Вкладка Витрати -->
+                        <div class="tab-pane fade p-4" id="spending-content" role="tabpanel" aria-labelledby="spending-tab">
+                            <div id="report-content-spending" class="report-printable-area p-5">
+                                <div class="report-header mb-4">
+                                    <h4 class="mb-3">Звіт по витратах (Vampire): {{ $shift->position_name }}</h4>
+                                    <p>Період: {{ \Carbon\Carbon::parse($from)->format('d.m.y H:i') }} - {{ \Carbon\Carbon::parse($to)->format('d.m.y H:i') }}</p>
+                                </div>
+
+                                <div class="spending-section">
+                                    <h5 class="font-weight-bold mb-3">Статистика вильотів:</h5>
+                                    <ul class="list-unstyled pl-0 mb-4">
+                                        <li class="mb-1">Всього вильотів: {{ $totalFlights }}</li>
+                                        <li class="mb-1">Бойових: {{ $combatFlights }}</li>
+                                        <li class="mb-1">Логістика: {{ $logisticsFlights }}</li>
+                                    </ul>
+
+                                    <h5 class="font-weight-bold mb-3">Витрачено БК:</h5>
+                                    <ul class="list-unstyled pl-0 mb-4">
+                                        @forelse($spendingAmmunition as $name => $qty)
+                                            <li class="mb-1">{{ $name }} - {{ $qty }} шт</li>
+                                        @empty
+                                            <li>Витрат БК не зафіксовано</li>
+                                        @endforelse
+                                    </ul>
+
+                                    <h5 class="font-weight-bold mb-3">Втрачено Дронів:</h5>
+                                    <ul class="list-unstyled pl-0">
+                                        @forelse($lostDrones as $drone)
+                                            <li class="mb-1">{{ $drone['name'] }} ({{ $drone['serial'] }}) - втрачено о {{ $drone['lost_at'] }}</li>
+                                        @empty
+                                            <li>Втрат дронів не зафіксовано за цей період</li>
+                                        @endforelse
+                                    </ul>
+
+                                    @if(!empty($strikeCoordinates))
+                                        <h5 class="font-weight-bold mb-3 mt-4">Координати ураження/патрулювання:</h5>
+                                        <ul class="list-unstyled pl-0">
+                                            @foreach($strikeCoordinates as $coord)
+                                                <li class="mb-1">{{ $coord }}</li>
+                                            @endforeach
+                                        </ul>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Вкладка Залишки -->
+                        <div class="tab-pane fade p-4" id="remains-content" role="tabpanel" aria-labelledby="remains-tab">
+                            <div id="report-content-remains" class="report-printable-area p-5">
+                                <div class="report-header mb-4">
+                                    <h4 class="mb-3">Поточні залишки: {{ $shift->position_name }}</h4>
+                                </div>
+
+                                <div class="crew-section mb-4">
+                                    <p class="font-weight-bold mb-2">Екіпаж:</p>
+                                    @foreach($shift->crew as $index => $member)
+                                        <p class="mb-1">{{ $index + 1 }}. {{ $member['callsign'] }}</p>
+                                    @endforeach
+                                </div>
+
+                                <div class="remains-section">
+                                    <h5 class="font-weight-bold mb-3">В наявності</h5>
+
+                                    <div class="drones-block mb-4">
+                                        <p class="font-weight-bold mb-2">Дрони:</p>
+                                        <ul class="list-unstyled pl-0">
+                                            @forelse($shift->vampire_drones as $drone)
+                                                @if($drone['status'] === 'active')
+                                                    <li class="mb-1">{{ $drone['name'] }} ({{ $drone['serial_number'] }})</li>
+                                                @endif
+                                            @empty
+                                                <li>Активні дрони відсутні</li>
+                                            @endforelse
+                                        </ul>
+                                    </div>
+
+                                    <div class="ammunition-block">
+                                        <p class="font-weight-bold mb-2">БК:</p>
+                                        <ul class="list-unstyled pl-0">
+                                            @forelse($shift->ammunition as $item)
+                                                @if($item['quantity'] > 0)
+                                                    <li class="mb-1">{{ $item['name'] }} - {{ $item['quantity'] }} шт</li>
+                                                @endif
+                                            @empty
+                                                <li>БК відсутнє</li>
+                                            @endforelse
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -192,17 +256,28 @@
             }
 
             $('#copy-report').click(function() {
+                const activeTab = $('.nav-link.active').attr('href');
                 let reportText = '';
-                let activeTab = $('.nav-tabs .nav-link.active').attr('href');
-                let contentId = activeTab === '#standard-report' ? '#report-content-standard' : '#report-content-list';
 
-                // Збираємо текст з активного контейнера
-                $(contentId + ' p').each(function() {
-                    reportText += $(this).text().trim() + '\n';
-                    if ($(this).hasClass('flight-end')) {
-                        reportText += '\n';
-                    }
-                });
+                if (activeTab === '#standard-report' || activeTab === '#list-report') {
+                    let contentId = activeTab === '#standard-report' ? '#report-content-standard' : '#report-content-list';
+                    // Збираємо текст з активного контейнера
+                    $(contentId + ' p').each(function() {
+                        reportText += $(this).text().trim() + '\n';
+                        if ($(this).hasClass('flight-end')) {
+                            reportText += '\n';
+                        }
+                    });
+                } else if (activeTab === '#spending-content') {
+                    reportText = $('#report-content-spending').text().trim();
+                } else if (activeTab === '#remains-content') {
+                    reportText = $('#report-content-remains').text().trim();
+                }
+
+                if (!reportText || reportText.trim() === '') {
+                    // Запасний варіант
+                    reportText = $('.tab-pane.active').text().trim();
+                }
 
                 if (!reportText || reportText.trim() === '') {
                     alert('Немає даних для копіювання');
@@ -234,25 +309,33 @@
 
 @section('css')
 <style>
-    #report-content-standard, #report-content-list {
+    .report-printable-area {
         font-family: "Courier New", Courier, monospace;
         font-size: 1.1rem;
         line-height: 1.2;
     }
     .bg-black { background-color: #000; }
     @media print {
-        .no-print {
+        .no-print, .nav-tabs {
             display: none !important;
         }
         .content-wrapper {
             background: white !important;
+            margin-left: 0 !important;
         }
         .card {
             border: none !important;
             box-shadow: none !important;
         }
-        #report-content-standard, #report-content-list {
+        .report-printable-area {
             color: #000 !important;
+            display: block !important;
+        }
+        .tab-pane {
+            display: none !important;
+        }
+        .tab-pane.active {
+            display: block !important;
         }
     }
 </style>
