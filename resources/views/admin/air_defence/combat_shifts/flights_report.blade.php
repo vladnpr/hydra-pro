@@ -98,6 +98,13 @@
                                         </div>
 
                                         <div class="spending-section">
+                                            <h5 class="font-weight-bold mb-3">Статистика вильотів:</h5>
+                                            <ul class="list-unstyled pl-0 mb-4">
+                                                <li class="mb-1">Всього вильотів: {{ $totalFlights }}</li>
+                                                <li class="mb-1">Бойових: {{ $combatFlights }}</li>
+                                                <li class="mb-1">Логістика: {{ $logisticsFlights }}</li>
+                                            </ul>
+
                                             <h5 class="font-weight-bold mb-3">Витрачено БК:</h5>
                                             <ul class="list-unstyled pl-0 mb-4">
                                                 @forelse($spendingAmmunition as $name => $qty)
@@ -115,6 +122,15 @@
                                                     <li>Втрат дронів не зафіксовано</li>
                                                 @endforelse
                                             </ul>
+
+                                            @if(!empty($strikeCoordinates))
+                                                <h5 class="font-weight-bold mb-3 mt-4">Координати ураження/патрулювання:</h5>
+                                                <ul class="list-unstyled pl-0">
+                                                    @foreach($strikeCoordinates as $coord)
+                                                        <li class="mb-1">{{ $coord }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>

@@ -208,7 +208,19 @@ class ReconCombatShiftsController extends Controller
 
         // Розрахунок витрат
         $spendingAmmunition = [];
+        $strikeCoordinates = [];
+        $totalFlights = $filteredFlights->count();
+        $combatFlights = 0;
+        $logisticsFlights = 0;
+
         foreach ($filteredFlights as $flight) {
+            $mission = $flight['mission_type'] ?? '';
+            if (in_array($mission, ['combat', 'patrol'])) {
+                $combatFlights++;
+            } elseif ($mission === 'logistics') {
+                $logisticsFlights++;
+            }
+
             if (!empty($flight['ammunition'])) {
                 foreach ($flight['ammunition'] as $ammo) {
                     $name = $ammo['name'];
@@ -216,7 +228,14 @@ class ReconCombatShiftsController extends Controller
                     $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
                 }
             }
+
+            // Координати для ударних вильотів та патрулів
+            if (in_array(($flight['mission_type'] ?? ''), ['combat', 'patrol']) && !empty($flight['coordinates'])) {
+                $strikeCoordinates[] = $flight['coordinates'];
+            }
         }
+
+        $strikeCoordinates = array_unique($strikeCoordinates);
 
         $lostDrones = \App\Models\ReconDrone::where('position_id', $shift->position_id)
             ->where('status', 'lost')
@@ -228,7 +247,10 @@ class ReconCombatShiftsController extends Controller
                 'lost_at' => $d->updated_at ? $d->updated_at->format('d.m.y H:i') : '-'
             ])->toArray();
 
-        return view('recon.combat_shifts.flights_report', compact('shift', 'from', 'to', 'dayFlights', 'nightFlights', 'spendingAmmunition', 'lostDrones'));
+        return view('recon.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'dayFlights', 'nightFlights', 'spendingAmmunition',
+            'lostDrones', 'strikeCoordinates', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)

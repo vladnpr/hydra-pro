@@ -209,7 +209,19 @@ class VampireCombatShiftController extends Controller
 
         // Розрахунок витрат
         $spendingAmmunition = [];
+        $strikeCoordinates = [];
+        $totalFlights = $filteredFlights->count();
+        $combatFlights = 0;
+        $logisticsFlights = 0;
+
         foreach ($filteredFlights as $flight) {
+            $mission = $flight['mission_type'] ?? '';
+            if (in_array($mission, ['combat', 'patrol'])) {
+                $combatFlights++;
+            } elseif ($mission === 'logistics') {
+                $logisticsFlights++;
+            }
+
             if (!empty($flight['ammunition'])) {
                 foreach ($flight['ammunition'] as $ammo) {
                     $name = $ammo['name'];
@@ -217,7 +229,14 @@ class VampireCombatShiftController extends Controller
                     $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
                 }
             }
+
+            // Координати для ударних вильотів та патрулів
+            if (in_array(($flight['mission_type'] ?? ''), ['combat', 'patrol']) && !empty($flight['coordinates'])) {
+                $strikeCoordinates[] = $flight['coordinates'];
+            }
         }
+
+        $strikeCoordinates = array_unique($strikeCoordinates);
 
         $lostDrones = \App\Models\VampireDrone::where('position_id', $shift->position_id)
             ->where('status', 'lost')
@@ -229,7 +248,10 @@ class VampireCombatShiftController extends Controller
                 'lost_at' => $d->updated_at ? $d->updated_at->format('d.m.y H:i') : '-'
             ])->toArray();
 
-        return view('vampire.combat_shifts.flights_report', compact('shift', 'from', 'to', 'workedFlights', 'notWorkedFlights', 'allFlightsSorted', 'spendingAmmunition', 'lostDrones'));
+        return view('vampire.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'workedFlights', 'notWorkedFlights', 'allFlightsSorted',
+            'spendingAmmunition', 'lostDrones', 'strikeCoordinates', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function report(int $id, \Illuminate\Http\Request $request)

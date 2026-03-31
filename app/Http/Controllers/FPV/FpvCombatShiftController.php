@@ -136,7 +136,19 @@ class FpvCombatShiftController extends Controller
         // Розрахунок витрат
         $spendingAmmunition = [];
         $spendingDrones = [];
+        $strikeCoordinates = [];
+        $totalFlights = count($flights);
+        $combatFlights = 0;
+        $logisticsFlights = 0;
+
         foreach ($flights as $flight) {
+            $mission = $flight['mission'] ?? '';
+            if (in_array($mission, ['strike', 'patrol'])) {
+                $combatFlights++;
+            } elseif ($mission === 'logistics') {
+                $logisticsFlights++;
+            }
+
             // Дрони (вважаємо витраченими, якщо результат "втрата борту")
             if (($flight['result'] ?? '') === 'втрата борту' || ($flight['result'] ?? '') === 'відпрацювали (витрата борту)') {
                 $droneName = ($flight['drone_name'] ?? '') . ' ' . ($flight['drone_model'] ?? '');
@@ -148,13 +160,23 @@ class FpvCombatShiftController extends Controller
                 $ammoName = $flight['ammunition_name'];
                 $spendingAmmunition[$ammoName] = ($spendingAmmunition[$ammoName] ?? 0) + 1;
             }
+
+            // Координати для ударних вильотів та патрулів
+            if (in_array(($flight['mission'] ?? ''), ['strike', 'patrol']) && !empty($flight['coordinates'])) {
+                $strikeCoordinates[] = $flight['coordinates'];
+            }
         }
+
+        $strikeCoordinates = array_unique($strikeCoordinates);
 
         // Номер дня для звіту по залишкам
         $shiftDate = \Carbon\Carbon::parse($shift->started_at);
         $dayNumber = (int) $shiftDate->diffInDays(\Carbon\Carbon::now()) + 1;
 
-        return view('admin.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones', 'dayNumber'));
+        return view('admin.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones',
+            'strikeCoordinates', 'dayNumber', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function activeFlightsReport(\Illuminate\Http\Request $request)

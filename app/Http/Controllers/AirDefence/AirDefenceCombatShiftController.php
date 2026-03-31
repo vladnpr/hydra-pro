@@ -187,7 +187,15 @@ class AirDefenceCombatShiftController extends Controller
         // Розрахунок витрат
         $spendingAmmunition = [];
         $spendingDrones = [];
+        $strikeCoordinates = [];
+        $totalFlights = $flights->count();
+        $combatFlights = 0;
+        $logisticsFlights = 0;
+
         foreach ($flights as $flight) {
+            // У ППО всі вильоти вважаються бойовими за замовчуванням
+            $combatFlights++;
+
             // Дрони (якщо результат втрата)
             if ($flight->result === 'loss') {
                 $droneName = $flight->drone ? $flight->drone->name : 'Unknown';
@@ -200,9 +208,19 @@ class AirDefenceCombatShiftController extends Controller
                 $qty = $ammo->pivot->quantity;
                 $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
             }
+
+            // Координати для бойових вильотів (у ППО вони всі бойові)
+            if (!empty($flight->coordinates)) {
+                $strikeCoordinates[] = $flight->coordinates;
+            }
         }
 
-        return view('admin.air_defence.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones'));
+        $strikeCoordinates = array_unique($strikeCoordinates);
+
+        return view('admin.air_defence.combat_shifts.flights_report', compact(
+            'shift', 'from', 'to', 'flights', 'spendingAmmunition', 'spendingDrones',
+            'strikeCoordinates', 'totalFlights', 'combatFlights', 'logisticsFlights'
+        ));
     }
 
     public function spendingReport(int $id, \Illuminate\Http\Request $request)
