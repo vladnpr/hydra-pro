@@ -22,6 +22,8 @@ use App\Services\CombatShiftsAdminService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ServiceProvider;
 use JeroenNoten\LaravelAdminLte\Events\BuildingMenu;
+use JeroenNoten\LaravelAdminLte\Events\DarkModeWasToggled;
+use JeroenNoten\LaravelAdminLte\Events\ReadingDarkModePreference;
 use Illuminate\Contracts\Events\Dispatcher;
 
 class AppServiceProvider extends ServiceProvider
@@ -45,6 +47,27 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(Dispatcher $events): void
     {
+        $events->listen(ReadingDarkModePreference::class, function (ReadingDarkModePreference $event) {
+            if (Auth::check()) {
+                $darkMode = Auth::user()->dark_mode;
+
+                if ($darkMode) {
+                    $event->darkMode->enable();
+                } else {
+                    $event->darkMode->disable();
+                }
+            }
+        });
+
+        $events->listen(DarkModeWasToggled::class, function (DarkModeWasToggled $event) {
+            if (Auth::check()) {
+                /** @var User $user */
+                $user = Auth::user();
+                $user->dark_mode = $event->darkMode->isEnabled();
+                $user->save();
+            }
+        });
+
         $events->listen(BuildingMenu::class, function (BuildingMenu $event) {
             $event->menu->add([
                 'type' => 'darkmode-widget',
