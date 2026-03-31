@@ -25,33 +25,14 @@
             <div class="card">
                 <div class="card-body">
                     <form action="{{ route('recon.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
-                        <label for="date" class="mr-2">Оберіть дату:</label>
-                        <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
-                            @php
-                                $dates = array_keys($shift->recon_flights);
-                                if (!in_array($date, $dates)) {
-                                    $dates[] = $date;
-                                }
-                                rsort($dates);
-                            @endphp
-                            @foreach($dates as $flightDate)
-                                <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
-                                </option>
-                            @endforeach
-                        </select>
-
-                        <div class="btn-group btn-group-toggle mr-3" data-toggle="buttons">
-                            <label class="btn btn-outline-warning {{ $activeShiftType === 'day' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="day" {{ $activeShiftType === 'day' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-sun"></i> Денна
-                            </label>
-                            <label class="btn btn-outline-secondary {{ $activeShiftType === 'night' ? 'active' : '' }}">
-                                <input type="radio" name="shift_type" value="night" {{ $activeShiftType === 'night' ? 'checked' : '' }} onchange="this.form.submit()">
-                                <i class="fas fa-moon"></i> Нічна
-                            </label>
+                        <div class="form-group mr-2">
+                            <label for="from" class="mr-2">З:</label>
+                            <input type="datetime-local" name="from" id="from" class="form-control" value="{{ $from }}">
                         </div>
-
+                        <div class="form-group mr-2">
+                            <label for="to" class="mr-2">По:</label>
+                            <input type="datetime-local" name="to" id="to" class="form-control" value="{{ $to }}">
+                        </div>
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>
@@ -63,16 +44,14 @@
         <div class="col-md-8 offset-md-2">
             <div class="card">
                 <div class="card-body p-5" id="report-content">
-                    <h3 class="text-center mb-4">Звіт по польотам розвідки ({{ \Carbon\Carbon::parse($date)->format('d.m.Y') }})</h3>
-                    @if($activeShiftType === 'night')
-                        <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
-                            (Включає польоти з 20:00 {{ \Carbon\Carbon::parse($date)->format('d.m') }} до 08:00 {{ \Carbon\Carbon::parse($date)->addDay()->format('d.m') }})
-                        </p>
-                    @endif
+                    <h3 class="text-center mb-4">Звіт по польотам розвідки</h3>
+                    <p class="text-center text-muted no-copy" style="margin-top: -1.5rem; margin-bottom: 2rem;">
+                        (Період: {{ \Carbon\Carbon::parse($from)->format('d.m.Y H:i') }} - {{ \Carbon\Carbon::parse($to)->format('d.m.Y H:i') }})
+                    </p>
 
-                    @if($activeShiftType === 'day')
+                    @if(count($dayFlights) > 0)
                         <h4 class="border-bottom pb-2 mb-3"><i class="fas fa-sun text-warning"></i> Денна зміна</h4>
-                        @forelse($dayFlights as $flight)
+                        @foreach($dayFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
                                 <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
                                 <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
@@ -117,14 +96,12 @@
                                     </div>
                                 @endif
                             </div>
-                        @empty
-                            <p class="text-muted">Денних польотів не знайдено.</p>
-                        @endforelse
+                        @endforeach
                     @endif
 
-                    @if($activeShiftType === 'night')
+                    @if(count($nightFlights) > 0)
                         <h4 class="border-bottom pb-2 mb-3 mt-4"><i class="fas fa-moon text-secondary"></i> Нічна зміна</h4>
-                        @forelse($nightFlights as $flight)
+                        @foreach($nightFlights as $flight)
                             <div class="flight-report-item mb-4" style="page-break-inside: avoid;">
                                 <p class="m-0 font-weight-bold">{{ $flight['mission_type'] === 'delivery' ? $flight['target_name'] : $flight['coordinates'] }}</p>
                                 <p class="m-0">Час вильоту: {{ \Carbon\Carbon::parse($flight['flight_time'])->format('d.m.y H:i') }}
@@ -169,9 +146,13 @@
                                     </div>
                                 @endif
                             </div>
-                        @empty
-                            <p class="text-muted">Нічних польотів не знайдено.</p>
-                        @endforelse
+                        @endforeach
+                    @endif
+
+                    @if(count($dayFlights) == 0 && count($nightFlights) == 0)
+                        <div class="text-center py-5">
+                            <p class="text-muted">За обраний період вильотів не знайдено.</p>
+                        </div>
                     @endif
                 </div>
             </div>

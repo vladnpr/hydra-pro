@@ -25,21 +25,14 @@
             <div class="card">
                 <div class="card-body">
                     <form action="{{ route('vampire.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
-                        <label for="date" class="mr-2">Оберіть дату:</label>
-                        <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
-                            @php
-                                $dates = array_keys($shift->vampire_flights);
-                                if ($date && !in_array($date, $dates)) {
-                                    $dates[] = $date;
-                                }
-                                rsort($dates);
-                            @endphp
-                            @foreach($dates as $flightDate)
-                                <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
-                                </option>
-                            @endforeach
-                        </select>
+                        <div class="form-group mr-2">
+                            <label for="from" class="mr-2">З:</label>
+                            <input type="datetime-local" name="from" id="from" class="form-control" value="{{ $from }}">
+                        </div>
+                        <div class="form-group mr-2">
+                            <label for="to" class="mr-2">По:</label>
+                            <input type="datetime-local" name="to" id="to" class="form-control" value="{{ $to }}">
+                        </div>
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>

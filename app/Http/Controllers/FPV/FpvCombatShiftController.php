@@ -109,12 +109,31 @@ class FpvCombatShiftController extends Controller
     public function flightsReport(int $id, \Illuminate\Http\Request $request)
     {
         $shift = $this->combatShiftsAdminService->getShiftById($id);
-        $date = $request->query('date', now()->format('Y-m-d'));
 
-        // Отримуємо польоти за обрану дату
-        $flights = $shift->flights[$date] ?? [];
+        $from = $request->query('from');
+        $to = $request->query('to');
 
-        return view('admin.combat_shifts.flights_report', compact('shift', 'date', 'flights'));
+        if (!$from || !$to) {
+            [$from, $to] = $this->combatShiftsAdminService->getDefaultReportRange();
+        }
+
+        $fromDate = \Carbon\Carbon::parse($from);
+        $toDate = \Carbon\Carbon::parse($to);
+
+        // Отримуємо всі польоти та фільтруємо за діапазоном
+        $allFlights = [];
+        foreach ($shift->flights as $dateFlights) {
+            foreach ($dateFlights as $flight) {
+                $allFlights[] = $flight;
+            }
+        }
+
+        $flights = collect($allFlights)->filter(function ($flight) use ($fromDate, $toDate) {
+            $flightTime = \Carbon\Carbon::parse($flight['flight_time']);
+            return $flightTime->between($fromDate, $toDate);
+        })->sortByDesc('flight_time')->values()->all();
+
+        return view('admin.combat_shifts.flights_report', compact('shift', 'from', 'to', 'flights'));
     }
 
     public function activeFlightsReport(\Illuminate\Http\Request $request)

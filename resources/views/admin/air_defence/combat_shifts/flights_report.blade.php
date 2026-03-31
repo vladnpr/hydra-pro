@@ -25,16 +25,14 @@
             <div class="card">
                 <div class="card-body">
                     <form action="{{ route('air-defence.combat_shifts.flights_report', $shift->id) }}" method="GET" class="form-inline">
-                        <label for="date" class="mr-2">Оберіть дату:</label>
-                        <select name="date" id="date" class="form-control mr-3" onchange="this.form.submit()">
-                            @forelse($availableDates as $flightDate)
-                                <option value="{{ $flightDate }}" {{ $date == $flightDate ? 'selected' : '' }}>
-                                    {{ \Carbon\Carbon::parse($flightDate)->format('d.m.Y') }}
-                                </option>
-                            @empty
-                                <option value="">Немає вильотів</option>
-                            @endforelse
-                        </select>
+                        <div class="form-group mr-2">
+                            <label for="from" class="mr-2">З:</label>
+                            <input type="datetime-local" name="from" id="from" class="form-control" value="{{ $from }}">
+                        </div>
+                        <div class="form-group mr-2">
+                            <label for="to" class="mr-2">По:</label>
+                            <input type="datetime-local" name="to" id="to" class="form-control" value="{{ $to }}">
+                        </div>
                         <button type="submit" class="btn btn-primary">Переглянути</button>
                     </form>
                 </div>
@@ -47,7 +45,8 @@
             <div class="card card-primary card-outline">
                 <div class="card-body p-4">
                     <div id="report-content">
-                        @foreach($flights as $flight)
+                        <p class="text-center mb-4">Період: {{ \Carbon\Carbon::parse($from)->format('d.m.Y H:i') }} - {{ \Carbon\Carbon::parse($to)->format('d.m.Y H:i') }}</p>
+                        @forelse($flights as $flight)
                             @if($flight->coordinates)
                                 <p class="m-0">Координати: <span class="font-weight-bold">{{ $flight->coordinates }}</span></p>
                             @endif
@@ -90,7 +89,11 @@
                                     </div>
                                 </div>
                             @endif
-                        @endforeach
+                        @empty
+                            <div class="text-center py-5">
+                                <p class="text-muted">За обраний період вильотів не знайдено.</p>
+                            </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
