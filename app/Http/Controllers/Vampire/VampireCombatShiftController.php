@@ -204,7 +204,8 @@ class VampireCombatShiftController extends Controller
         })->sortByDesc('start_time');
 
         $workedFlights = $filteredFlights->filter(fn($f) => $f['result'] === 'worked')->values()->all();
-        $notWorkedFlights = $filteredFlights->filter(fn($f) => $f['result'] !== 'worked')->values()->all();
+        $notWorkedFlights = $filteredFlights->filter(fn($f) => $f['result'] === 'not_worked')->values()->all();
+        $lostFlights = $filteredFlights->filter(fn($f) => $f['result'] === 'loss')->values()->all();
         $allFlightsSorted = $filteredFlights->values()->all();
 
         // Розрахунок витрат
@@ -249,7 +250,7 @@ class VampireCombatShiftController extends Controller
             ])->toArray();
 
         return view('vampire.combat_shifts.flights_report', compact(
-            'shift', 'from', 'to', 'workedFlights', 'notWorkedFlights', 'allFlightsSorted',
+            'shift', 'from', 'to', 'workedFlights', 'notWorkedFlights', 'lostFlights', 'allFlightsSorted',
             'spendingAmmunition', 'lostDrones', 'strikeCoordinates', 'totalFlights', 'combatFlights', 'logisticsFlights'
         ));
     }

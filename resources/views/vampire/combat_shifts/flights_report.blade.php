@@ -107,6 +107,19 @@
                                     <p class="mb-3 flight-end">{{ $flight['comment'] ?: '-' }}</p>
                                 @endforeach
 
+                                @if(!empty($lostFlights))
+                                    <p class="font-weight-bold text-danger">Втрати:</p>
+                                    @php $k = 1; @endphp
+                                    @foreach($lostFlights as $flight)
+                                        <p class="m-0 text-danger">{{ $k++ }}) {{ $flight['position_name'] }} ({{ $flight['mission_type_label'] }})</p>
+                                        <p class="m-0 text-danger">Час: {{ \Carbon\Carbon::parse($flight['start_time'])->format('H:i') }} - {{ $flight['end_time'] ? \Carbon\Carbon::parse($flight['end_time'])->format('H:i') : '...' }}</p>
+                                        @if($flight['coordinates'] && $flight['coordinates'] !== '-')
+                                            <p class="m-0 text-danger">{{ $flight['coordinates'] }}</p>
+                                        @endif
+                                        <p class="mb-3 flight-end text-danger">{{ $flight['comment'] ?: '-' }}</p>
+                                    @endforeach
+                                @endif
+
                                 <p class="font-weight-bold mt-4">Екіпаж:</p>
                                 @foreach($shift->crew as $member)
                                     <p class="m-0">{{ $member['callsign'] }}</p>
