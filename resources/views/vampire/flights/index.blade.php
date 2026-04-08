@@ -327,8 +327,10 @@
                                             <td>
                                                 @if($flight->result === 'worked')
                                                     <span class="badge badge-success">відпрацювали</span>
+                                                @elseif($flight->result === 'not_worked')
+                                                    <span class="badge badge-warning">не відпрацювали</span>
                                                 @else
-                                                    <span class="badge badge-danger">втрата</span>
+                                                    <span class="badge badge-danger">втрата борту</span>
                                                 @endif
                                             </td>
                                             <td>{{ $flight->comment }}</td>
