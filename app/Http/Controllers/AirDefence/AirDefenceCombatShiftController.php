@@ -203,10 +203,9 @@ class AirDefenceCombatShiftController extends Controller
             }
 
             // БК
-            foreach ($flight->ammunition as $ammo) {
-                $name = $ammo->name;
-                $qty = $ammo->pivot->quantity;
-                $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + $qty;
+            if ($flight->ammunition) {
+                $name = $flight->ammunition->name;
+                $spendingAmmunition[$name] = ($spendingAmmunition[$name] ?? 0) + 1;
             }
 
             // Координати для бойових вильотів (у ППО вони всі бойові)
