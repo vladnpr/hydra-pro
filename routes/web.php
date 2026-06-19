@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\DutyReportController;
 use App\Http\Controllers\FPV\FpvDronesController;
 use App\Http\Controllers\FPV\FpvAmmunitionController;
 use App\Http\Controllers\PositionsController;
@@ -136,6 +137,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
 
     Route::group(['middleware' => 'can:view-reports'], function () {
         Route::get('combat-shifts-active-reports', [FpvCombatShiftController::class, 'activeShiftsReports'])->name('combat_shifts.active_reports');
+        Route::get('duty-report', [DutyReportController::class, 'index'])->name('duty_report');
         Route::get('combat_shifts/{shiftId}/spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'spendFPVReport'])->name('combat_shifts.spending_fpv_report')->where('shiftId', '[0-9]+');
         Route::get('combat_shifts/{id}/report', [FpvCombatShiftController::class, 'report'])->name('combat_shifts.report')->where('id', '[0-9]+');
         Route::get('combat_shifts/{id}/flights-report', [FpvCombatShiftController::class, 'flightsReport'])->name('combat_shifts.flights_report')->where('id', '[0-9]+');

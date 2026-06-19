@@ -523,6 +523,12 @@ return [
                     'url' => 'admin/combat-shifts-active-reports',
                     'can' => 'view-reports',
                 ],
+                [
+                    'text' => 'Черговому',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                    'url' => 'admin/duty-report',
+                    'can' => 'view-reports',
+                ],
             ],
         ],
         [
