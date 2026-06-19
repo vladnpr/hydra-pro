@@ -20,10 +20,9 @@ class DutyReportService
         $activePositons = $this->positionRepository->getActive();
 
         foreach ($activePositons as $activePositon) {
-            if ($activePositon->type === PositionTypesEnum::FPV) {
-                $reportData = $this->dutyReportRepository->fpvInventoryData();
+            if ($activePositon->type === PositionTypesEnum::FPV->value) {
+                $inventoryData = $this->dutyReportRepository->fpvInventoryData($activePositon->id);
             }
-            dd($activePositon);
         }
 
         return [];
