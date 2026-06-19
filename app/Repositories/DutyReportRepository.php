@@ -6,6 +6,10 @@ use App\Models\CombatShift;
 
 class DutyReportRepository
 {
+    /**
+     * @param int $positionID
+     * @return mixed
+     */
     public function fpvInventoryData(int $positionID)
     {
         $data = \DB::table('combat_shifts as cs')
@@ -30,5 +34,16 @@ class DutyReportRepository
             $item->ammunition = json_decode($item->ammunition, true);
             return $item;
         });
+    }
+
+    public function fpvFlightsStatsData(int $positionID, string $startDate, string $endDate)
+    {
+        return \DB::table('combat_shifts as cs')
+            ->join('combat_shift_flights as csf', 'csf.combat_shift_id', '=', 'cs.id')
+            ->where('cs.position_id', $positionID)
+            ->whereBetween('csf.flight_time', [$startDate, $endDate])
+            ->select('csf.mission', 'csf.result', \DB::raw('count(*) as count'))
+            ->groupBy('csf.result', 'csf.mission')
+            ->get();
     }
 }
