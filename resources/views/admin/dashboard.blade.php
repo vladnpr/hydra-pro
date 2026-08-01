@@ -790,7 +790,7 @@
                         @can('view-dashboard-stats')
                         <div class="tab-pane fade" id="air-defence-content" role="tabpanel" aria-labelledby="air-defence-tab">
                             <div class="row">
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-4 col-6">
                                     <div class="small-box bg-info">
                                         <div class="inner">
                                             <h3>{{ $airDefenceStats['total_flights'] }}</h3>
@@ -802,7 +802,7 @@
                                         <div class="small-box-footer" style="height: 30px;"></div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-4 col-6">
                                     <div class="small-box bg-success">
                                         <div class="inner">
                                             <h3>{{ $airDefenceStats['total_hits'] }}</h3>
@@ -814,19 +814,7 @@
                                         <div class="small-box-footer" style="height: 30px;"></div>
                                     </div>
                                 </div>
-                                <div class="col-lg-3 col-6">
-                                    <div class="small-box bg-warning">
-                                        <div class="inner">
-                                            <h3>{{ $airDefenceStats['total_misses'] }}</h3>
-                                            <p>Промахи</p>
-                                        </div>
-                                        <div class="icon">
-                                            <i class="fas fa-times"></i>
-                                        </div>
-                                        <div class="small-box-footer" style="height: 30px;"></div>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3 col-6">
+                                <div class="col-lg-4 col-6">
                                     <div class="small-box bg-danger">
                                         <div class="inner">
                                             <h3>{{ $airDefenceStats['total_loosed'] }}</h3>
@@ -881,7 +869,6 @@
                                                         <th>Зміна / Екіпаж</th>
                                                         <th>Всього вильотів</th>
                                                         <th>Влучання</th>
-                                                        <th>Промахи</th>
                                                         <th>Втрати</th>
                                                         <th>Ефективність</th>
                                                     </tr>
@@ -898,7 +885,6 @@
                                                                 </td>
                                                                 <td>{{ $shiftStat['air_defence']['total_flights'] }}</td>
                                                                 <td>{{ $shiftStat['air_defence']['total_hits'] }}</td>
-                                                                <td>{{ $shiftStat['air_defence']['total_misses'] }}</td>
                                                                 <td>{{ $shiftStat['air_defence']['total_loosed'] }}</td>
                                                                 <td>
                                                                     @php
