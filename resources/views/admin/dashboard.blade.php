@@ -815,13 +815,25 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-3 col-6">
-                                    <div class="small-box bg-danger">
+                                    <div class="small-box bg-warning">
                                         <div class="inner">
                                             <h3>{{ $airDefenceStats['total_misses'] }}</h3>
                                             <p>Промахи</p>
                                         </div>
                                         <div class="icon">
                                             <i class="fas fa-times"></i>
+                                        </div>
+                                        <div class="small-box-footer" style="height: 30px;"></div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-3 col-6">
+                                    <div class="small-box bg-danger">
+                                        <div class="inner">
+                                            <h3>{{ $airDefenceStats['total_loosed'] }}</h3>
+                                            <p>Втрата борту</p>
+                                        </div>
+                                        <div class="icon">
+                                            <i class="fas fa-times-circle"></i>
                                         </div>
                                         <div class="small-box-footer" style="height: 30px;"></div>
                                     </div>
@@ -870,6 +882,7 @@
                                                         <th>Всього вильотів</th>
                                                         <th>Влучання</th>
                                                         <th>Промахи</th>
+                                                        <th>Втрати</th>
                                                         <th>Ефективність</th>
                                                     </tr>
                                                 </thead>
@@ -886,6 +899,7 @@
                                                                 <td>{{ $shiftStat['air_defence']['total_flights'] }}</td>
                                                                 <td>{{ $shiftStat['air_defence']['total_hits'] }}</td>
                                                                 <td>{{ $shiftStat['air_defence']['total_misses'] }}</td>
+                                                                <td>{{ $shiftStat['air_defence']['total_loosed'] }}</td>
                                                                 <td>
                                                                     @php
                                                                         $pAirRate = $shiftStat['air_defence']['hit_rate'];
@@ -900,7 +914,7 @@
                                                     @endforeach
                                                     @if(count(array_filter($activeShiftsStats, fn($s) => $s['type'] === 'air_defence' || $s['air_defence']['total_flights'] > 0)) === 0)
                                                         <tr>
-                                                            <td colspan="5" class="text-center">Немає активних змін ППО</td>
+                                                            <td colspan="6" class="text-center">Немає активних змін ППО</td>
                                                         </tr>
                                                     @endif
                                                 </tbody>

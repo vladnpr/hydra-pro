@@ -361,9 +361,10 @@ readonly class CombatShiftsAdminService
         $totalFlights = $flights->count();
         $hits = $flights->where('result', 'влучання')->count();
         $misses = $flights->where('result', 'промах')->count();
+        $loosed = $flights->where('result', 'втрата борта')->count();
 
-        // Ефективність влучань: (Влучання) / (Влучання + Промахи)
-        $divisorHit = $hits + $misses;
+        // Ефективність влучань: (Влучання) / (Влучання + Промахи + Втрати борта)
+        $divisorHit = $hits + $misses + $loosed;
         $hitRate = $divisorHit > 0 ? round(($hits / $divisorHit) * 100, 1) : 0;
         $hitRate = min(100, max(0, $hitRate));
 
@@ -371,6 +372,7 @@ readonly class CombatShiftsAdminService
             'total_flights' => $totalFlights,
             'total_hits' => $hits,
             'total_misses' => $misses,
+            'total_loosed' => $loosed,
             'hit_rate' => $hitRate,
             'combat_flights_for_hit' => $divisorHit,
         ];
