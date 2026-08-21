@@ -69,7 +69,55 @@
         $airDefenceActiveStats = $stats['active']['air_defence'];
         $positionsStats = $stats['positions'];
         $activeShiftsStats = $stats['active_shifts'];
+        $currentPeriod = $period ?? request('period');
+        $currentDateFrom = $dateFrom ?? request('date_from', request('from_date', request('date')));
     @endphp
+
+    <div class="row mb-3">
+        <div class="col-12">
+            <div class="card card-outline card-primary mb-0 shadow-sm">
+                <div class="card-body py-2 px-3">
+                    <form method="GET" action="{{ route('home') }}" id="dashboard-filter-form" class="row align-items-center">
+                        <div class="col-12 col-md-auto mb-2 mb-md-0 d-flex align-items-center flex-wrap">
+                            <span class="font-weight-bold text-muted mr-2">
+                                <i class="fas fa-filter mr-1"></i> Період:
+                            </span>
+                            <div class="btn-group">
+                                <a href="{{ route('home') }}" class="btn btn-sm {{ (empty($currentPeriod) || $currentPeriod === 'all') && empty($currentDateFrom) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                    Всі
+                                </a>
+                                <a href="{{ route('home', ['period' => 'day']) }}" class="btn btn-sm {{ in_array($currentPeriod, ['day', 'today', 'день']) && empty($currentDateFrom) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                    День
+                                </a>
+                                <a href="{{ route('home', ['period' => 'week']) }}" class="btn btn-sm {{ in_array($currentPeriod, ['week', 'тиждень']) && empty($currentDateFrom) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                    Тиждень
+                                </a>
+                                <a href="{{ route('home', ['period' => 'month']) }}" class="btn btn-sm {{ in_array($currentPeriod, ['month', 'місяць']) && empty($currentDateFrom) ? 'btn-primary' : 'btn-outline-secondary' }}">
+                                    Місяць
+                                </a>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-auto ml-md-auto d-flex align-items-center flex-wrap">
+                            <div class="input-group input-group-sm mr-2 my-1" style="width: auto;">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text"><i class="fas fa-calendar-alt mr-1"></i> Від дати</span>
+                                </div>
+                                <input type="date" name="date_from" class="form-control" value="{{ $currentDateFrom ?? '' }}">
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm my-1 mr-2">
+                                <i class="fas fa-search mr-1"></i> Застосувати
+                            </button>
+                            @if((!empty($currentPeriod) && $currentPeriod !== 'all') || !empty($currentDateFrom))
+                                <a href="{{ route('home') }}" class="btn btn-outline-danger btn-sm my-1" title="Скинути фільтр">
+                                    <i class="fas fa-times mr-1"></i> Скинути
+                                </a>
+                            @endif
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <div class="row">
         <div class="col-12">
@@ -916,4 +964,19 @@
             </div>
         </div>
     </div>
+@endsection
+
+@section('js')
+<script>
+    $(document).ready(function() {
+        var activeTab = localStorage.getItem('dashboard_active_tab');
+        if (activeTab && $(activeTab).length) {
+            $('#dashboard-tabs a[href="' + activeTab + '"]').tab('show');
+        }
+
+        $('#dashboard-tabs a[data-toggle="pill"]').on('shown.bs.tab', function(e) {
+            localStorage.setItem('dashboard_active_tab', $(e.target).attr('href'));
+        });
+    });
+</script>
 @endsection

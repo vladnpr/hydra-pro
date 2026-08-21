@@ -273,17 +273,69 @@ readonly class CombatShiftsAdminService
         }
     }
 
-    public function getDashboardStats(): array
+    public function resolveDateRange(?string $period = null, ?string $dateFrom = null, ?string $dateTo = null): array
     {
+        $from = null;
+        $to = null;
+
+        if ($dateFrom) {
+            try {
+                $from = \Carbon\Carbon::parse($dateFrom)->startOfDay();
+                $to = $dateTo ? \Carbon\Carbon::parse($dateTo)->endOfDay() : null;
+            } catch (\Exception $e) {
+                $from = null;
+                $to = null;
+            }
+        } elseif ($period) {
+            $periodKey = mb_strtolower(trim($period));
+            switch ($periodKey) {
+                case 'day':
+                case 'today':
+                case 'день':
+                    $from = \Carbon\Carbon::now()->startOfDay();
+                    $to = \Carbon\Carbon::now()->endOfDay();
+                    break;
+                case 'week':
+                case 'тиждень':
+                    $from = \Carbon\Carbon::now()->subDays(7)->startOfDay();
+                    $to = \Carbon\Carbon::now()->endOfDay();
+                    break;
+                case 'month':
+                case 'місяць':
+                    $from = \Carbon\Carbon::now()->subDays(30)->startOfDay();
+                    $to = \Carbon\Carbon::now()->endOfDay();
+                    break;
+                case 'all':
+                case 'весь_час':
+                case 'за_весь_час':
+                    $from = null;
+                    $to = null;
+                    break;
+                default:
+                    $from = \Carbon\Carbon::parse('2026-08-20')->startOfDay();
+                    $to = null;
+                    break;
+            }
+        } else {
+            $from = \Carbon\Carbon::parse('2026-08-20')->startOfDay();
+            $to = null;
+        }
+
+        return [$from, $to];
+    }
+
+    public function getDashboardStats(?string $period = null, ?string $dateFrom = null, ?string $dateTo = null): array
+    {
+        [$from, $to] = $this->resolveDateRange($period, $dateFrom, $dateTo);
         $activeShiftIds = \App\Models\CombatShift::where('status', 'opened')->pluck('id');
 
         return [
             'total' => [
-                'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::all()),
-                'recon' => $this->calculateReconStats(\App\Models\ReconFlight::all()),
-                'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::all()),
-                'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::all()),
-                'air_defence' => $this->calculateAirDefenceStats(\App\Models\AirDefenceFlight::all()),
+                'fpv' => $this->calculateFpvStats($this->getFilteredFpvFlights($from, $to)),
+                'recon' => $this->calculateReconStats($this->getFilteredReconFlights($from, $to)),
+                'vampire' => $this->calculateVampireStats($this->getFilteredVampireFlights($from, $to)),
+                'ugv' => $this->calculateUgvStats($this->getFilteredUgvRaces($from, $to)),
+                'air_defence' => $this->calculateAirDefenceStats($this->getFilteredAirDefenceFlights($from, $to)),
             ],
             'active' => [
                 'fpv' => $this->calculateFpvStats(\App\Models\CombatShiftFlight::whereIn('combat_shift_id', $activeShiftIds)->get()),
@@ -292,9 +344,86 @@ readonly class CombatShiftsAdminService
                 'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::whereIn('combat_shift_id', $activeShiftIds)->get()),
                 'air_defence' => $this->calculateAirDefenceStats(\App\Models\AirDefenceFlight::whereIn('position_id', \App\Models\CombatShift::whereIn('id', $activeShiftIds)->pluck('position_id'))->get()), // ППО поки не прив'язано до змін, фільтруємо по позиціях активних змін
             ],
-            'positions' => $this->getStatsByPositions(),
+            'positions' => $this->getStatsByPositions($from, $to),
             'active_shifts' => $this->getStatsByActiveShifts(),
+            'filters' => [
+                'period' => $period,
+                'date_from' => $dateFrom,
+                'date_to' => $dateTo,
+                'from' => $from,
+                'to' => $to,
+            ],
         ];
+    }
+
+    private function applyDateFilter($query, string $field, ?\Carbon\Carbon $from, ?\Carbon\Carbon $to, string $createdAtField = 'created_at'): void
+    {
+        if ($from && $to) {
+            $query->where(function ($q) use ($field, $createdAtField, $from, $to) {
+                $q->where(function ($sub) use ($field, $from, $to) {
+                    $sub->whereNotNull($field)
+                        ->whereBetween($field, [$from, $to]);
+                })->orWhere(function ($sub) use ($field, $createdAtField, $from, $to) {
+                    $sub->whereNull($field)
+                        ->whereBetween($createdAtField, [$from, $to]);
+                });
+            });
+        } elseif ($from) {
+            $query->where(function ($q) use ($field, $createdAtField, $from) {
+                $q->where(function ($sub) use ($field, $from) {
+                    $sub->whereNotNull($field)
+                        ->where($field, '>=', $from);
+                })->orWhere(function ($sub) use ($field, $createdAtField, $from) {
+                    $sub->whereNull($field)
+                        ->where($createdAtField, '>=', $from);
+                });
+            });
+        } elseif ($to) {
+            $query->where(function ($q) use ($field, $createdAtField, $to) {
+                $q->where(function ($sub) use ($field, $to) {
+                    $sub->whereNotNull($field)
+                        ->where($field, '<=', $to);
+                })->orWhere(function ($sub) use ($field, $createdAtField, $to) {
+                    $sub->whereNull($field)
+                        ->where($createdAtField, '<=', $to);
+                });
+            });
+        }
+    }
+
+    private function getFilteredFpvFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    {
+        $query = \App\Models\CombatShiftFlight::query();
+        $this->applyDateFilter($query, 'flight_time', $from, $to, 'created_at');
+        return $query->get();
+    }
+
+    private function getFilteredReconFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    {
+        $query = \App\Models\ReconFlight::query();
+        $this->applyDateFilter($query, 'flight_time', $from, $to, 'created_at');
+        return $query->get();
+    }
+
+    private function getFilteredVampireFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    {
+        $query = \App\Models\VampireFlight::query();
+        $this->applyDateFilter($query, 'start_time', $from, $to, 'created_at');
+        return $query->get();
+    }
+
+    private function getFilteredUgvRaces(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    {
+        $query = \App\Models\UgvRace::query();
+        $this->applyDateFilter($query, 'start_time', $from, $to, 'created_at');
+        return $query->get();
+    }
+
+    private function getFilteredAirDefenceFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    {
+        $query = \App\Models\AirDefenceFlight::query();
+        $this->applyDateFilter($query, 'start_time', $from, $to, 'created_at');
+        return $query->get();
     }
 
     private function getStatsByActiveShifts(): array
@@ -505,20 +634,30 @@ readonly class CombatShiftsAdminService
         ];
     }
 
-    private function getStatsByPositions(): array
+    private function getStatsByPositions(?\Carbon\Carbon $from = null, ?\Carbon\Carbon $to = null): array
     {
         $positions = \App\Models\Position::all();
         $stats = [];
 
-        $fpvFlights = \App\Models\CombatShiftFlight::join('combat_shifts', 'combat_shift_flights.combat_shift_id', '=', 'combat_shifts.id')
-            ->select('combat_shift_flights.*', 'combat_shifts.position_id')
-            ->get()
-            ->groupBy('position_id');
+        $fpvQuery = \App\Models\CombatShiftFlight::join('combat_shifts', 'combat_shift_flights.combat_shift_id', '=', 'combat_shifts.id')
+            ->select('combat_shift_flights.*', 'combat_shifts.position_id');
+        $this->applyDateFilter($fpvQuery, 'combat_shift_flights.flight_time', $from, $to, 'combat_shift_flights.created_at');
+        $fpvFlights = $fpvQuery->get()->groupBy('position_id');
 
-        $reconFlights = \App\Models\ReconFlight::join('combat_shifts', 'recon_flights.combat_shift_id', '=', 'combat_shifts.id')
-            ->select('recon_flights.*', 'combat_shifts.position_id')
-            ->get()
-            ->groupBy('position_id');
+        $reconQuery = \App\Models\ReconFlight::join('combat_shifts', 'recon_flights.combat_shift_id', '=', 'combat_shifts.id')
+            ->select('recon_flights.*', 'combat_shifts.position_id');
+        $this->applyDateFilter($reconQuery, 'recon_flights.flight_time', $from, $to, 'recon_flights.created_at');
+        $reconFlights = $reconQuery->get()->groupBy('position_id');
+
+        $vampireQuery = \App\Models\VampireFlight::join('combat_shifts', 'vampire_flights.combat_shift_id', '=', 'combat_shifts.id')
+            ->select('vampire_flights.*', 'combat_shifts.position_id');
+        $this->applyDateFilter($vampireQuery, 'vampire_flights.start_time', $from, $to, 'vampire_flights.created_at');
+        $vampireFlights = $vampireQuery->get()->groupBy('position_id');
+
+        $ugvQuery = \App\Models\UgvRace::join('combat_shifts', 'ugv_races.combat_shift_id', '=', 'combat_shifts.id')
+            ->select('ugv_races.*', 'combat_shifts.position_id');
+        $this->applyDateFilter($ugvQuery, 'ugv_races.start_time', $from, $to, 'ugv_races.created_at');
+        $ugvFlights = $ugvQuery->get()->groupBy('position_id');
 
         foreach ($positions as $position) {
             $stats[$position->id] = [
@@ -526,14 +665,8 @@ readonly class CombatShiftsAdminService
                 'type' => $position->type,
                 'fpv' => $this->calculateFpvStats($fpvFlights->get($position->id, collect())),
                 'recon' => $this->calculateReconStats($reconFlights->get($position->id, collect())),
-                'vampire' => $this->calculateVampireStats(\App\Models\VampireFlight::join('combat_shifts', 'vampire_flights.combat_shift_id', '=', 'combat_shifts.id')
-                    ->where('combat_shifts.position_id', $position->id)
-                    ->select('vampire_flights.*')
-                    ->get()),
-                'ugv' => $this->calculateUgvStats(\App\Models\UgvRace::join('combat_shifts', 'ugv_races.combat_shift_id', '=', 'combat_shifts.id')
-                    ->where('combat_shifts.position_id', $position->id)
-                    ->select('ugv_races.*')
-                    ->get()),
+                'vampire' => $this->calculateVampireStats($vampireFlights->get($position->id, collect())),
+                'ugv' => $this->calculateUgvStats($ugvFlights->get($position->id, collect())),
             ];
         }
 
