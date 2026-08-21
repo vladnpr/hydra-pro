@@ -281,7 +281,7 @@ readonly class CombatShiftsAdminService
         if ($dateFrom) {
             try {
                 $from = \Carbon\Carbon::parse($dateFrom)->startOfDay();
-                $to = $dateTo ? \Carbon\Carbon::parse($dateTo)->endOfDay() : \Carbon\Carbon::now()->endOfDay();
+                $to = $dateTo ? \Carbon\Carbon::parse($dateTo)->endOfDay() : null;
             } catch (\Exception $e) {
                 $from = null;
                 $to = null;
@@ -308,11 +308,17 @@ readonly class CombatShiftsAdminService
                 case 'all':
                 case 'весь_час':
                 case 'за_весь_час':
-                default:
                     $from = null;
                     $to = null;
                     break;
+                default:
+                    $from = \Carbon\Carbon::parse('2026-08-20')->startOfDay();
+                    $to = null;
+                    break;
             }
+        } else {
+            $from = \Carbon\Carbon::parse('2026-08-20')->startOfDay();
+            $to = null;
         }
 
         return [$from, $to];
@@ -350,88 +356,73 @@ readonly class CombatShiftsAdminService
         ];
     }
 
-    private function getFilteredFpvFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    private function applyDateFilter($query, string $field, ?\Carbon\Carbon $from, ?\Carbon\Carbon $to, string $createdAtField = 'created_at'): void
     {
-        $query = \App\Models\CombatShiftFlight::query();
         if ($from && $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('flight_time')
-                        ->whereBetween('flight_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('flight_time')
-                        ->whereBetween('created_at', [$from, $to]);
+            $query->where(function ($q) use ($field, $createdAtField, $from, $to) {
+                $q->where(function ($sub) use ($field, $from, $to) {
+                    $sub->whereNotNull($field)
+                        ->whereBetween($field, [$from, $to]);
+                })->orWhere(function ($sub) use ($field, $createdAtField, $from, $to) {
+                    $sub->whereNull($field)
+                        ->whereBetween($createdAtField, [$from, $to]);
+                });
+            });
+        } elseif ($from) {
+            $query->where(function ($q) use ($field, $createdAtField, $from) {
+                $q->where(function ($sub) use ($field, $from) {
+                    $sub->whereNotNull($field)
+                        ->where($field, '>=', $from);
+                })->orWhere(function ($sub) use ($field, $createdAtField, $from) {
+                    $sub->whereNull($field)
+                        ->where($createdAtField, '>=', $from);
+                });
+            });
+        } elseif ($to) {
+            $query->where(function ($q) use ($field, $createdAtField, $to) {
+                $q->where(function ($sub) use ($field, $to) {
+                    $sub->whereNotNull($field)
+                        ->where($field, '<=', $to);
+                })->orWhere(function ($sub) use ($field, $createdAtField, $to) {
+                    $sub->whereNull($field)
+                        ->where($createdAtField, '<=', $to);
                 });
             });
         }
+    }
+
+    private function getFilteredFpvFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
+    {
+        $query = \App\Models\CombatShiftFlight::query();
+        $this->applyDateFilter($query, 'flight_time', $from, $to, 'created_at');
         return $query->get();
     }
 
     private function getFilteredReconFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
     {
         $query = \App\Models\ReconFlight::query();
-        if ($from && $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('flight_time')
-                        ->whereBetween('flight_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('flight_time')
-                        ->whereBetween('created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($query, 'flight_time', $from, $to, 'created_at');
         return $query->get();
     }
 
     private function getFilteredVampireFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
     {
         $query = \App\Models\VampireFlight::query();
-        if ($from && $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('start_time')
-                        ->whereBetween('start_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('start_time')
-                        ->whereBetween('created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($query, 'start_time', $from, $to, 'created_at');
         return $query->get();
     }
 
     private function getFilteredUgvRaces(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
     {
         $query = \App\Models\UgvRace::query();
-        if ($from && $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('start_time')
-                        ->whereBetween('start_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('start_time')
-                        ->whereBetween('created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($query, 'start_time', $from, $to, 'created_at');
         return $query->get();
     }
 
     private function getFilteredAirDefenceFlights(?\Carbon\Carbon $from, ?\Carbon\Carbon $to): Collection
     {
         $query = \App\Models\AirDefenceFlight::query();
-        if ($from && $to) {
-            $query->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('start_time')
-                        ->whereBetween('start_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('start_time')
-                        ->whereBetween('created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($query, 'start_time', $from, $to, 'created_at');
         return $query->get();
     }
 
@@ -650,62 +641,22 @@ readonly class CombatShiftsAdminService
 
         $fpvQuery = \App\Models\CombatShiftFlight::join('combat_shifts', 'combat_shift_flights.combat_shift_id', '=', 'combat_shifts.id')
             ->select('combat_shift_flights.*', 'combat_shifts.position_id');
-        if ($from && $to) {
-            $fpvQuery->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('combat_shift_flights.flight_time')
-                        ->whereBetween('combat_shift_flights.flight_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('combat_shift_flights.flight_time')
-                        ->whereBetween('combat_shift_flights.created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($fpvQuery, 'combat_shift_flights.flight_time', $from, $to, 'combat_shift_flights.created_at');
         $fpvFlights = $fpvQuery->get()->groupBy('position_id');
 
         $reconQuery = \App\Models\ReconFlight::join('combat_shifts', 'recon_flights.combat_shift_id', '=', 'combat_shifts.id')
             ->select('recon_flights.*', 'combat_shifts.position_id');
-        if ($from && $to) {
-            $reconQuery->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('recon_flights.flight_time')
-                        ->whereBetween('recon_flights.flight_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('recon_flights.flight_time')
-                        ->whereBetween('recon_flights.created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($reconQuery, 'recon_flights.flight_time', $from, $to, 'recon_flights.created_at');
         $reconFlights = $reconQuery->get()->groupBy('position_id');
 
         $vampireQuery = \App\Models\VampireFlight::join('combat_shifts', 'vampire_flights.combat_shift_id', '=', 'combat_shifts.id')
             ->select('vampire_flights.*', 'combat_shifts.position_id');
-        if ($from && $to) {
-            $vampireQuery->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('vampire_flights.start_time')
-                        ->whereBetween('vampire_flights.start_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('vampire_flights.start_time')
-                        ->whereBetween('vampire_flights.created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($vampireQuery, 'vampire_flights.start_time', $from, $to, 'vampire_flights.created_at');
         $vampireFlights = $vampireQuery->get()->groupBy('position_id');
 
         $ugvQuery = \App\Models\UgvRace::join('combat_shifts', 'ugv_races.combat_shift_id', '=', 'combat_shifts.id')
             ->select('ugv_races.*', 'combat_shifts.position_id');
-        if ($from && $to) {
-            $ugvQuery->where(function ($q) use ($from, $to) {
-                $q->where(function ($sub) use ($from, $to) {
-                    $sub->whereNotNull('ugv_races.start_time')
-                        ->whereBetween('ugv_races.start_time', [$from, $to]);
-                })->orWhere(function ($sub) use ($from, $to) {
-                    $sub->whereNull('ugv_races.start_time')
-                        ->whereBetween('ugv_races.created_at', [$from, $to]);
-                });
-            });
-        }
+        $this->applyDateFilter($ugvQuery, 'ugv_races.start_time', $from, $to, 'ugv_races.created_at');
         $ugvFlights = $ugvQuery->get()->groupBy('position_id');
 
         foreach ($positions as $position) {

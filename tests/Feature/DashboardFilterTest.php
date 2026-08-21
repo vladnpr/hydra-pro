@@ -44,6 +44,12 @@ class DashboardFilterTest extends TestCase
         /** @var CombatShiftsAdminService $service */
         $service = app(CombatShiftsAdminService::class);
 
+        // Default (2026-08-20)
+        [$fromDefault, $toDefault] = $service->resolveDateRange();
+        $this->assertNotNull($fromDefault);
+        $this->assertNull($toDefault);
+        $this->assertEquals(Carbon::parse('2026-08-20')->startOfDay()->toDateTimeString(), $fromDefault->toDateTimeString());
+
         // Day
         [$fromDay, $toDay] = $service->resolveDateRange('day');
         $this->assertNotNull($fromDay);
@@ -70,6 +76,67 @@ class DashboardFilterTest extends TestCase
         [$fromAll, $toAll] = $service->resolveDateRange('all');
         $this->assertNull($fromAll);
         $this->assertNull($toAll);
+    }
+
+    public function test_default_stats_filters_from_20_august_2026(): void
+    {
+        $position = Position::create([
+            'name' => 'Позиція 1',
+            'type' => 'fpv',
+            'status' => true,
+        ]);
+        $drone = \App\Models\Drone::create([
+            'name' => 'Дрон 1',
+            'model' => '7 дюймів',
+            'status' => 1,
+        ]);
+        $shift = CombatShift::create([
+            'position_id' => $position->id,
+            'status' => 'closed',
+            'started_at' => Carbon::parse('2026-08-15 08:00:00'),
+            'ended_at' => Carbon::parse('2026-08-22 08:00:00'),
+        ]);
+
+        // Flight before 2026-08-20
+        CombatShiftFlight::create([
+            'combat_shift_id' => $shift->id,
+            'drone_id' => $drone->id,
+            'coordinates' => '48.123, 37.123',
+            'flight_time' => Carbon::parse('2026-08-19 23:59:00'),
+            'result' => 'влучання',
+            'mission' => 'strike',
+        ]);
+
+        // Flight on 2026-08-20
+        CombatShiftFlight::create([
+            'combat_shift_id' => $shift->id,
+            'drone_id' => $drone->id,
+            'coordinates' => '48.123, 37.123',
+            'flight_time' => Carbon::parse('2026-08-20 12:00:00'),
+            'result' => 'влучання',
+            'mission' => 'strike',
+        ]);
+
+        // Flight after 2026-08-20
+        CombatShiftFlight::create([
+            'combat_shift_id' => $shift->id,
+            'drone_id' => $drone->id,
+            'coordinates' => '48.123, 37.123',
+            'flight_time' => Carbon::parse('2026-08-21 10:00:00'),
+            'result' => 'влучання',
+            'mission' => 'strike',
+        ]);
+
+        /** @var CombatShiftsAdminService $service */
+        $service = app(CombatShiftsAdminService::class);
+
+        // Default stats: from 2026-08-20 onwards (should exclude the flight from 2026-08-19)
+        $defaultStats = $service->getDashboardStats();
+        $this->assertEquals(2, $defaultStats['total']['fpv']['total_flights']);
+
+        // All time stats: includes all 3 flights
+        $allStats = $service->getDashboardStats('all');
+        $this->assertEquals(3, $allStats['total']['fpv']['total_flights']);
     }
 
     public function test_stats_are_properly_filtered_by_period(): void
@@ -125,7 +192,7 @@ class DashboardFilterTest extends TestCase
         $service = app(CombatShiftsAdminService::class);
 
         // All time
-        $allStats = $service->getDashboardStats();
+        $allStats = $service->getDashboardStats('all');
         $this->assertEquals(3, $allStats['total']['fpv']['total_flights']);
 
         // Day (today only)
