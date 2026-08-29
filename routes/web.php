@@ -147,6 +147,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
             Route::get('active-shift/active-spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'activeSpendFPVReport'])->name('combat_shifts.active_spending_fpv_report');
         });
 
+        //Duty Reports
         Route::group(['middleware' => 'can:view-reports'], function () {
             Route::get('reports/duty-reports', [DutyReportController::class, 'index'])->name('duty-report.index');
         });
