@@ -508,6 +508,7 @@ return [
             ]
         ],
         // END_AIR_DEFENCE__________________________________
+        // REPORTS_________________________________________
         [
             'header' => 'Звітність',
             'can' => 'view-reports'
@@ -523,8 +524,15 @@ return [
                     'url' => 'admin/combat-shifts-active-reports',
                     'can' => 'view-reports',
                 ],
+                [
+                    'text' => 'Черговому',
+                    'icon' => 'fas fa-fw fa-chart-line',
+                    'url' => 'admin/reports/duty-reports',
+                    'can' => 'view-reports',
+                ],
             ],
         ],
+        // END_REPORTS___________________________________________
         [
             'header' => 'Менеджмент корисутвачів',
             'can' => 'manage-users'

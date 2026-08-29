@@ -6,6 +6,7 @@ use App\Http\Controllers\PositionsController;
 use App\Http\Controllers\FPV\FpvCombatShiftController;
 use App\Http\Controllers\FPV\FpvFlightsController;
 use App\Http\Controllers\FPV\FpvFlightOperationsController;
+use App\Http\Controllers\Reports\DutyReportController;
 use Illuminate\Support\Facades\Route;
 
 Auth::routes(['verify' => true]);
@@ -144,6 +145,10 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
             Route::get('active-shift/flights-report', [FpvCombatShiftController::class, 'activeFlightsReport'])->name('combat_shifts.active_flights_report');
             Route::get('active-shift/remains-report', [FpvCombatShiftController::class, 'activeRemainsReport'])->name('combat_shifts.active_remains_report');
             Route::get('active-shift/active-spending-fpv-report', [\App\Http\Controllers\SpendingFPVReportController::class, 'activeSpendFPVReport'])->name('combat_shifts.active_spending_fpv_report');
+        });
+
+        Route::group(['middleware' => 'can:view-reports'], function () {
+            Route::get('reports/duty-reports', [DutyReportController::class, 'index'])->name('duty-report.index');
         });
     });
 
