@@ -6,17 +6,13 @@ use App\DTOs\DutyReportCombatShiftDTO;
 
 class FPVReportStrategy implements DutyReportStrategy
 {
-    /**
-     * @param DutyReportCombatShiftDTO $shift
-     */
-    public function __construct(
-        private DutyReportCombatShiftDTO $shift,
-    )
+    public function getReport(DutyReportCombatShiftDTO $shift)
     {
+        $positionName = "ПДП {$shift->getPositionName()} {$shift->getType()->value}";
+        $dronesRemaining = [];
     }
 
-    public function getReport()
+    private function getDronesRemaining()
     {
-        dd($this->shift->getPositionName());
     }
 }

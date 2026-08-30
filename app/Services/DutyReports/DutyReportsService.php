@@ -10,6 +10,7 @@ class DutyReportsService
 {
     public function __construct(
         readonly private DutyReportsRepository $dutyReportsRepository,
+        readonly private DutyReportsContext $reportStrategy
     )
     {
     }
@@ -19,8 +20,7 @@ class DutyReportsService
         $activeShifts = $this->dutyReportsRepository->getActiveShifts();
 
         foreach ($activeShifts as $activeShift) {
-            $reportStrategy = new DutyReportsContext($activeShift);
-            $report = $reportStrategy->getReport();
+            $report = $this->reportStrategy->getReport($activeShift);
         }
     }
 }

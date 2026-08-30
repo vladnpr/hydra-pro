@@ -4,28 +4,15 @@
 namespace App\Services\DutyReports\DutyReportsStrategy;
 
 use App\DTOs\DutyReportCombatShiftDTO;
-use App\Enums\PositionTypesEnum;
 
 class DutyReportsContext
 {
-    private array $context = [
-        PositionTypesEnum::FPV->value => FPVReportStrategy::class,
-        PositionTypesEnum::AIR_DEFENCE->value => AIrDefenceReportStrategy::class,
-        PositionTypesEnum::RECON->value => ReconReportStrategy::class,
-        PositionTypesEnum::UGV->value => UGVReportStrategy::class,
-        PositionTypesEnum::VAMPIRE->value => VampireReportStrategy::class,
-    ];
-
-    private DutyReportStrategy $strategy;
-
-
-    public function __construct(DutyReportCombatShiftDTO $shift)
+    public function __construct(private readonly DutyReportStrategyResolver $resolver)
     {
-        $this->strategy = new $this->context[$shift->getType()]($shift);
     }
 
-    public function getReport()
+    public function getReport(DutyReportCombatShiftDTO $shift)
     {
-        return $this->strategy->getReport();
+        return $this->resolver->resolve($shift->getType())->getReport($shift);
     }
 }

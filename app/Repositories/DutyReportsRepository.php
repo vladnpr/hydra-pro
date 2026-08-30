@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Enums\CombatShiftStatus;
 use App\DTOs\DutyReportCombatShiftDTO;
 use App\Collections\DRCombatShiftDTOCollection;
+use App\Enums\PositionTypesEnum;
 
 class DutyReportsRepository
 {
@@ -34,8 +35,8 @@ class DutyReportsRepository
             $activeShiftDTO = new DutyReportCombatShiftDTO(
                 $activeShift->combat_shift_id,
                 $activeShift->position_name,
-                $activeShift->type,
-                $activeShift->status,
+                PositionTypesEnum::from($activeShift->type),
+                CombatShiftStatus::from($activeShift->status),
                 $activeShift->user_id,
                 $activeShift->started_at
             );

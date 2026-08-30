@@ -6,11 +6,7 @@ use App\DTOs\DutyReportCombatShiftDTO;
 
 class AIrDefenceReportStrategy implements DutyReportStrategy
 {
-    public function __construct(DutyReportCombatShiftDTO $shift)
-    {
-    }
-
-    public function getReport()
+    public function getReport(DutyReportCombatShiftDTO $shift)
     {
         // TODO: Implement getReport() method.
     }

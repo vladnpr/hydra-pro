@@ -2,20 +2,23 @@
 
 namespace App\DTOs;
 
+use App\Enums\CombatShiftStatus;
+use App\Enums\PositionTypesEnum;
+
 class DutyReportCombatShiftDTO
 {
     public function __construct(
         private readonly int    $combaShiftID,
         private readonly string $positionName,
-        private readonly string $type,
-        private readonly string $status,
+        private readonly PositionTypesEnum $type,
+        private readonly CombatShiftStatus $status,
         private readonly ?int    $userID,
         private readonly string $startedAt
     )
     {
     }
 
-    public function getType(): string
+    public function getType(): PositionTypesEnum
     {
         return $this->type;
     }
