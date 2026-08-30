@@ -21,7 +21,7 @@ class DutyReportsContext
 
     public function __construct(DutyReportCombatShiftDTO $shift)
     {
-        $this->strategy = new $this->context[$shift->getType()];
+        $this->strategy = new $this->context[$shift->getType()]($shift);
     }
 
     public function getReport()

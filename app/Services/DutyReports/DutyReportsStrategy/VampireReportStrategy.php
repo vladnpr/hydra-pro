@@ -2,8 +2,13 @@
 
 namespace App\Services\DutyReports\DutyReportsStrategy;
 
+use App\DTOs\DutyReportCombatShiftDTO;
+
 class VampireReportStrategy implements DutyReportStrategy
 {
+    public function __construct(DutyReportCombatShiftDTO $shift)
+    {
+    }
 
     public function getReport()
     {
