@@ -1,0 +1,48 @@
+<?php
+
+namespace App\Repositories;
+
+use App\Enums\CombatShiftStatus;
+use App\DTOs\DutyReportCombatShiftDTO;
+use App\Collections\DRCombatShiftDTOCollection;
+
+class DutyReportsRepository
+{
+    public function __construct()
+    {
+    }
+
+    public function getActiveShifts(): DRCombatShiftDTOCollection
+    {
+        $activeShifts = \DB::connection('mysql')
+                ->table('combat_shifts as cs')
+                ->join('positions as p', 'cs.position_id', '=', 'p.id')
+                ->where('cs.status', CombatShiftStatus::OPENED->value)
+                ->select([
+                    "cs.id as combat_shift_id",
+                    "p.name as position_name",
+                    "p.type as type",
+                    "cs.status as status",
+                    "cs.user_id as user_id",
+                    "cs.started_at as started_at"
+                ])
+                ->get();
+
+        $collection = new DRCombatShiftDTOCollection();
+
+        foreach ($activeShifts as $activeShift) {
+            $activeShiftDTO = new DutyReportCombatShiftDTO(
+                $activeShift->combat_shift_id,
+                $activeShift->position_name,
+                $activeShift->type,
+                $activeShift->status,
+                $activeShift->user_id,
+                $activeShift->started_at
+            );
+
+            $collection->push($activeShiftDTO);
+        }
+
+        return $collection;
+    }
+}
