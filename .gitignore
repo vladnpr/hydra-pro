@@ -27,3 +27,4 @@ docker-compose.override.yml
 .htpasswd
 deploy-staging.sh
 docker/nginx/default.conf
+.junie

@@ -4,16 +4,15 @@ namespace App\DTOs;
 
 use App\Enums\CombatShiftStatus;
 use App\Enums\PositionTypesEnum;
-
-class DutyReportCombatShiftDTO
+readonly class DutyReportCombatShiftDTO
 {
     public function __construct(
-        private readonly int    $combaShiftID,
-        private readonly string $positionName,
-        private readonly PositionTypesEnum $type,
-        private readonly CombatShiftStatus $status,
-        private readonly ?int    $userID,
-        private readonly string $startedAt
+        private int    $combatShiftID,
+        private string $positionName,
+        private PositionTypesEnum $type,
+        private CombatShiftStatus $status,
+        private ?int    $userID,
+        private string $startedAt
     )
     {
     }
@@ -23,9 +22,9 @@ class DutyReportCombatShiftDTO
         return $this->type;
     }
 
-    public function getCombaShiftID(): int
+    public function getCombatShiftID(): int
     {
-        return $this->combaShiftID;
+        return $this->combatShiftID;
     }
 
     public function getPositionName(): string
@@ -33,7 +32,7 @@ class DutyReportCombatShiftDTO
         return $this->positionName;
     }
 
-    public function getStatus(): string
+    public function getStatus(): CombatShiftStatus
     {
         return $this->status;
     }
