@@ -4,6 +4,7 @@
 namespace App\Services\DutyReports\DutyReportsStrategy;
 
 use App\DTOs\DutyReportCombatShiftDTO;
+use Carbon\Carbon;
 
 class DutyReportsContext
 {
@@ -11,8 +12,8 @@ class DutyReportsContext
     {
     }
 
-    public function getReport(DutyReportCombatShiftDTO $shift)
+    public function getReport(DutyReportCombatShiftDTO $shift, Carbon $from, Carbon $to)
     {
-        return $this->resolver->resolve($shift->getType())->getReport($shift);
+        return $this->resolver->resolve($shift->getType())->getReport($shift, $from, $to);
     }
 }

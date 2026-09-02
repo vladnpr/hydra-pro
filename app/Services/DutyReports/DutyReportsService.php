@@ -3,24 +3,25 @@
 namespace App\Services\DutyReports;
 
 
-use App\Repositories\DutyReportsRepository;
+use App\Repositories\CombatShiftsRepository;
 use App\Services\DutyReports\DutyReportsStrategy\DutyReportsContext;
+use Carbon\Carbon;
 
 class DutyReportsService
 {
     public function __construct(
-        readonly private DutyReportsRepository $dutyReportsRepository,
-        readonly private DutyReportsContext $reportStrategy
+        readonly private CombatShiftsRepository $dutyReportsRepository,
+        readonly private DutyReportsContext     $reportStrategy
     )
     {
     }
 
-    public function getReports()
+    public function getReports(Carbon $from, Carbon $to)
     {
         $activeShifts = $this->dutyReportsRepository->getActiveShifts();
 
         foreach ($activeShifts as $activeShift) {
-            $report = $this->reportStrategy->getReport($activeShift);
+            $reportData = $this->reportStrategy->getReport($activeShift, $from, $to);
         }
     }
 }

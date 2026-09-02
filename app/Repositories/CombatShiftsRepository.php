@@ -3,13 +3,16 @@
 namespace App\Repositories;
 
 use App\Collections\FPVDronesRemainingDTOCollection;
+use App\Collections\FPVFlightDTOCollection;
 use App\DTOs\FPVDronesRemainingDTO;
+use App\DTOs\FPVFlightDTO;
 use App\Enums\CombatShiftStatus;
 use App\DTOs\DutyReportCombatShiftDTO;
 use App\Collections\DRCombatShiftDTOCollection;
 use App\Enums\PositionTypesEnum;
+use Carbon\Carbon;
 
-class DutyReportsRepository
+class CombatShiftsRepository
 {
     public function getActiveShifts(): DRCombatShiftDTOCollection
     {
@@ -45,7 +48,7 @@ class DutyReportsRepository
         return $collection;
     }
 
-    public function getDronesRemaining(int $combatShiftId): FPVDronesRemainingDTOCollection
+    public function getFPVDronesRemaining(int $combatShiftId): FPVDronesRemainingDTOCollection
     {
         $dronesRemaining = \DB::connection('mysql')
             ->table('combat_shifts as cs')
@@ -69,6 +72,56 @@ class DutyReportsRepository
                 $droneRemaining->model,
                 $droneRemaining->quantity
             ));
+        }
+
+        return $collection;
+    }
+
+
+    /**
+     * Get FPV flights for a combat shift.
+     *
+     * @param Carbon $from
+     * @param Carbon $to
+     * @param int $combatShiftId
+     * @return FPVFlightDTOCollection
+     */
+    public function getFPVFlights(Carbon $from, Carbon $to, int $combatShiftId): FPVFlightDTOCollection
+    {
+        $flights = \DB::connection('mysql')
+            ->table('combat_shift_flights as csf')
+            ->join('drones as d', 'd.id', '=', 'csf.drone_id')
+            ->join('ammunition as a', 'a.id', '=', 'csf.ammunition_id')
+            ->select([
+                'csf.id as id',
+                'csf.flight_time as flight_time',
+                'csf.coordinates as coordinates',
+                'csf.mission as mission',
+                'csf.result as mission_result',
+                'd.name as drone_name',
+                'a.name as ammunition_name',
+                'csf.detonation as detonation',
+                'csf.video_path as video_path',
+            ])
+            ->whereBetween('csf.flight_time', [$from, $to])
+            ->where('csf.combat_shift_id', $combatShiftId)
+            ->get();
+
+        $collection = new FPVFlightDTOCollection();
+        foreach ($flights as $flight) {
+            $collection->push(
+                new FPVFlightDTO(
+                    $flight->id,
+                    new Carbon($flight->flight_time),
+                    $flight->coordinates,
+                    $flight->mission,
+                    $flight->mission_result,
+                    $flight->drone_name,
+                    $flight->ammunition_name,
+                    $flight->detonation,
+                    $flight->video_path,
+                )
+            );
         }
 
         return $collection;
