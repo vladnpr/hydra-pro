@@ -8,7 +8,7 @@ use App\Enums\PositionTypesEnum;
 
 class AmmunitionRepository
 {
-    public function getFPVAmmunitionRemaining(int $shiftId): AmmunitionRemainingDTOCollection
+    public function getAmmunitionRemaining(int $shiftId): AmmunitionRemainingDTOCollection
     {
         $ammo = \DB::connection('mysql')
             ->table('combat_shift_ammunition as csa')

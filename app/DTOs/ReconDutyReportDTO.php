@@ -2,6 +2,7 @@
 
 namespace App\DTOs;
 
+use App\Collections\AmmunitionRemainingDTOCollection;
 use App\Collections\ReconDronesRemainingDTOCollection;
 use App\Collections\ReconFlightDTOCollection;
 
@@ -10,9 +11,15 @@ final readonly class ReconDutyReportDTO
     public function __construct(
         private DutyReportCombatShiftDTO          $combatShift,
         private ReconDronesRemainingDTOCollection $dronesRemaining,
-        private ReconFlightDTOCollection          $flightsData
+        private ReconFlightDTOCollection          $flightsData,
+        private AmmunitionRemainingDTOCollection  $ammunitionRemainingData,
     )
     {
+    }
+
+    public function getAmmunitionRemainingData(): AmmunitionRemainingDTOCollection
+    {
+        return $this->ammunitionRemainingData;
     }
 
     public function getFlightsData(): ReconFlightDTOCollection

@@ -21,7 +21,7 @@ final readonly class FPVReportStrategy implements DutyReportStrategy
     {
         $dronesRemaining = $this->FPVShiftDataRepository->getFPVDronesRemaining($shift->getCombatShiftID());
         $flights = $this->FPVShiftDataRepository->getFPVFlights($from, $to, $shift->getCombatShiftID());
-        $ammoRemaining = $this->ammunitionRepository->getFPVAmmunitionRemaining($shift->getCombatShiftID());
+        $ammoRemaining = $this->ammunitionRepository->getAmmunitionRemaining($shift->getCombatShiftID());
 
         return new FPVDutyReportDTO(
             $shift,
