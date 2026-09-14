@@ -2,18 +2,12 @@
 
 namespace App\Collections;
 
-use App\DTOs\FPVDronesRemainingDTO;
 use App\DTOs\ReconDronesRemainingDTO;
-use Illuminate\Support\Collection;
 
-class ReconDronesRemainingDTOCollection extends Collection
+class ReconDronesRemainingDTOCollection extends BaseTypedCollection
 {
-    public function __construct($items = [])
+    protected function getTypedClassName(): string
     {
-        foreach ($items as $item) {
-            throw_if(!($item instanceof ReconDronesRemainingDTO), 'Item is not an instance of ReconDronesRemainingDTO');
-        }
-
-        parent::__construct($items);
+        return ReconDronesRemainingDTO::class;
     }
 }

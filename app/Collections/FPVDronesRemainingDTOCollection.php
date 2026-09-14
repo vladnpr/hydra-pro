@@ -4,17 +4,10 @@ namespace App\Collections;
 
 use App\DTOs\FPVDronesRemainingDTO;
 
-class FPVDronesRemainingDTOCollection extends \Illuminate\Support\Collection
+class FPVDronesRemainingDTOCollection extends BaseTypedCollection
 {
-    /**
-     * @param $items
-     * @throws \Throwable
-     */
-    public function __construct($items = [])
+    protected function getTypedClassName(): string
     {
-        foreach ($items as $item) {
-            throw_if(!($item instanceof FPVDronesRemainingDTO), 'Item is not an instance of FPVDronesRemainingDTO');
-        }
-        parent::__construct($items);
+        return FPVDronesRemainingDTO::class;
     }
 }

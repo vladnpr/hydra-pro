@@ -3,15 +3,11 @@
 namespace App\Collections;
 
 use App\DTOs\ReconFlightDTO;
-use Illuminate\Support\Collection;
 
-class ReconFlightDTOCollection extends Collection
+class ReconFlightDTOCollection extends BaseTypedCollection
 {
-    public function __construct($items = [])
+    protected function getTypedClassName(): string
     {
-        foreach ($items as $item) {
-            throw_if(!($item instanceof ReconFlightDTO), 'Item is not an instance of ReconFlightDTO');
-        }
-        parent::__construct($items);
+        return ReconFlightDTO::class;
     }
 }
