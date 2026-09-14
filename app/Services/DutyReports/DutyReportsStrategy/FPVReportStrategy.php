@@ -7,10 +7,10 @@ use App\DTOs\FPVDutyReportDTO;
 use App\Repositories\FPVShiftDataRepository;
 use Carbon\Carbon;
 
-final class FPVReportStrategy implements DutyReportStrategy
+final readonly class FPVReportStrategy implements DutyReportStrategy
 {
     public function __construct(
-        private readonly FPVShiftDataRepository $FPVShiftDataRepository,
+        private FPVShiftDataRepository $FPVShiftDataRepository,
     )
     {
     }

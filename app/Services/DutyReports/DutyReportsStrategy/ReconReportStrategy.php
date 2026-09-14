@@ -22,6 +22,7 @@ class ReconReportStrategy implements DutyReportStrategy
         return new ReconDutyReportDTO(
             $shift,
             $dronesRemainingData,
+            $flightsData
         );
     }
 }
