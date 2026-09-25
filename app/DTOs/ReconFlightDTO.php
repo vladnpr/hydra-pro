@@ -10,7 +10,7 @@ class ReconFlightDTO
 {
     public function __construct(
         private int                     $id,
-        private string                  $flightCoordinates,
+        private ?string                 $flightCoordinates,
         private string                  $droneName,
         private string                  $droneSeriaNumber,
         private Carbon                  $startTime,
@@ -28,7 +28,7 @@ class ReconFlightDTO
         return $this->id;
     }
 
-    public function getFlightCoordinates(): string
+    public function getFlightCoordinates(): ?string
     {
         return $this->flightCoordinates;
     }
