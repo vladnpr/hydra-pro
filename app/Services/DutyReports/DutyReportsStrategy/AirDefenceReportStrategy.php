@@ -20,9 +20,10 @@ class AirDefenceReportStrategy implements DutyReportStrategy
     {
         $dronesRemaining = $this->airDefenceShiftDataRepository->getDronesRemaining($shift->getCombatShiftID());
         $flights = $this->airDefenceShiftDataRepository->getFlights($from, $to);
-        $ammunition = '';
+        $ammunition = $this->airDefenceShiftDataRepository->getAmmunitionRemaining($shift->getCombatShiftID());
 
         return new ADDutyReportDTO(
+            $shift,
             $dronesRemaining,
             $flights,
             $ammunition

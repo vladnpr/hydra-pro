@@ -4,12 +4,17 @@ namespace App\Repositories;
 
 use App\Collections\ADDronesRemainingDTOCollection;
 use App\Collections\ADFlightsDTOCollection;
+use App\Collections\AmmunitionRemainingDTOCollection;
 use App\DTOs\ADDronesRemainingDTO;
 use App\DTOs\ADFlightsDTO;
+use App\DTOs\AmmunitionRemainingDTO;
+use App\Enums\PositionTypesEnum;
 use Carbon\Carbon;
 
 class ADShiftDataRepository
 {
+    const AMMO_STATUS = 1;
+
     public function getDronesRemaining(int $shiftId): ADDronesRemainingDTOCollection
     {
         $dronesRemaining = \DB::connection('mysql')
@@ -78,6 +83,33 @@ class ADShiftDataRepository
                 $flight->detonation,
                 $flight->video_path,
                 $flight->drone_name,
+            ));
+        }
+
+        return $collection;
+    }
+
+    public function getAmmunitionRemaining(int $shiftID): AmmunitionRemainingDTOCollection
+    {
+        //TODO: refactor usage ammunition table from air defence to common as in fpv
+        $ammunition = \DB::connection('mysql')
+            ->table('combat_shift_air_defence_ammunition as cad')
+            ->join('air_defence_ammunition as csa', 'csa.id', '=', 'cad.air_defence_ammunition_id')
+            ->where('cad.combat_shift_id', $shiftID)
+            ->select([
+                'csa.name as ammunition_name',
+                'cad.quantity as quantity',
+            ])
+            ->get();
+
+        $collection = new AmmunitionRemainingDTOCollection();
+
+        foreach ($ammunition as $item) {
+            $collection->add(new AmmunitionRemainingDTO(
+                $item->ammunition_name,
+                $item->quantity,
+                self::AMMO_STATUS,
+                PositionTypesEnum::from(PositionTypesEnum::AIR_DEFENCE->value)
             ));
         }
 
