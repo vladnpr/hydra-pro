@@ -8,7 +8,7 @@ final class DutyReportStrategyResolver
 {
     private array $strategies = [
         PositionTypesEnum::FPV->value => FPVReportStrategy::class,
-        PositionTypesEnum::AIR_DEFENCE->value => AIrDefenceReportStrategy::class,
+        PositionTypesEnum::AIR_DEFENCE->value => AirDefenceReportStrategy::class,
         PositionTypesEnum::RECON->value => ReconReportStrategy::class,
         PositionTypesEnum::UGV->value => UGVReportStrategy::class,
         PositionTypesEnum::VAMPIRE->value => VampireReportStrategy::class,

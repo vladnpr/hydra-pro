@@ -4,13 +4,13 @@ namespace App\Services\DutyReports\DutyReportsStrategy;
 
 use App\DTOs\ADDutyReportDTO;
 use App\DTOs\DutyReportCombatShiftDTO;
-use App\Repositories\AirDefenceShiftDataRepository;
+use App\Repositories\ADShiftDataRepository;
 use Carbon\Carbon;
 
-class AIrDefenceReportStrategy implements DutyReportStrategy
+class AirDefenceReportStrategy implements DutyReportStrategy
 {
     public function __construct(
-        private readonly AirDefenceShiftDataRepository $airDefenceShiftDataRepository
+        private readonly ADShiftDataRepository $airDefenceShiftDataRepository
     )
     {
 
@@ -19,7 +19,7 @@ class AIrDefenceReportStrategy implements DutyReportStrategy
     public function getReport(DutyReportCombatShiftDTO $shift, Carbon $from, Carbon $to): ADDutyReportDTO
     {
         $dronesRemaining = $this->airDefenceShiftDataRepository->getDronesRemaining($shift->getCombatShiftID());
-        $flights = '';
+        $flights = $this->airDefenceShiftDataRepository->getFlights($from, $to);
         $ammunition = '';
 
         return new ADDutyReportDTO(
