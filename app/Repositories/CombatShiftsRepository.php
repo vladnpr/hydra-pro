@@ -15,6 +15,7 @@ class CombatShiftsRepository
                 ->table('combat_shifts as cs')
                 ->join('positions as p', 'cs.position_id', '=', 'p.id')
                 ->where('cs.status', CombatShiftStatus::OPENED->value)
+                ->where('cs.deleted_at', null)
                 ->select([
                     "cs.id as combat_shift_id",
                     "p.name as position_name",

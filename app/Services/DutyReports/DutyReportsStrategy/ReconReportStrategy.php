@@ -8,11 +8,11 @@ use App\Repositories\AmmunitionRepository;
 use App\Repositories\ReconShiftDataRepository;
 use Carbon\Carbon;
 
-class ReconReportStrategy implements DutyReportStrategy
+readonly class ReconReportStrategy implements DutyReportStrategy
 {
     public function __construct(
-        private readonly ReconShiftDataRepository $reconShiftDataRepository,
-        private readonly AmmunitionRepository $ammunitionRepository,
+        private ReconShiftDataRepository $reconShiftDataRepository,
+        private AmmunitionRepository     $ammunitionRepository,
     )
     {
     }

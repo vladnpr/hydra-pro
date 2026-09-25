@@ -19,7 +19,6 @@ class DutyReportsService
     public function getReports(Carbon $from, Carbon $to)
     {
         $activeShifts = $this->dutyReportsRepository->getActiveShifts();
-
         foreach ($activeShifts as $activeShift) {
             $reportData = $this->reportStrategy->getReport($activeShift, $from, $to);
         }
