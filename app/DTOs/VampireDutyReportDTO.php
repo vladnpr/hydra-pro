@@ -8,7 +8,8 @@ class VampireDutyReportDTO
 {
     public function __construct(
         private DutyReportCombatShiftDTO $combatShift,
-        private VampireDronesRemainingDTOCollection $dronesRemaining
+        private VampireDronesRemainingDTOCollection $dronesRemaining,
+        private VampireFlightDTOCollection $flights,
     )
     {
     }

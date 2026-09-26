@@ -18,7 +18,7 @@ class VampireReportStrategy implements DutyReportStrategy
     public function getReport(DutyReportCombatShiftDTO $shift, Carbon $from, Carbon $to): VampireDutyReportDTO
     {
         $dronesRemaining = $this->vampireShiftDataRepository->getDronesRemaining($shift->getPositionID());
-        $flights = '';
+        $flights = $this->vampireShiftDataRepository->getFlights($from, $to, $shift->getCombatShiftID());
         $ammoRemaining = '';
 
         return new VampireDutyReportDTO(
