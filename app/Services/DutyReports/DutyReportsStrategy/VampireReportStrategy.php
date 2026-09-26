@@ -4,13 +4,15 @@ namespace App\Services\DutyReports\DutyReportsStrategy;
 
 use App\DTOs\DutyReportCombatShiftDTO;
 use App\DTOs\VampireDutyReportDTO;
+use App\Repositories\AmmunitionRepository;
 use App\Repositories\VampireShiftDataRepository;
 use Carbon\Carbon;
 
 class VampireReportStrategy implements DutyReportStrategy
 {
     public function __construct(
-        private readonly VampireShiftDataRepository $vampireShiftDataRepository
+        private readonly VampireShiftDataRepository $vampireShiftDataRepository,
+        private readonly AmmunitionRepository $ammunitionRepository,
     )
     {
     }
@@ -19,7 +21,7 @@ class VampireReportStrategy implements DutyReportStrategy
     {
         $dronesRemaining = $this->vampireShiftDataRepository->getDronesRemaining($shift->getPositionID());
         $flights = $this->vampireShiftDataRepository->getFlights($from, $to, $shift->getCombatShiftID());
-        $ammoRemaining = '';
+        $ammoRemaining = $this->ammunitionRepository->getAmmunitionRemaining($shift->getCombatShiftID());
 
         return new VampireDutyReportDTO(
             $shift,

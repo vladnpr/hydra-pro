@@ -101,7 +101,7 @@ class VampireShiftDataRepository
                 json_decode($flight->ammunition)
             ));
         }
-        dd($collection);
+
         return $collection;
     }
 }
