@@ -8,6 +8,7 @@ readonly class DutyReportCombatShiftDTO
 {
     public function __construct(
         private int    $combatShiftID,
+        private int    $positionID,
         private string $positionName,
         private PositionTypesEnum $type,
         private CombatShiftStatus $status,
@@ -15,6 +16,11 @@ readonly class DutyReportCombatShiftDTO
         private string $startedAt
     )
     {
+    }
+
+    public function getPositionID(): int
+    {
+        return $this->positionID;
     }
 
     public function getType(): PositionTypesEnum

@@ -18,6 +18,7 @@ class CombatShiftsRepository
                 ->where('cs.deleted_at', null)
                 ->select([
                     "cs.id as combat_shift_id",
+                    "cs.position_id as position_id",
                     "p.name as position_name",
                     "p.type as type",
                     "cs.status as status",
@@ -31,6 +32,7 @@ class CombatShiftsRepository
         foreach ($activeShifts as $activeShift) {
             $activeShiftDTO = new DutyReportCombatShiftDTO(
                 $activeShift->combat_shift_id,
+                $activeShift->position_id,
                 $activeShift->position_name,
                 PositionTypesEnum::from($activeShift->type),
                 CombatShiftStatus::from($activeShift->status),
