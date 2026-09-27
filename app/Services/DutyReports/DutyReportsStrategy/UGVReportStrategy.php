@@ -18,7 +18,7 @@ class UGVReportStrategy implements DutyReportStrategy
     public function getReport(DutyReportCombatShiftDTO $shift, Carbon $from, Carbon $to): UGVDutyReportDTO
     {
         $UGVDronesRemaining = $this->shiftDataRepository->getUGVRemaining($shift->getPositionID());
-        $races = '';
+        $races = $this->shiftDataRepository->getRaces($from, $to, $shift->getPositionID());
         $ammoRemaining = '';
 
         return new UGVDutyReportDTO(
