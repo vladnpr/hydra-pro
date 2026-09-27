@@ -8,11 +8,11 @@ use App\Repositories\AmmunitionRepository;
 use App\Repositories\VampireShiftDataRepository;
 use Carbon\Carbon;
 
-class VampireReportStrategy implements DutyReportStrategy
+final readonly class VampireReportStrategy implements DutyReportStrategy
 {
     public function __construct(
-        private readonly VampireShiftDataRepository $vampireShiftDataRepository,
-        private readonly AmmunitionRepository $ammunitionRepository,
+        private VampireShiftDataRepository $vampireShiftDataRepository,
+        private AmmunitionRepository $ammunitionRepository,
     )
     {
     }
