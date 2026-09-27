@@ -7,20 +7,24 @@ use App\Repositories\CombatShiftsRepository;
 use App\Services\DutyReports\DutyReportsStrategy\DutyReportsContext;
 use Carbon\Carbon;
 
-class DutyReportsService
+final readonly class DutyReportsService
 {
     public function __construct(
-        readonly private CombatShiftsRepository $dutyReportsRepository,
-        readonly private DutyReportsContext     $reportStrategy
+        private CombatShiftsRepository $dutyReportsRepository,
+        private DutyReportsContext     $reportStrategy
     )
     {
     }
 
-    public function getReports(Carbon $from, Carbon $to)
+    public function getReports(Carbon $from, Carbon $to): array
     {
         $activeShifts = $this->dutyReportsRepository->getActiveShifts();
+        $reportData = [];
+
         foreach ($activeShifts as $activeShift) {
-            $reportData = $this->reportStrategy->getReport($activeShift, $from, $to);
+            $reportData[] = $this->reportStrategy->getReport($activeShift, $from, $to);
         }
+
+        return $reportData;
     }
 }
