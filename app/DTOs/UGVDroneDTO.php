@@ -18,4 +18,44 @@ class UGVDroneDTO
     )
     {
     }
+
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+    public function getPositionId(): int
+    {
+        return $this->position_id;
+    }
+
+    public function getStatus(): string
+    {
+        return $this->status;
+    }
+
+    public function getCreatedAt(): Carbon
+    {
+        return $this->created_at;
+    }
+
+    public function getUpdatedAt(): Carbon
+    {
+        return $this->updated_at;
+    }
+
+    public function getLostAt(): ?Carbon
+    {
+        return $this->lost_at;
+    }
+
+    public function getDeletedAt(): ?Carbon
+    {
+        return $this->deleted_at;
+    }
 }
