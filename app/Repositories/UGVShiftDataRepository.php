@@ -48,8 +48,8 @@ class UGVShiftDataRepository
         $races = \DB::connection('mysql')
             ->table('ugv_races as ur')
             ->join('ugv_drones as ud', 'ur.ugv_drone_id', '=', 'ud.id')
-            ->join('ugv_race_ammunition as ura', 'ur.id', '=', 'ura.ugv_race_id')
-            ->join('ammunition as a', 'ura.ammunition_id', '=', 'a.id')
+            ->leftjoin('ugv_race_ammunition as ura', 'ur.id', '=', 'ura.ugv_race_id')
+            ->leftjoin('ammunition as a', 'ura.ammunition_id', '=', 'a.id')
             ->where('ur.combat_shift_id', $combatShiftId)
             ->whereBetween('ur.start_time', [$from, $to])
             ->select([
@@ -59,12 +59,15 @@ class UGVShiftDataRepository
                 'ud.name as drone_name',
                 'ud.serial_number as drone_serial_number',
                 \DB::raw("
-                    JSON_ARRAYAGG(
-                        JSON_OBJECT(
-                            'name', a.name,
-                            'type', a.type
+                    CASE
+                        WHEN COUNT(a.id) = 0 THEN JSON_ARRAY()
+                        ELSE JSON_ARRAYAGG(
+                            JSON_OBJECT(
+                                'name', a.name,
+                                'type', a.type
+                            )
                         )
-                    ) as ammunition
+                    END as ammunition
                 "),
                 'ur.coordinates as coordinates',
                 'ur.start_time as start_time',
@@ -93,7 +96,7 @@ class UGVShiftDataRepository
                 $race->drone_id,
                 $race->drone_name,
                 $race->drone_serial_number,
-                json_decode($race->ammunition),
+                $race->ammunition ? json_decode($race->ammunition) : null,
                 $race->coordinates,
                 UGVMissionTypeEnum::from($race->mission_type),
                 UGVMissionResultEnum::from($race->result),

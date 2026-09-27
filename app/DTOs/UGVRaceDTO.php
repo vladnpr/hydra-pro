@@ -19,7 +19,7 @@ class UGVRaceDTO
         private ?string $coordinates,
         private UGVMissionTypeEnum $missionType,
         private UGVMissionResultEnum $result,
-        private string $comment,
+        private ?string $comment,
         private ShiftTypeEnum $shiftType,
         private ?string $videoPath,
         private Carbon $startTime,
@@ -73,7 +73,7 @@ class UGVRaceDTO
         return $this->result;
     }
 
-    public function getComment(): string
+    public function getComment(): ?string
     {
         return $this->comment;
     }
