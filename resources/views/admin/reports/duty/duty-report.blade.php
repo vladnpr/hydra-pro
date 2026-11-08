@@ -35,6 +35,7 @@
                                 <div class="report-header mb-4">
                                     <h4 class="mb-3">Позиція "{{ $reportData->getCombatShiftData()->getPositionName() }}" (FPV)</h4>
                                     <h5>{{ $reportData->getCombatShiftData()->getTeamNumber()}} в/с </h5>
+                                    <h5>@if($reportData->getDronesRemainingCollection()->count() == 0) Не БГ @else БГ @endif </h5>
                                 </div>
                                 <div class="remains-section">
                                     <h5 class="font-weight-bold mb-3">В наявності</h5>
