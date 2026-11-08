@@ -11,11 +11,17 @@ readonly class DutyReportCombatShiftDTO
         private int    $positionID,
         private string $positionName,
         private PositionTypesEnum $type,
+        private int    $teamNumber,
         private CombatShiftStatus $status,
         private ?int    $userID,
         private string $startedAt
     )
     {
+    }
+
+    public function getTeamNumber(): int
+    {
+        return $this->teamNumber;
     }
 
     public function getPositionID(): int

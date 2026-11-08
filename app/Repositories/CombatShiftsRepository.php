@@ -21,6 +21,7 @@ class CombatShiftsRepository
                     "cs.position_id as position_id",
                     "p.name as position_name",
                     "p.type as type",
+                    "p.team_number as team_number",
                     "cs.status as status",
                     "cs.user_id as user_id",
                     "cs.started_at as started_at"
@@ -35,6 +36,7 @@ class CombatShiftsRepository
                 $activeShift->position_id,
                 $activeShift->position_name,
                 PositionTypesEnum::from($activeShift->type),
+                $activeShift->team_number,
                 CombatShiftStatus::from($activeShift->status),
                 $activeShift->user_id,
                 $activeShift->started_at
