@@ -11,7 +11,7 @@ final readonly class FPVDutyReportDTO
     public function __construct(
         private DutyReportCombatShiftDTO $combatShiftData,
         private FPVDronesRemainingDTOCollection $dronesRemainingCollection,
-        private FPVFlightDTOCollection $flights,
+        private array $flights,
         private AmmunitionRemainingDTOCollection $ammoRemaining
     )
     {
@@ -32,7 +32,7 @@ final readonly class FPVDutyReportDTO
         return $this->dronesRemainingCollection;
     }
 
-    public function getFlights(): FPVFlightDTOCollection
+    public function getFlights(): array
     {
         return $this->flights;
     }

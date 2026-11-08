@@ -61,19 +61,17 @@
                                         </ol>
                                     </div>
                                 @endif
-{{--                                <div class="remains-section">--}}
-{{--                                    <div class="drones-block mb-4">--}}
-{{--                                        <p class="font-weight-bold mb-2">Вильоти:</p>--}}
-{{--                                        <ul class="list-unstyled pl-0">--}}
-{{--                                            @php /** @var \App\DTOs\FPVDronesRemainingDTO $FPVDronesRemainingDTO */ @endphp--}}
-{{--                                            @forelse($reportData->getFlights() as $FPVDronesRemainingDTO)--}}
-{{--                                                <li class="mb-1">{{$FPVDronesRemainingDTO->getName() . ' ' . $FPVDronesRemainingDTO->getModel() .' - '. $FPVDronesRemainingDTO->getQuantity() . 'шт.'}}</li>--}}
-{{--                                            @empty--}}
-{{--                                                <li>Відсутні</li>--}}
-{{--                                            @endforelse--}}
-{{--                                        </ul>--}}
-{{--                                    </div>--}}
-{{--                                </div>--}}
+                                <div class="remains-section">
+                                    <div class="drones-block mb-4">
+                                        <p class="font-weight-bold mb-2">Вильоти:</p>
+                                        <ul class="list-unstyled pl-0">
+                                            @php /** @var array $flights */ @endphp
+                                            @foreach($reportData->getFlights() as $key => $value)
+                                                <li class="mb-1">{{ $key . ' - '. $value }}</li>
+                                            @endforeach
+                                        </ul>
+                                    </div>
+                                </div>
                             </div>
                             @endif
                     @endforeach
