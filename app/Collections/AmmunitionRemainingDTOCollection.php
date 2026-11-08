@@ -6,8 +6,10 @@ use App\DTOs\AmmunitionRemainingDTO;
 
 class AmmunitionRemainingDTOCollection extends BaseTypedCollection
 {
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return AmmunitionRemainingDTO::class;
+        return [
+                AmmunitionRemainingDTO::class
+        ];
     }
 }

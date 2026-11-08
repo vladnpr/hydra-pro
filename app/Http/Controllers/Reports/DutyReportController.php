@@ -15,13 +15,11 @@ class DutyReportController extends Controller
 
     public function index()
     {
-        $presenter = new DutyReportsListPresenter();
-
         $from = Carbon::now()->subDays(10);
         $to = Carbon::now();
 
-        $activeDuties = $this->dutyReportsService->getReports($from, $to);
+        $reports = $this->dutyReportsService->getReportsData($from, $to);
 
-        return view('admin.reports.duty.repots-list', ['presenter' => $presenter]);
+        return view('admin.reports.duty.duty-report', ['presenter' => new DutyReportsListPresenter($reports)]);
     }
 }

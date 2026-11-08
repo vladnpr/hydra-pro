@@ -7,8 +7,10 @@ use App\DTOs\VampireDronesRemainingDTO;
 class VampireDronesRemainingDTOCollection extends BaseTypedCollection
 {
 
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return VampireDronesRemainingDTO::class;
+        return [
+            VampireDronesRemainingDTO::class
+        ];
     }
 }

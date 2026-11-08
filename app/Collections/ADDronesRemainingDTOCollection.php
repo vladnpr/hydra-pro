@@ -7,8 +7,10 @@ use App\DTOs\ADDronesRemainingDTO;
 class ADDronesRemainingDTOCollection extends BaseTypedCollection
 {
 
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return ADDronesRemainingDTO::class;
+        return [
+            ADDronesRemainingDTO::class
+        ];
     }
 }

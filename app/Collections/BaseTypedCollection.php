@@ -47,8 +47,9 @@ abstract class BaseTypedCollection extends \Illuminate\Support\Collection
 
     protected function assertItem(mixed $item, int|string|null $key = null): void
     {
-        $typedClassName = $this->getTypedClassName();
-        if ($item instanceof $typedClassName) {
+        $typedClassNames = $this->getTypedClassNames();
+        $itemClassName = get_class($item);
+        if (in_array($itemClassName, $typedClassNames)) {
             return;
         }
 
@@ -58,11 +59,12 @@ abstract class BaseTypedCollection extends \Illuminate\Support\Collection
 
         throw new InvalidArgumentException(sprintf(
             'Expected instance of %s%s, %s given.',
-            $typedClassName,
+            $itemClassName,
             $position,
             get_debug_type($item),
         ));
+
     }
 
-    abstract protected function getTypedClassName(): string;
+    abstract protected function getTypedClassNames(): array;
 }

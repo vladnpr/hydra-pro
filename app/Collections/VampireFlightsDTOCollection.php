@@ -7,8 +7,10 @@ use App\DTOs\VampireFlightDTO;
 class VampireFlightsDTOCollection extends BaseTypedCollection
 {
 
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return VampireFlightDTO::class;
+        return [
+            VampireFlightDTO::class
+        ];
     }
 }

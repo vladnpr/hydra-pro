@@ -7,8 +7,10 @@ use App\DTOs\UGVDroneDTO;
 class UGVDronesDTOCollection extends BaseTypedCollection
 {
 
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return UGVDroneDTO::class;
+        return [
+            UGVDroneDTO::class
+        ];
     }
 }

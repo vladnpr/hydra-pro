@@ -6,8 +6,10 @@ use App\DTOs\FPVFlightDTO;
 
 class FPVFlightDTOCollection extends BaseTypedCollection
 {
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return FPVFlightDTO::class;
+        return [
+            FPVFlightDTO::class
+        ];
     }
 }

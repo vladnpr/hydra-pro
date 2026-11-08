@@ -6,8 +6,10 @@ use App\DTOs\ReconDronesRemainingDTO;
 
 class ReconDronesRemainingDTOCollection extends BaseTypedCollection
 {
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return ReconDronesRemainingDTO::class;
+        return [
+            ReconDronesRemainingDTO::class
+        ];
     }
 }

@@ -6,8 +6,10 @@ use App\DTOs\ReconFlightDTO;
 
 class ReconFlightDTOCollection extends BaseTypedCollection
 {
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return ReconFlightDTO::class;
+        return [
+            ReconFlightDTO::class
+        ];
     }
 }

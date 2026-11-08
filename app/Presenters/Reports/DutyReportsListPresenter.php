@@ -2,9 +2,18 @@
 
 namespace App\Presenters\Reports;
 
-class DutyReportsListPresenter
+use App\Collections\DutyReportsDTOCollection;
+
+readonly class DutyReportsListPresenter
 {
-    public function __construct()
+    public function __construct(
+        private DutyReportsDTOCollection $dutyReportsDTOCollection
+    )
     {
+    }
+
+    public function getDutyReportsDTOCollection(): DutyReportsDTOCollection
+    {
+        return $this->dutyReportsDTOCollection;
     }
 }

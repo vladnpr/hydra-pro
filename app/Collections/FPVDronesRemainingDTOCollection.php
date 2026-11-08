@@ -6,8 +6,10 @@ use App\DTOs\FPVDronesRemainingDTO;
 
 class FPVDronesRemainingDTOCollection extends BaseTypedCollection
 {
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return FPVDronesRemainingDTO::class;
+        return [
+            FPVDronesRemainingDTO::class
+        ];
     }
 }

@@ -6,8 +6,10 @@ use App\DTOs\ADFlightsDTO;
 
 class ADFlightsDTOCollection extends BaseTypedCollection
 {
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return ADFlightsDTO::class;
+        return [
+            ADFlightsDTO::class
+        ];
     }
 }

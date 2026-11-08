@@ -7,8 +7,10 @@ use App\DTOs\UGVRaceDTO;
 class UGVRacesDTOCollection extends BaseTypedCollection
 {
 
-    protected function getTypedClassName(): string
+    protected function getTypedClassNames(): array
     {
-        return UGVRaceDTO::class;
+        return [
+            UGVRaceDTO::class
+        ];
     }
 }

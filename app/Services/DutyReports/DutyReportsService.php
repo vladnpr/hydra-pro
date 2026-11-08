@@ -3,6 +3,7 @@
 namespace App\Services\DutyReports;
 
 
+use App\Collections\DutyReportsDTOCollection;
 use App\Repositories\CombatShiftsRepository;
 use App\Services\DutyReports\DutyReportsStrategy\DutyReportsContext;
 use Carbon\Carbon;
@@ -16,13 +17,13 @@ final readonly class DutyReportsService
     {
     }
 
-    public function getReports(Carbon $from, Carbon $to): array
+    public function getReportsData(Carbon $from, Carbon $to): DutyReportsDTOCollection
     {
         $activeShifts = $this->dutyReportsRepository->getActiveShifts();
-        $reportData = [];
+        $reportData = new DutyReportsDTOCollection();
 
         foreach ($activeShifts as $activeShift) {
-            $reportData[] = $this->reportStrategy->getReport($activeShift, $from, $to);
+            $reportData->add($this->reportStrategy->getReport($activeShift, $from, $to));
         }
 
         return $reportData;
