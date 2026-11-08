@@ -44,7 +44,7 @@
                                         <ul class="list-unstyled pl-0">
                                             @php /** @var \App\DTOs\FPVDronesRemainingDTO $FPVDronesRemainingDTO */ @endphp
                                             @forelse($reportData->getDronesRemainingCollection() as $FPVDronesRemainingDTO)
-                                                <li class="mb-1">{{$FPVDronesRemainingDTO->getName() . ' ' . $FPVDronesRemainingDTO->getModel() .' - '. $FPVDronesRemainingDTO->getQuantity() . 'шт.'}}</li>
+                                                <li class="mb-1">{{$FPVDronesRemainingDTO->getName() . ' ' . $FPVDronesRemainingDTO->getModel() .' - '. $FPVDronesRemainingDTO->getQuantity() . ' шт.'}}</li>
                                             @empty
                                                 <li>Відсутні</li>
                                             @endforelse
