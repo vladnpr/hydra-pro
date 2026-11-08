@@ -8,12 +8,12 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Денний звіт</h1>
-        <div class="no-print">
+        <h1>Звіт по залишку</h1>
+        <div>
             <a href="{{ route('home') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад
             </a>
-            <button type="button" class="btn btn-primary ml-2" onclick="printReport()">
+            <button onclick="window.print()" class="btn btn-success ml-2">
                 <i class="fas fa-print"></i> Друкувати
             </button>
             <button id="copy-report" class="btn btn-info ml-2">
@@ -25,57 +25,66 @@
 
 @section('content')
     <div class="row">
-        <div class="col-md-8 mx-auto">
-            <div class="card shadow-sm">
-                <div class="card-body p-5" id="printableArea">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-body p-5" id="report-content">
+                    @foreach($presenter->getDutyReportsDTOCollection() as $reportData)
 
-                    <div class="report-content">
-
-                    </div>
-
+                            @if ($reportData instanceof \App\DTOs\FPVDutyReportDTO)
+                            <div class="card-body p-5" id="report-content">
+                                <div class="report-header mb-4">
+                                    <h4 class="mb-3">Позиція "{{ $reportData->getCombatShiftData()->getPositionName() }}" (FPV)</h4>
+                                    <h5>{{ $reportData->getCombatShiftData()->getTeamNumber()}} в/с </h5>
+                                </div>
+                                <div class="remains-section">
+                                    <h5 class="font-weight-bold mb-3">В наявності</h5>
+                                    <div class="drones-block mb-4">
+                                        <p class="font-weight-bold mb-2">БГ Борти:</p>
+                                        <ul class="list-unstyled pl-0">
+                                            @php /** @var \App\DTOs\FPVDronesRemainingDTO $FPVDronesRemainingDTO */ @endphp
+                                            @forelse($reportData->getDronesRemainingCollection() as $FPVDronesRemainingDTO)
+                                                <li class="mb-1">{{$FPVDronesRemainingDTO->getName() . ' ' . $FPVDronesRemainingDTO->getModel() .' - '. $FPVDronesRemainingDTO->getQuantity() . 'шт.'}}</li>
+                                            @empty
+                                                <li>Відсутні</li>
+                                            @endforelse
+                                        </ul>
+                                    </div>
+                                </div>
+                                @if($reportData->getAmmoRemaining()->count() > 0)
+                                    <div class="ammunition-block">
+                                        <p class="font-weight-bold mb-2">БК:</p>
+                                        <ol class="pl-0" style="list-style-type: none;">
+                                            @php /** @var \App\DTOs\AmmunitionRemainingDTO $ammunitionRemainingDTO */ @endphp
+                                            @foreach($reportData->getAmmoRemaining() as $index => $ammunitionRemainingDTO)
+                                                <li class="mb-1">{{ $index+1 . '. ' . $ammunitionRemainingDTO->getName() . ' - ' . $ammunitionRemainingDTO->getQuantity() . ' шт.' }} </li>
+                                            @endforeach
+                                        </ol>
+                                    </div>
+                                @endif
+{{--                                <div class="remains-section">--}}
+{{--                                    <div class="drones-block mb-4">--}}
+{{--                                        <p class="font-weight-bold mb-2">Вильоти:</p>--}}
+{{--                                        <ul class="list-unstyled pl-0">--}}
+{{--                                            @php /** @var \App\DTOs\FPVDronesRemainingDTO $FPVDronesRemainingDTO */ @endphp--}}
+{{--                                            @forelse($reportData->getFlights() as $FPVDronesRemainingDTO)--}}
+{{--                                                <li class="mb-1">{{$FPVDronesRemainingDTO->getName() . ' ' . $FPVDronesRemainingDTO->getModel() .' - '. $FPVDronesRemainingDTO->getQuantity() . 'шт.'}}</li>--}}
+{{--                                            @empty--}}
+{{--                                                <li>Відсутні</li>--}}
+{{--                                            @endforelse--}}
+{{--                                        </ul>--}}
+{{--                                    </div>--}}
+{{--                                </div>--}}
+                            </div>
+                            @endif
+                    @endforeach
                 </div>
             </div>
         </div>
     </div>
 @endsection
 
-@section('css')
-    <style>
-        .report-content {
-            font-family: "Source Sans Pro", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            font-size: 1.1rem;
-            line-height: 1.5;
-        }
-        @media print {
-            .no-print {
-                display: none !important;
-            }
-            .content-wrapper {
-                background: white !important;
-            }
-            .main-header, .main-sidebar, .main-footer {
-                display: none !important;
-            }
-            .card {
-                border: none !important;
-                box-shadow: none !important;
-            }
-            .p-5 {
-                padding: 0 !important;
-            }
-            .report-content {
-                color: #000 !important;
-            }
-        }
-    </style>
-@endsection
-
 @section('js')
     <script>
-        function printReport() {
-            window.print();
-        }
-
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 return navigator.clipboard.writeText(text);
@@ -96,12 +105,9 @@
         }
 
         document.getElementById('copy-report').addEventListener('click', function() {
-            copyReport(this);
-        });
-
-        function copyReport(btn) {
-            const content = document.getElementById('printableArea').innerText;
+            const content = document.getElementById('report-content').innerText;
             copyToClipboard(content).then(() => {
+                const btn = this;
                 const originalHtml = btn.innerHTML;
                 btn.innerHTML = '<i class="fas fa-check"></i> Скопійовано!';
                 btn.classList.replace('btn-info', 'btn-success');
@@ -113,7 +119,42 @@
                 console.error('Помилка копіювання: ', err);
                 alert('Не вдалося скопіювати текст');
             });
-        }
+        });
     </script>
+@endsection
+
+@section('css')
+    <style>
+        @media print {
+            .main-header, .main-sidebar, .main-footer, .content-header .btn {
+                display: none !important;
+            }
+            .content-wrapper {
+                margin-left: 0 !important;
+                background-color: white !important;
+            }
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+            }
+            .card-body {
+                padding: 0 !important;
+            }
+            body {
+                background-color: white !important;
+            }
+            #report-content {
+                color: #000 !important;
+            }
+        }
+        #report-content {
+            font-family: "Courier New", Courier, monospace;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        .report-header h4, .report-header h5 {
+            font-weight: bold;
+        }
+    </style>
 @endsection
 
