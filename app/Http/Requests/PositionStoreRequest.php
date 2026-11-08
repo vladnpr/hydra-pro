@@ -20,6 +20,7 @@ class PositionStoreRequest extends FormRequest
             'description' => 'nullable|string|max:1000',
             'status' => 'required|boolean',
             'type' => ['required', new Enum(PositionTypesEnum::class)],
+            'team_number' => 'integer|max:255',
         ];
     }
 }

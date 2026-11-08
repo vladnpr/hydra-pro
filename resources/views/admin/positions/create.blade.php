@@ -47,6 +47,13 @@
                             @enderror
                         </div>
                         <div class="form-group">
+                            <label for="team_number">Кількість в/с</label>
+                            <input type="number" name="team_number" class="form-control @error('name') is-invalid @enderror" id="team_number" placeholder="Введіть кількість військлослужбовців на позиції" value="0" required>
+                            @error('name')
+                            <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="form-group">
                             <label for="status">Статус</label>
                             <select name="status" id="status" class="form-control @error('status') is-invalid @enderror" required>
                                 <option value="1" {{ old('status') === '1' || old('status') === null ? 'selected' : '' }}>Активна</option>
