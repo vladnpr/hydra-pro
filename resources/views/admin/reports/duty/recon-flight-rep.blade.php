@@ -4,7 +4,7 @@
 @endphp
 
 <div class="report-header mb-4">
-    <h4 class="mb-3">ПДП "{{ $reportData->getCombatShiftData()->getPositionName() }}" (Розвідка)</h4>
+    <h4 class="mb-3">ПДП "{{ $reportData->getCombatShiftData()->getPositionName() }}" ({{$reportData->getCombatShiftData()->getType()->label()}})</h4>
 </div>
 <div class="remains-section">
     <div class="drones-block mb-4">

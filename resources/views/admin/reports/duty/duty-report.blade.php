@@ -67,15 +67,15 @@
                             <div class="p-5 offset-md-2" id="report-content">
                                 @foreach($presenter->getDutyReportsDTOCollection() as $reportData)
                                     @if ($reportData instanceof \App\DTOs\FPVDutyReportDTO)
-                                        @include('admin.reports.duty.fpv-duty-rep', ['reportData' => $reportData])
+                                        @include('admin.reports.duty.fpv-duty-rep', ['reportData' => $reportData])<br>
                                     @elseif($reportData instanceof ReconDutyReportDTO)
-                                        @include('admin.reports.duty.recon-duty-rep', ['reportData' => $reportData])
+                                        @include('admin.reports.duty.recon-duty-rep', ['reportData' => $reportData])<br>
                                     @elseif($reportData instanceof \App\DTOs\ADDutyReportDTO)
-                                        @include('admin.reports.duty.ad-duty-rep', ['reportData' => $reportData])
+                                        @include('admin.reports.duty.ad-duty-rep', ['reportData' => $reportData])<br>
                                     @elseif($reportData instanceof \App\DTOs\VampireDutyReportDTO)
-                                        @include('admin.reports.duty.vampire-duty-rep', ['reportData' => $reportData])
+                                        @include('admin.reports.duty.vampire-duty-rep', ['reportData' => $reportData])<br>
                                     @elseif($reportData instanceof \App\DTOs\UGVDutyReportDTO)
-                                        @include('admin.reports.duty.ugv-duty-rep', ['reportData' => $reportData])
+                                        @include('admin.reports.duty.ugv-duty-rep', ['reportData' => $reportData])<br>
                                     @endif
                                 @endforeach
                             </div>
