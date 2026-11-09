@@ -11,9 +11,9 @@ enum ShiftTypeEnum: string
     public function label(): string
     {
         return match($this) {
-            self::DAY => 'Денна',
-            self::NIGHT => 'Нічна',
-            self::BOTH => 'Обидві',
+            self::DAY => 'День',
+            self::NIGHT => 'Ніч',
+            self::BOTH => 'День/Ніч',
         };
     }
 }

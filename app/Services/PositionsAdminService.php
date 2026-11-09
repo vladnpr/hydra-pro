@@ -40,6 +40,7 @@ class PositionsAdminService
             'name' => $dto->name,
             'description' => $dto->description,
             'type' => $dto->type,
+            'team_number' => $dto->team_number,
             'status' => $dto->status,
         ]);
 
@@ -52,6 +53,7 @@ class PositionsAdminService
             'name' => $dto->name,
             'description' => $dto->description,
             'type' => $dto->type,
+            'team_number' => $dto->team_number,
             'status' => $dto->status,
         ]);
 

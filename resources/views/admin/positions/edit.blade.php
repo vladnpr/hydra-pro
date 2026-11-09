@@ -40,6 +40,13 @@
                             @enderror
                         </div>
                         <div class="form-group">
+                            <label for="team_number">Кількість в/с</label>
+                            <input type="number" name="team_number" class="form-control @error('name') is-invalid @enderror" id="team_number" placeholder="Введіть кількість військлослужбовців на позиції" value="{{ old('team_number', $position->team_number) }}" required>
+                            @error('name')
+                            <span class="error invalid-feedback">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div class="form-group">
                             <label for="description">Опис</label>
                             <textarea name="description" class="form-control @error('description') is-invalid @enderror" id="description" rows="3" placeholder="Введіть опис">{{ old('description', $position->description) }}</textarea>
                             @error('description')

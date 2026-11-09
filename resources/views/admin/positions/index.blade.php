@@ -34,6 +34,7 @@
                                 <th>ID</th>
                                 <th>Назва</th>
                                 <th>Тип</th>
+                                <th>Кількість в/с</th>
                                 <th class="d-none d-lg-table-cell">Опис</th>
                                 <th>Статус</th>
                                 <th style="width: 150px">Дії</th>
@@ -45,6 +46,7 @@
                                     <td>{{ $position->id }}</td>
                                     <td>{{ $position->name }}</td>
                                     <td>{{ $position->type }}</td>
+                                    <td>{{ $position->team_number }}</td>
                                     <td class="d-none d-lg-table-cell">{{ Str::limit($position->description, 50) }}</td>
                                     <td>
                                         <span class="badge badge-{{ $position->status_color }}">

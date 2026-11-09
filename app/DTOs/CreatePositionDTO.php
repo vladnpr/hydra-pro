@@ -10,6 +10,7 @@ class CreatePositionDTO
         public readonly string $name,
         public readonly ?string $description,
         public readonly string $type,
+        public readonly int $team_number,
         public readonly bool $status = true,
     ) {}
 
@@ -19,6 +20,7 @@ class CreatePositionDTO
             name: $request->validated('name'),
             description: $request->validated('description'),
             type: $request->validated('type'),
+            team_number: $request->validated('team_number'),
             status: (bool) $request->validated('status', true),
         );
     }
