@@ -12,7 +12,7 @@
 
 @section('content_header')
     <div class="d-flex justify-content-between align-items-center">
-        <h1>Звіт по залишку</h1>
+        <h1>Денні звіти</h1>
         <div>
             <a href="{{ route('home') }}" class="btn btn-default">
                 <i class="fas fa-arrow-left"></i> Назад

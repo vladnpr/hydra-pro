@@ -144,6 +144,10 @@ class AppServiceProvider extends ServiceProvider
             return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv() || $user->isAirDefence();
         });
 
+        Gate::define('view-duty-reports', function (User $user) {
+            return $user->isAdmin() || $user->isManager() || $user->isUser() || $user->isRecon() || $user->isVampire() || $user->isUgv() || $user->isAirDefence();
+        });
+
         Gate::define('view-dashboard-stats', function (User $user) {
             return !$user->isGuest();
         });

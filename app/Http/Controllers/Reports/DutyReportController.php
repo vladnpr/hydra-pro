@@ -7,11 +7,18 @@ use App\Presenters\Reports\DutyReportsListPresenter;
 use App\Services\DutyReports\DutyReportsService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 
 class DutyReportController extends Controller
 {
     public function __construct(readonly private DutyReportsService $dutyReportsService)
     {
+        $this->middleware(function ($request, $next) {
+            if (Gate::denies('view-duty-reports')) {
+                abort(403);
+            }
+            return $next($request);
+        });
     }
 
     public function reportList(Request $request)

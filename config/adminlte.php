@@ -525,10 +525,10 @@ return [
                     'can' => 'view-reports',
                 ],
                 [
-                    'text' => 'Черговому',
-                    'icon' => 'fas fa-fw fa-chart-line',
+                    'text' => 'Денні звіти',
+                    'icon' => 'fas fa-fw fa-calendar-day',
                     'url' => 'admin/reports/duty-reports',
-                    'can' => 'view-reports',
+                    'can' => 'view-duty-reports',
                 ],
             ],
         ],
