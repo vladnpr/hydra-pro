@@ -16,4 +16,29 @@ class VampireDronesRemainingDTO
     )
     {
     }
+
+    public function getDroneId(): int
+    {
+        return $this->drone_id;
+    }
+
+    public function getDroneName(): string
+    {
+        return $this->drone_name;
+    }
+
+    public function getDroneSerialNumber(): string
+    {
+        return $this->drone_serial_number;
+    }
+
+    public function getShiftType(): ShiftTypeEnum
+    {
+        return $this->shift_type;
+    }
+
+    public function getDroneStatus(): DroneStatusEnum
+    {
+        return $this->drone_status;
+    }
 }

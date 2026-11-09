@@ -9,17 +9,17 @@ use App\Collections\VampireFlightsDTOCollection;
 final readonly class VampireDutyReportDTO
 {
     public function __construct(
-        private DutyReportCombatShiftDTO $combatShift,
+        private DutyReportCombatShiftDTO $combatShiftData,
         private VampireDronesRemainingDTOCollection $dronesRemaining,
-        private VampireFlightsDTOCollection $flights,
+        private array $flights,
         private AmmunitionRemainingDTOCollection $ammoRemaining,
     )
     {
     }
 
-    public function getCombatShift(): DutyReportCombatShiftDTO
+    public function getCombatShiftData(): DutyReportCombatShiftDTO
     {
-        return $this->combatShift;
+        return $this->combatShiftData;
     }
 
     public function getDronesRemaining(): VampireDronesRemainingDTOCollection
@@ -27,7 +27,7 @@ final readonly class VampireDutyReportDTO
         return $this->dronesRemaining;
     }
 
-    public function getFlights(): VampireFlightsDTOCollection
+    public function getFlights(): array
     {
         return $this->flights;
     }
