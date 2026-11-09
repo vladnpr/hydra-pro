@@ -60,6 +60,8 @@
                             @include('admin.reports.duty.ad-duty-rep', ['reportData' => $reportData])
                         @elseif($reportData instanceof \App\DTOs\VampireDutyReportDTO)
                             @include('admin.reports.duty.vampire-duty-rep', ['reportData' => $reportData])
+                        @elseif($reportData instanceof \App\DTOs\UGVDutyReportDTO)
+                            @include('admin.reports.duty.ugv-duty-rep', ['reportData' => $reportData])
                         @endif
                     @endforeach
                 </div>

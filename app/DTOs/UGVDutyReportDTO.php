@@ -6,54 +6,34 @@ use App\Collections\AmmunitionRemainingDTOCollection;
 use App\Collections\UGVDronesDTOCollection;
 use App\Collections\UGVRacesDTOCollection;
 
-class UGVDutyReportDTO
+readonly class UGVDutyReportDTO
 {
     public function __construct(
-        private DutyReportCombatShiftDTO $shift,
-        private UGVDronesDTOCollection $UGVDronesRemaining,
-        private UGVRacesDTOCollection $races,
+        private DutyReportCombatShiftDTO         $combatShiftData,
+        private UGVDronesDTOCollection           $dronesRemaining,
+        private array                            $races,
         private AmmunitionRemainingDTOCollection $ammoRemaining
     )
     {
     }
 
-    public function getShift(): DutyReportCombatShiftDTO
+    public function getCombatShiftData(): DutyReportCombatShiftDTO
     {
-        return $this->shift;
+        return $this->combatShiftData;
     }
 
-    public function setShift(DutyReportCombatShiftDTO $shift): void
+    public function getDronesRemaining(): UGVDronesDTOCollection
     {
-        $this->shift = $shift;
+        return $this->dronesRemaining;
     }
 
-    public function getUGVDronesRemaining(): UGVDronesDTOCollection
-    {
-        return $this->UGVDronesRemaining;
-    }
-
-    public function setUGVDronesRemaining(UGVDronesDTOCollection $UGVDronesRemaining): void
-    {
-        $this->UGVDronesRemaining = $UGVDronesRemaining;
-    }
-
-    public function getRaces(): UGVRacesDTOCollection
+    public function getRaces(): array
     {
         return $this->races;
-    }
-
-    public function setRaces(UGVRacesDTOCollection $races): void
-    {
-        $this->races = $races;
     }
 
     public function getAmmoRemaining(): AmmunitionRemainingDTOCollection
     {
         return $this->ammoRemaining;
-    }
-
-    public function setAmmoRemaining(AmmunitionRemainingDTOCollection $ammoRemaining): void
-    {
-        $this->ammoRemaining = $ammoRemaining;
     }
 }
