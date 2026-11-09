@@ -14,6 +14,7 @@ class Position extends Model
         'description',
         'status',
         'type',
+        'team_number'
     ];
 
     /**

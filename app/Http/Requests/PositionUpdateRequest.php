@@ -19,6 +19,7 @@ class PositionUpdateRequest extends FormRequest
             'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:1000',
             'status' => 'required|boolean',
+            'team_number' => 'integer|max:255',
             'type' => ['required', new Enum(PositionTypesEnum::class)],
         ];
     }

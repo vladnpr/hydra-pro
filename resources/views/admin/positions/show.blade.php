@@ -25,6 +25,11 @@
 
                     <hr>
 
+                    <strong><i class="fas fa-hashtag mr-1"></i> Кількість в/с</strong>
+                    <p class="text-muted">{{ $position->team_number }}</p>
+
+                    <hr>
+
                     <strong><i class="fas fa-file-alt mr-1"></i> Опис</strong>
                     <p class="text-muted">{{ $position->description ?: 'Опис відсутній' }}</p>
 
