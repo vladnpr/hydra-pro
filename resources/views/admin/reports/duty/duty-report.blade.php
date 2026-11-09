@@ -49,21 +49,57 @@
     </div>
     <div class="row">
         <div class="col-md-12">
-            <div class="card">
-                <div class="card-body p-5  offset-md-2" id="report-content">
-                    @foreach($presenter->getDutyReportsDTOCollection() as $reportData)
-                        @if ($reportData instanceof \App\DTOs\FPVDutyReportDTO)
-                            @include('admin.reports.duty.fpv-duty-rep', ['reportData' => $reportData])
-                        @elseif($reportData instanceof ReconDutyReportDTO)
-                            @include('admin.reports.duty.recon-duty-rep', ['reportData' => $reportData])
-                        @elseif($reportData instanceof \App\DTOs\ADDutyReportDTO)
-                            @include('admin.reports.duty.ad-duty-rep', ['reportData' => $reportData])
-                        @elseif($reportData instanceof \App\DTOs\VampireDutyReportDTO)
-                            @include('admin.reports.duty.vampire-duty-rep', ['reportData' => $reportData])
-                        @elseif($reportData instanceof \App\DTOs\UGVDutyReportDTO)
-                            @include('admin.reports.duty.ugv-duty-rep', ['reportData' => $reportData])
-                        @endif
-                    @endforeach
+            <div class="card card-primary card-outline card-tabs">
+                <div class="card-header p-0 pt-1 border-bottom-0 no-print">
+                    <ul class="nav nav-tabs" id="reportTabs" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="daily-tab" data-toggle="pill" href="#daily-content" role="tab" aria-controls="daily-content" aria-selected="true">Денний звіт</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="flights-tab" data-toggle="pill" href="#flights-content" role="tab" aria-controls="flights-content" aria-selected="false">Звіт по польотам</a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="card-body">
+                    <div class="tab-content" id="reportTabsContent">
+                        <!-- Вкладка Денний звіт -->
+                        <div class="tab-pane fade show active" id="daily-content" role="tabpanel" aria-labelledby="daily-tab">
+                            <div class="p-5 offset-md-2" id="report-content">
+                                @foreach($presenter->getDutyReportsDTOCollection() as $reportData)
+                                    @if ($reportData instanceof \App\DTOs\FPVDutyReportDTO)
+                                        @include('admin.reports.duty.fpv-duty-rep', ['reportData' => $reportData])
+                                    @elseif($reportData instanceof ReconDutyReportDTO)
+                                        @include('admin.reports.duty.recon-duty-rep', ['reportData' => $reportData])
+                                    @elseif($reportData instanceof \App\DTOs\ADDutyReportDTO)
+                                        @include('admin.reports.duty.ad-duty-rep', ['reportData' => $reportData])
+                                    @elseif($reportData instanceof \App\DTOs\VampireDutyReportDTO)
+                                        @include('admin.reports.duty.vampire-duty-rep', ['reportData' => $reportData])
+                                    @elseif($reportData instanceof \App\DTOs\UGVDutyReportDTO)
+                                        @include('admin.reports.duty.ugv-duty-rep', ['reportData' => $reportData])
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+
+                        <!-- Вкладка Звіт по польотам -->
+                        <div class="tab-pane fade" id="flights-content" role="tabpanel" aria-labelledby="flights-tab">
+                            <div class="p-5 offset-md-2" id="report-content-flights">
+                                @foreach($presenter->getDutyReportsDTOCollection() as $reportData)
+                                    @if ($reportData instanceof \App\DTOs\FPVDutyReportDTO)
+                                        @include('admin.reports.duty.fpv-flight-rep', ['reportData' => $reportData])<br>
+                                    @elseif($reportData instanceof ReconDutyReportDTO)
+                                        @include('admin.reports.duty.recon-flight-rep', ['reportData' => $reportData])<br>
+                                    @elseif($reportData instanceof \App\DTOs\ADDutyReportDTO)
+                                        @include('admin.reports.duty.ad-flight-rep', ['reportData' => $reportData])<br>
+                                    @elseif($reportData instanceof \App\DTOs\VampireDutyReportDTO)
+                                        @include('admin.reports.duty.vampire-flight-rep', ['reportData' => $reportData])<br>
+                                    @elseif($reportData instanceof \App\DTOs\UGVDutyReportDTO)
+                                        @include('admin.reports.duty.ugv-race-rep', ['reportData' => $reportData])<br>
+                                    @endif
+                                @endforeach
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -92,7 +128,33 @@
         }
 
         document.getElementById('copy-report').addEventListener('click', function () {
-            const content = document.getElementById('report-content').innerText;
+            const activeTab = document.querySelector('.nav-link.active')?.getAttribute('href');
+            let content = '';
+
+            if (activeTab === '#flights-content') {
+                const flightsContent = document.getElementById('report-content-flights');
+                if (flightsContent) {
+                    content = flightsContent.innerText;
+                }
+            } else if (activeTab === '#daily-content') {
+                const reportContent = document.getElementById('report-content');
+                if (reportContent) {
+                    content = reportContent.innerText;
+                }
+            }
+
+            if (!content) {
+                const activePane = document.querySelector('.tab-pane.active');
+                if (activePane) {
+                    content = activePane.innerText;
+                } else {
+                    const fallbackContent = document.getElementById('report-content');
+                    if (fallbackContent) {
+                        content = fallbackContent.innerText;
+                    }
+                }
+            }
+
             copyToClipboard(content).then(() => {
                 const btn = this;
                 const originalHtml = btn.innerHTML;
@@ -113,7 +175,7 @@
 @section('css')
     <style>
         @media print {
-            .main-header, .main-sidebar, .main-footer, .content-header .btn {
+            .main-header, .main-sidebar, .main-footer, .content-header .btn, .no-print, .nav-tabs {
                 display: none !important;
             }
 
@@ -135,12 +197,20 @@
                 background-color: white !important;
             }
 
-            #report-content {
+            #report-content, #report-content-flights {
                 color: #000 !important;
+            }
+
+            .tab-pane {
+                display: none !important;
+            }
+
+            .tab-pane.active {
+                display: block !important;
             }
         }
 
-        #report-content {
+        #report-content, #report-content-flights {
             font-family: "Courier New", Courier, monospace;
             font-size: 1.1rem;
             line-height: 1.6;
