@@ -149,7 +149,7 @@ Route::group(['middleware' => ['auth', 'verified', 'can:access-combat'], 'prefix
 
         //Duty Reports
         Route::group(['middleware' => 'can:view-reports'], function () {
-            Route::get('reports/duty-reports', [DutyReportController::class, 'index'])->name('duty-report.index');
+            Route::get('reports/duty-reports', [DutyReportController::class, 'reportList'])->name('duty-report.index');
         });
     });
 

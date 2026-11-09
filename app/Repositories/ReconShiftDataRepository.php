@@ -4,7 +4,7 @@ namespace App\Repositories;
 
 use App\Collections\ReconDronesRemainingDTOCollection;
 use App\Collections\ReconFlightDTOCollection;
-use App\DTOs\ReconDronesRemainingDTO;
+use App\DTOs\ReconDroneRemainingDTO;
 use App\DTOs\ReconFlightDTO;
 use App\Enums\DroneStatusEnum;
 use App\Enums\ReconMissionResultsEnum;
@@ -32,7 +32,7 @@ class ReconShiftDataRepository
         $collection = new ReconDronesRemainingDTOCollection();
 
         foreach ($dronesRemaining as $drone) {
-            $collection->push(new ReconDronesRemainingDTO(
+            $collection->push(new ReconDroneRemainingDTO(
                 $drone->drone_id,
                 $drone->drone_name,
                 $drone->drone_serial_number,

@@ -2,14 +2,14 @@
 
 namespace App\Collections;
 
-use App\DTOs\ReconDronesRemainingDTO;
+use App\DTOs\ReconDroneRemainingDTO;
 
 class ReconDronesRemainingDTOCollection extends BaseTypedCollection
 {
     protected function getTypedClassNames(): array
     {
         return [
-            ReconDronesRemainingDTO::class
+            ReconDroneRemainingDTO::class
         ];
     }
 }

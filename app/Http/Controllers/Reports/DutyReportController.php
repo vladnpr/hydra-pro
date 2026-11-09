@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Presenters\Reports\DutyReportsListPresenter;
 use App\Services\DutyReports\DutyReportsService;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class DutyReportController extends Controller
 {
@@ -13,13 +14,21 @@ class DutyReportController extends Controller
     {
     }
 
-    public function index()
+    public function reportList(Request $request)
     {
-        $from = Carbon::now()->subDays(10);
-        $to = Carbon::now();
+        $timezone = config('app.timezone');
+        $from = Carbon::today($timezone)->setTime(4, 0);
+        $to = Carbon::today($timezone)->setTime(21, 30);
+
+        if ($request->has('from') && $request->has('to')) {
+            $from = Carbon::parse($request->from);
+            $to = Carbon::parse($request->to);
+        }
 
         $reports = $this->dutyReportsService->getReportsData($from, $to);
 
-        return view('admin.reports.duty.duty-report', ['presenter' => new DutyReportsListPresenter($reports)]);
+        return view('admin.reports.duty.duty-report', [
+            'presenter' => new DutyReportsListPresenter($from, $to, $reports)
+        ]);
     }
 }

@@ -5,7 +5,7 @@ namespace App\DTOs;
 use App\Enums\DroneStatusEnum;
 use App\Enums\ShiftTypeEnum;
 
-final readonly class ReconDronesRemainingDTO
+final readonly class ReconDroneRemainingDTO
 {
     public function __construct(
         private int $id,
