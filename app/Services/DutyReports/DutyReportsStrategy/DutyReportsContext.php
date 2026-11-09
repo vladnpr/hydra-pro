@@ -6,9 +6,9 @@ namespace App\Services\DutyReports\DutyReportsStrategy;
 use App\DTOs\DutyReportCombatShiftDTO;
 use Carbon\Carbon;
 
-class DutyReportsContext
+readonly class DutyReportsContext
 {
-    public function __construct(private readonly DutyReportStrategyResolver $resolver)
+    public function __construct(private DutyReportStrategyResolver $resolver)
     {
     }
 

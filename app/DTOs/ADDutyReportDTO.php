@@ -9,17 +9,17 @@ use App\Collections\AmmunitionRemainingDTOCollection;
 final readonly class ADDutyReportDTO
 {
     public function __construct(
-        private DutyReportCombatShiftDTO $shift,
+        private DutyReportCombatShiftDTO $combatShiftData,
         private ADDronesRemainingDTOCollection $dronesRemaining,
-        private ADFlightsDTOCollection $flights,
+        private array $flights,
         private AmmunitionRemainingDTOCollection $ammunitionRemaining,
     )
     {
     }
 
-    public function getShift(): DutyReportCombatShiftDTO
+    public function getCombatShiftData(): DutyReportCombatShiftDTO
     {
-        return $this->shift;
+        return $this->combatShiftData;
     }
 
     public function getDronesRemaining(): ADDronesRemainingDTOCollection
@@ -27,7 +27,7 @@ final readonly class ADDutyReportDTO
         return $this->dronesRemaining;
     }
 
-    public function getFlights(): ADFlightsDTOCollection
+    public function getFlights(): array
     {
         return $this->flights;
     }

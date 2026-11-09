@@ -48,14 +48,16 @@
         </div>
     </div>
     <div class="row">
-        <div class="col-md-8 offset-md-2">
+        <div class="col-md-12">
             <div class="card">
-                <div class="card-body p-5" id="report-content">
+                <div class="card-body p-5  offset-md-2" id="report-content">
                     @foreach($presenter->getDutyReportsDTOCollection() as $reportData)
                         @if ($reportData instanceof \App\DTOs\FPVDutyReportDTO)
                             @include('admin.reports.duty.fpv-duty-rep', ['reportData' => $reportData])
                         @elseif($reportData instanceof ReconDutyReportDTO)
                             @include('admin.reports.duty.recon-duty-rep', ['reportData' => $reportData])
+                        @elseif($reportData instanceof \App\DTOs\ADDutyReportDTO)
+                            @include('admin.reports.duty.ad-duty-rep', ['reportData' => $reportData])
                         @endif
                     @endforeach
                 </div>
