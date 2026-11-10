@@ -50,8 +50,8 @@ class VampireShiftDataRepository
         $flights = \DB::connection('mysql')
             ->table('vampire_flights as vf')
             ->join('vampire_drones as vd', 'vf.vampire_drone_id', '=', 'vd.id')
-            ->join('vampire_flight_ammunition as vfa', 'vf.id', '=', 'vfa.vampire_flight_id')
-            ->join('ammunition as a', 'vfa.ammunition_id', '=', 'a.id')
+            ->leftJoin('vampire_flight_ammunition as vfa', 'vf.id', '=', 'vfa.vampire_flight_id')
+            ->leftJoin('ammunition as a', 'vfa.ammunition_id', '=', 'a.id')
             ->whereBetween('start_time', [$from, $to])
             ->where('combat_shift_id', $combatShiftId)
             ->select(
