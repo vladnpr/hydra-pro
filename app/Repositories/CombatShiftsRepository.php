@@ -26,6 +26,7 @@ class CombatShiftsRepository
                     "cs.user_id as user_id",
                     "cs.started_at as started_at"
                 ])
+                ->orderBy('cs.position_id')
                 ->get();
 
         $collection = new DRCombatShiftDTOCollection();

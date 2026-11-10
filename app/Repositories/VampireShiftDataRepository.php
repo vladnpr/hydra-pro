@@ -20,6 +20,7 @@ class VampireShiftDataRepository
             ->table('vampire_drones as vd')
             ->where('position_id', $positionID)
             ->where('lost_at', null)
+            ->where('vd.status', DroneStatusEnum::ACTIVE->value)
             ->select([
                 'vd.id as drone_id',
                 'vd.name as drone_name',
