@@ -50,7 +50,10 @@ class ReconShiftDataRepository
             ->table('recon_flights as rf')
             ->join('recon_drones as rd', 'rf.recon_drone_id', '=', 'rd.id')
             ->whereBetween('rf.flight_time', [$from, $to])
-            ->where('rf.combat_shift_id', $combatShiftId)
+            ->where([
+                'rf.combat_shift_id' => $combatShiftId,
+                'rf.deleted_at' => null,
+            ])
             ->select([
                 'rf.id as flight_id',
                 'rf.coordinates as flight_coordinates',

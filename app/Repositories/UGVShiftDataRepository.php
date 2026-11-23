@@ -50,7 +50,7 @@ class UGVShiftDataRepository
             ->join('ugv_drones as ud', 'ur.ugv_drone_id', '=', 'ud.id')
             ->leftjoin('ugv_race_ammunition as ura', 'ur.id', '=', 'ura.ugv_race_id')
             ->leftjoin('ammunition as a', 'ura.ammunition_id', '=', 'a.id')
-            ->where('ur.combat_shift_id', $combatShiftId)
+            ->where(['ur.combat_shift_id' => $combatShiftId])
             ->whereBetween('ur.start_time', [$from, $to])
             ->select([
                 'ur.id as race_id',

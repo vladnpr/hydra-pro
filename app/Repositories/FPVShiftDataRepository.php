@@ -66,7 +66,10 @@ class FPVShiftDataRepository
                 'csf.video_path as video_path',
             ])
             ->whereBetween('csf.flight_time', [$from, $to])
-            ->where('csf.combat_shift_id', $combatShiftId)
+            ->where([
+                'csf.combat_shift_id' => $combatShiftId,
+                'csf.deleted_at' => null
+            ])
             ->get();
 
         $collection = new FPVFlightDTOCollection();

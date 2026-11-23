@@ -66,6 +66,9 @@ class ADShiftDataRepository
                 'adf.video_path as video_path',
                 'add.name as drone_name',
             ])
+            ->where([
+                'adf.deleted_at' => null
+            ])
             ->get();
 
         $collection = new ADFlightsDTOCollection();
@@ -95,7 +98,9 @@ class ADShiftDataRepository
         $ammunition = \DB::connection('mysql')
             ->table('combat_shift_air_defence_ammunition as cad')
             ->join('air_defence_ammunition as csa', 'csa.id', '=', 'cad.air_defence_ammunition_id')
-            ->where('cad.combat_shift_id', $shiftID)
+            ->where([
+                'cad.combat_shift_id' => $shiftID,
+            ])
             ->select([
                 'csa.name as ammunition_name',
                 'cad.quantity as quantity',
